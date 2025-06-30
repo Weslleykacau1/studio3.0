@@ -18,6 +18,7 @@ interface CreatorViewProps {
   generatedSeoContent: string;
   loadingStates: LoadingStates;
   isLoggedIn: boolean;
+  generationStatus: string;
   handlers: {
     analyzeAndFillFromText: () => Promise<void>;
     analyzeInfluencerImageAndFill: () => Promise<void>;
@@ -49,6 +50,7 @@ export default function CreatorView({
   generatedSeoContent,
   loadingStates,
   isLoggedIn,
+  generationStatus,
   handlers,
 }: CreatorViewProps) {
   return (
@@ -99,6 +101,7 @@ export default function CreatorView({
         isGenerationDisabled={!currentScene.setting || !influencer.id}
         influencerId={influencer.id}
         sceneSetting={currentScene.setting}
+        generationStatus={generationStatus}
       />
     </div>
   );

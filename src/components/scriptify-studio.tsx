@@ -40,6 +40,7 @@ export default function ScriptifyStudio() {
     const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
+    const [generationStatus, setGenerationStatus] = useState<string>('');
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false });
     const [pastedText, setPastedText] = useState('');
@@ -252,6 +253,13 @@ export default function ScriptifyStudio() {
         setLoading('generatingScript', true);
         setGeneratedContent('');
         try {
+            setGenerationStatus('A analisar traços do influenciador...');
+            await new Promise(res => setTimeout(res, 700));
+
+            setGenerationStatus('A interpretar detalhes da cena...');
+            await new Promise(res => setTimeout(res, 700));
+
+            setGenerationStatus('A construir o prompt para a IA...');
             const responseText = await generateVideoScript({
                 influencerName: influencer.name,
                 influencerPersonality: influencer.personality,
@@ -274,6 +282,9 @@ export default function ScriptifyStudio() {
                 outputFormat: outputFormat as "json" | "markdown",
             });
             
+            setGenerationStatus('A formatar o resultado final...');
+            await new Promise(res => setTimeout(res, 500));
+            
             if (outputFormat === 'json') {
                 try {
                     const parsedResponse = JSON.parse(responseText);
@@ -293,6 +304,7 @@ export default function ScriptifyStudio() {
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
         } finally {
             setLoading('generatingScript', false);
+            setGenerationStatus('');
         }
     };
 
@@ -481,6 +493,7 @@ export default function ScriptifyStudio() {
                         generatedSeoContent={generatedSeoContent}
                         loadingStates={loadingStates}
                         isLoggedIn={isLoggedIn}
+                        generationStatus={generationStatus}
                         handlers={{
                             analyzeAndFillFromText,
                             analyzeInfluencerImageAndFill,

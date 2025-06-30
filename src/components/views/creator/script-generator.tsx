@@ -21,10 +21,11 @@ interface ScriptGeneratorProps {
   influencerId: string | null;
   sceneSetting: string;
   onGenerate: () => void;
+  generationStatus: string;
 }
 
 export default function ScriptGenerator({
-  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate
+  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate, generationStatus
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
@@ -103,7 +104,7 @@ export default function ScriptGenerator({
             </RadioGroup>
           </div>
           <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            {loading ? 'A gerar...' : 'Gerar Prompt do Roteiro'}
+            {loading ? (generationStatus || 'A gerar...') : 'Gerar Prompt do Roteiro'}
           </AiButton>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
         </CardContent>
