@@ -38,11 +38,13 @@ export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 const VideoScriptOutputSchema = z.string().describe('The generated video script prompt, in JSON or Markdown format.');
 export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
 
-// New schema for the internal JSON structure
 const JsonOutputInternalSchema = z.object({
   prompt: z.string().describe("A detailed prompt for a screenwriter AI to generate a video script, incorporating all the user's specifications. This prompt itself should instruct the AI to produce a JSON object containing the script.")
 });
 
+const MarkdownOutputInternalSchema = z.object({
+  markdownPrompt: z.string().describe("A detailed prompt in Markdown format for a screenwriter AI. This prompt should incorporate all the user's specifications and instruct the AI on how to structure the final script.")
+});
 
 export async function generateVideoScript(input: VideoScriptInput): Promise<VideoScriptOutput> {
   return generateVideoScriptFlow(input);
@@ -50,7 +52,7 @@ export async function generateVideoScript(input: VideoScriptInput): Promise<Vide
 
 const promptBase = `You are an expert prompt engineer. Your task is to create a detailed prompt that will be given to a powerful AI to generate a video script.
 
-The final output should be a single block of text, formatted as {{outputFormat}}, which can be directly used as a prompt for the script-generating AI.
+The final output should be a single block of text, which can be directly used as a prompt for the script-generating AI.
 
 Here are the specifications to include in the prompt you generate:
 
@@ -92,7 +94,7 @@ Here are the specifications to include in the prompt you generate:
 **Output Instructions for the Prompt You Are Generating:**`;
 
 const jsonPromptInstructions = `Your task is to generate the content for the 'prompt' field. This content should be a comprehensive set of instructions for a screenwriter AI. These instructions must command the AI to generate a video script as a single JSON object with a specific structure: { "title": "...", "synopsis": "...", "script": [ { "timecode": "...", "visuals": "...", "dialogue": "...", "sfx": "...", "text_overlay": "..." } ] }. The instructions you create must incorporate all the specifications provided in the context above. The "dialogue" in the final script's JSON must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. All other fields in the script JSON should be in English.`;
-const markdownPromptInstructions = `Generate a comprehensive and detailed prompt in **Markdown format**. This prompt should clearly instruct a screenwriter AI to create a video script. It must contain all the specifications provided above. The tone should be clear and direct. The final output from you should be only the generated prompt text, without any additional explanations or introductions. The dialogue in the script must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. All other descriptive parts of the script should be in English.`;
+const markdownPromptInstructions = `Your task is to generate the content for the 'markdownPrompt' field. This content should be a comprehensive and detailed prompt in **Markdown format** for a screenwriter AI. This prompt must instruct the AI to create a video script using Markdown headings, lists, and bold/italic text for structure. The prompt must incorporate all the specifications provided in the context above. The dialogue in the final script must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. All other descriptive parts of the script should be in English.`;
 
 const generateJsonPrompt = ai.definePrompt({
     name: 'generateJsonVideoScriptPrompt',
@@ -104,7 +106,7 @@ const generateJsonPrompt = ai.definePrompt({
 const generateMarkdownPrompt = ai.definePrompt({
     name: 'generateMarkdownVideoScriptPrompt',
     input: {schema: VideoScriptInputSchema},
-    output: {schema: VideoScriptOutputSchema},
+    output: {schema: MarkdownOutputInternalSchema},
     prompt: `${promptBase}\n\n${markdownPromptInstructions}`
 });
 
@@ -118,14 +120,14 @@ const generateVideoScriptFlow = ai.defineFlow(
   async input => {
     if (input.outputFormat === 'markdown') {
         const {output} = await generateMarkdownPrompt(input);
-        if (!output) {
+        if (!output || !output.markdownPrompt) {
             throw new Error("A geração do prompt em Markdown falhou ao não retornar dados. Tente novamente.");
         }
-        return output;
+        return output.markdownPrompt;
     }
     
     const {output} = await generateJsonPrompt(input);
-    if (!output) {
+    if (!output || !output.prompt) {
         throw new Error("A geração do prompt em JSON falhou ao não retornar dados. Tente novamente.");
     }
     // Convert the structured JSON output back to a string to match the flow's output schema
