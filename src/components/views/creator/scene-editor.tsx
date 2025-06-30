@@ -154,7 +154,7 @@ export default function SceneEditor({
         <div className="space-y-4 rounded-lg border border-red-200 bg-red-50/50 p-4 dark:border-red-800 dark:bg-red-900/20">
             <h3 className="flex items-center gap-2 text-lg font-semibold text-red-800 dark:text-red-300"><Type className="h-5 w-5"/>Controlo de Texto no Ecrã</h3>
             
-            <div className="flex items-center justify-between">
+            <div className="flex w-full flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <Label htmlFor="allowDigitalText-group">Permite textos digitais na tela?</Label>
                 <RadioGroup
                     id="allowDigitalText-group"
@@ -173,7 +173,7 @@ export default function SceneEditor({
                 </RadioGroup>
             </div>
             
-            <div className="flex items-center justify-between">
+            <div className="flex w-full flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <Label htmlFor="onlyPhysicalText-group">Apenas textos físicos como rótulos e placas reais?</Label>
                 <RadioGroup
                     id="onlyPhysicalText-group"

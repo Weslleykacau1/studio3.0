@@ -412,9 +412,9 @@ export default function ScriptifyStudio() {
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-primary/10">
-                    <TabsTrigger value="creator"><Film className="mr-2 h-4 w-4" />Criador</TabsTrigger>
-                    <TabsTrigger value="influencerGallery"><Palette className="mr-2 h-4 w-4" />Galeria de Influenciadores</TabsTrigger>
-                    <TabsTrigger value="sceneGallery"><LayoutGrid className="mr-2 h-4 w-4" />Galeria de Cenas</TabsTrigger>
+                    <TabsTrigger value="creator"><Film className="mr-2 h-4 w-4 hidden sm:inline-block" />Criador</TabsTrigger>
+                    <TabsTrigger value="influencerGallery"><Palette className="mr-2 h-4 w-4 hidden sm:inline-block" />Galeria de Influenciadores</TabsTrigger>
+                    <TabsTrigger value="sceneGallery"><LayoutGrid className="mr-2 h-4 w-4 hidden sm:inline-block" />Galeria de Cenas</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="creator" className="mt-6">

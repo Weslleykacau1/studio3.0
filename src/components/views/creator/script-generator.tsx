@@ -89,7 +89,7 @@ export default function ScriptGenerator({
           <CardDescription>Use o influenciador e a cena definidos para gerar um prompt que criará um roteiro de vídeo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
             <Label className="font-medium">Formato de Saída:</Label>
             <RadioGroup value={outputFormat} onValueChange={setOutputFormat} className="flex items-center gap-4">
               <div className="flex items-center space-x-2">

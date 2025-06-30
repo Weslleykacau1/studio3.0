@@ -52,8 +52,8 @@ export default function InfluencerEditor({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-4 rounded-xl border bg-secondary/30 p-4">
             <Label className="flex items-center gap-2 font-medium"><UploadCloud /> Carregar Foto de Referência</Label>
-            <div className="flex items-start gap-4">
-              <div className="w-1/3 space-y-2">
+            <div className="flex flex-col items-start gap-4 sm:flex-row">
+              <div className="w-full space-y-2 sm:w-1/3">
                 <input type="file" id="imageUpload" accept="image/*" onChange={(e) => handlers.handleImageUpload(e, 'influencer')} className="hidden" />
                 <Button asChild variant="outline" className="w-full">
                     <Label htmlFor="imageUpload" className="cursor-pointer gap-2"><FileIcon className="h-4 w-4"/>Escolher</Label>
@@ -64,7 +64,7 @@ export default function InfluencerEditor({
                     <div className="flex h-24 w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">Prévia</div>
                  )}
               </div>
-              <div className="w-2/3 space-y-2">
+              <div className="w-full space-y-2 sm:w-2/3">
                  <AiButton onClick={handlers.analyzeInfluencerImageAndFill} loading={loadingStates.analyzingInfluencer} isLoggedIn={isLoggedIn} className="bg-primary text-primary-foreground hover:bg-primary/90">
                     <Bot className="mr-2 h-5 w-5" /> Analisar Imagem
                  </AiButton>
