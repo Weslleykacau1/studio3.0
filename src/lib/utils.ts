@@ -29,30 +29,6 @@ export const formatTimeAgo = (timestamp?: string | null): string => {
     return `${interval} anos atrás`;
 };
 
-export const extractJson = <T = unknown>(text: string): T | null => {
-    if (typeof text !== 'string') return null;
-    const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    let jsonStringToParse;
-
-    if (jsonBlockMatch && jsonBlockMatch[1]) {
-        jsonStringToParse = jsonBlockMatch[1];
-    } else {
-        const firstBrace = text.indexOf('{');
-        const lastBrace = text.lastIndexOf('}');
-        if (firstBrace === -1 || lastBrace === -1) {
-            return null;
-        }
-        jsonStringToParse = text.substring(firstBrace, lastBrace + 1);
-    }
-
-    try {
-        return JSON.parse(jsonStringToParse) as T;
-    } catch (e) {
-        console.error("Failed to parse JSON:", e, "Received string:", jsonStringToParse);
-        return null;
-    }
-};
-
 export const handleImageUpload = (
   e: React.ChangeEvent<HTMLInputElement>,
   callback: (result: { preview: string; base64: string; type: string; file: File }) => void

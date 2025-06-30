@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 import type { Influencer, Scene, ActiveView, LoadingStates } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { extractJson, handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
+import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
 import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
@@ -197,10 +197,14 @@ export default function ScriptifyStudio() {
             });
             
             if (outputFormat === 'json') {
-                const parsedPrompt = extractJson(responseText);
-                if (!parsedPrompt) throw new Error(`A API retornou um prompt inválido.`);
-                const formattedPrompt = JSON.stringify(parsedPrompt, null, 2);
-                setGeneratedContent(`\`\`\`json\n${formattedPrompt}\n\`\`\``);
+                try {
+                    const parsedPrompt = JSON.parse(responseText);
+                    const formattedPrompt = JSON.stringify(parsedPrompt, null, 2);
+                    setGeneratedContent(`\`\`\`json\n${formattedPrompt}\n\`\`\``);
+                } catch (error) {
+                    console.error("Failed to parse JSON response from API:", error);
+                    throw new Error("A API retornou um prompt com formato JSON inválido.");
+                }
             } else {
                 setGeneratedContent(responseText);
             }
