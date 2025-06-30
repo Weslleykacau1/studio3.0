@@ -53,7 +53,7 @@ export default function ScriptGenerator({
     }
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopySuccess(true);
-      toast({ title: 'Roteiro copiado para a área de transferência!', className: 'bg-green-100' });
+      toast({ title: 'Prompt copiado para a área de transferência!', className: 'bg-green-100' });
       setTimeout(() => setCopySuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy text: ', err);
@@ -67,9 +67,9 @@ export default function ScriptGenerator({
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
             <Bot className="text-primary" />
-            3. Gere o Roteiro
+            3. Gere o Prompt do Roteiro
           </CardTitle>
-          <CardDescription>Use o influenciador e a cena definidos acima para gerar um roteiro de vídeo.</CardDescription>
+          <CardDescription>Use o influenciador e a cena definidos para gerar um prompt que criará um roteiro de vídeo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-6">
@@ -86,7 +86,7 @@ export default function ScriptGenerator({
             </RadioGroup>
           </div>
           <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Gerar Roteiro da Cena Ativa
+            Gerar Prompt do Roteiro
           </AiButton>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
         </CardContent>
@@ -95,13 +95,13 @@ export default function ScriptGenerator({
       {generatedContent && (
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Roteiro Gerado</CardTitle>
+            <CardTitle className="font-headline">Prompt Gerado</CardTitle>
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedContent} />
             <Button onClick={handleCopy} variant="outline" className="mt-4">
               <Copy className="mr-2 h-4 w-4" />
-              {copySuccess ? 'Copiado!' : 'Copiar Roteiro'}
+              {copySuccess ? 'Copiado!' : 'Copiar Prompt'}
             </Button>
           </CardContent>
         </Card>

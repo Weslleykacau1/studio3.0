@@ -35,7 +35,7 @@ const VideoScriptInputSchema = z.object({
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-const VideoScriptOutputSchema = z.string().describe('The generated video script, in JSON or Markdown format.');
+const VideoScriptOutputSchema = z.string().describe('The generated video script prompt, in JSON or Markdown format.');
 export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
 
 export async function generateVideoScript(input: VideoScriptInput): Promise<VideoScriptOutput> {
@@ -46,11 +46,11 @@ const generateVideoScriptPrompt = ai.definePrompt({
   name: 'generateVideoScriptPrompt',
   input: {schema: VideoScriptInputSchema},
   output: {schema: VideoScriptOutputSchema},
-  prompt: `You are a professional screenwriter for short videos (TikTok/Reels style).
+  prompt: `You are an expert prompt engineer. Your task is to create a detailed prompt that will be given to a powerful AI to generate a video script.
 
-Create a detailed script for a video based on the following specifications, formatted in clean, readable Markdown.
+The final output should be a single block of text, formatted as {{outputFormat}}, which can be directly used as a prompt for the script-generating AI.
 
-**Script Specifications:**
+Here are the specifications to include in the prompt you generate:
 
 **1. Influencer:**
 - Name: {{{influencerName}}}
@@ -87,20 +87,16 @@ Create a detailed script for a video based on the following specifications, form
 - Digital Text Allowed: {{#if allowDigitalText}}Yes{{else}}No{{/if}}
 - Only Physical Text Allowed: {{#if onlyPhysicalText}}Yes{{else}}No{{/if}}
 
+**Output Instructions for the Prompt You Are Generating:**
 
-**Output Instructions:**
 {{#eq outputFormat "markdown"}}
-- Use Markdown headings (#, ##) for the main sections like Title, Synopsis, and Script.
-- For each moment in the script, use a subheading (###) or bold text for the timecode (e.g., **0s-2s**).
-- Use bold text for labels like **Visuals:**, **Dialogue:**, **SFX:**.
-- CRITICAL: The "Dialogue" MUST be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. If no dialogue idea is provided, leave this section blank.
-- All other descriptive text (Visuals, SFX, Synopsis, etc.) should be in English.
-- Format the final output for maximum readability.
+Generate a comprehensive and detailed prompt in **Markdown format**. This prompt should clearly instruct a screenwriter AI to create a video script. It must contain all the specifications provided above. The tone should be clear and direct. The final output from you should be only the generated prompt text, without any additional explanations or introductions. The dialogue in the script must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. All other descriptive parts of the script should be in English.
 {{else}}
-You are a professional screenwriter for short videos (TikTok/Reels style). Create a detailed script for a video based on the following specifications. The response MUST be a well-formatted JSON object, with no additional text or markdown formatting. **Script Specifications:** **1. Influencer:** - **Name:** {{{influencerName}}} - **Personality:** {{{influencerPersonality}}} - **Appearance:** {{{influencerAppearance}}} - **Niche:** {{{influencerNiche}}} **2. Scene Details:** - **Title:** {{{sceneTitle}}} - **Setting:** {{{sceneSetting}}} - **Action:** {{{sceneAction}}} {{#if sceneDialogue}} - **Main Dialogue Idea:** {{{sceneDialogue}}} {{/if}} **Output Instructions:** Generate a script in JSON format with the following structure. { "title": "Video Title (in English)", "synopsis": "A brief one-sentence summary of the video (in English).", "script": [ { "timecode": "0s-2s", "visuals": "Detailed description of what is seen on screen. Include the influencer's actions, facial expressions, and camera movements (in English).", "dialogue": "The exact speech of the influencer. IMPORTANT: This field MUST be in **Brazilian Portuguese**, matching their accent: {{{influencerAccent}}}. If no dialogue idea is provided, this should be an empty string.", "sfx": "Sound effects (e.g., 'clicking sound', 'soft suspenseful music') (in English).", "text_overlay": "Text that appears on the screen (only if allowed, in English)." } ] } Use the influencer's personality and unique trait to guide their tone and actions. The visual description should be vivid and cinematic.
+Generate a single, well-formatted JSON object. This object must contain a single key called "prompt". The value of this "prompt" key must be a string containing the complete and detailed instructions for a screenwriter AI. This instructional prompt should command the AI to generate a video script as a JSON object with a specific structure: { "title": "...", "synopsis": "...", "script": [ { "timecode": "...", "visuals": "...", "dialogue": "...", "sfx": "...", "text_overlay": "..." } ] }. The prompt you create must incorporate all the specifications provided above. The "dialogue" field within the final script's JSON must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. All other fields should be in English. The final output from you must be ONLY the JSON object.
 {{/eq}}
 `,
 });
+
 
 const generateVideoScriptFlow = ai.defineFlow(
   {

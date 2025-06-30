@@ -197,18 +197,18 @@ export default function ScriptifyStudio() {
             });
             
             if (outputFormat === 'json') {
-                const parsedScript = extractJson(responseText);
-                if (!parsedScript) throw new Error(`A API retornou um roteiro inválido.`);
-                const formattedScript = JSON.stringify(parsedScript, null, 2);
-                setGeneratedContent(`\`\`\`json\n${formattedScript}\n\`\`\``);
+                const parsedPrompt = extractJson(responseText);
+                if (!parsedPrompt) throw new Error(`A API retornou um prompt inválido.`);
+                const formattedPrompt = JSON.stringify(parsedPrompt, null, 2);
+                setGeneratedContent(`\`\`\`json\n${formattedPrompt}\n\`\`\``);
             } else {
                 setGeneratedContent(responseText);
             }
             setActiveView('creator');
-            toast({ title: "Roteiro gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ title: "Prompt gerado com sucesso!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
-            setGeneratedContent(`**Falha ao gerar conteúdo:**\n\n${error.message}`);
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
+            setGeneratedContent(`**Falha ao gerar prompt:**\n\n${error.message}`);
+            toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
         } finally {
             setLoading('generatingScript', false);
         }
