@@ -6,6 +6,7 @@ import { CheckCircle, KeyRound, Plus, Loader2, XCircle, Settings } from 'lucide-
 import type { ApiKeyStatus } from '@/types';
 import { Badge } from './ui/badge';
 import { formatTimeAgo } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface AppHeaderProps {
   isLoggedIn: boolean;
@@ -17,6 +18,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStatus, lastApiKeyCheck }: AppHeaderProps) {
   const [timeAgo, setTimeAgo] = useState('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (lastApiKeyCheck) {
@@ -95,10 +97,10 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStat
               </>
             )}
 
-            <Popover>
+            <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9 bg-gray-100 dark:bg-gray-800 transition-transform active:scale-95">
-                    <Settings className="h-5 w-5" />
+                    <Settings className={cn('h-5 w-5 transition-transform duration-300', isSettingsOpen && 'rotate-90')} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64">
