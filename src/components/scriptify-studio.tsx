@@ -12,6 +12,7 @@ import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { generateVideoScript } from '@/ai/flows/generate-video-script';
 import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
+import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -38,7 +39,7 @@ export default function ScriptifyStudio() {
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
@@ -168,6 +169,24 @@ export default function ScriptifyStudio() {
             toast({ variant: 'destructive', title: "Erro na Geração da Ação", description: error.message });
         } finally {
             setLoading('generatingAction', false);
+        }
+    };
+    
+    const generateSceneTitleHandler = async () => {
+        if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um título." });
+        
+        setLoading('generatingTitle', true);
+        try {
+            const result = await generateSceneTitle({
+                sceneSetting: currentScene.setting,
+                sceneAction: currentScene.action,
+            });
+            setCurrentScene(prev => ({ ...prev, title: result.sceneTitle || '' }));
+            toast({ title: "Título da cena gerado com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Geração do Título", description: error.message });
+        } finally {
+            setLoading('generatingTitle', false);
         }
     };
 
@@ -421,6 +440,7 @@ export default function ScriptifyStudio() {
                             generateSceneContent,
                             generateDialogueSeo,
                             generateSceneAction: generateSceneActionHandler,
+                            generateSceneTitle: generateSceneTitleHandler,
                             saveOrUpdateInfluencer,
                             handleAddUpdateScene,
                             handleImageUpload,

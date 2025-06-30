@@ -47,4 +47,5 @@ export type LoadingStates = {
     testingApi: boolean;
     generatingSeo: boolean;
     generatingAction: boolean;
+    generatingTitle: boolean;
 };

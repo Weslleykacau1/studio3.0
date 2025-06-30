@@ -22,6 +22,7 @@ interface SceneEditorProps {
     analyzeAndDescribeProduct: () => Promise<void>;
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
+    generateSceneTitle: () => Promise<void>;
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
@@ -51,7 +52,21 @@ export default function SceneEditor({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div><Label>Título da Cena</Label><Input name="title" value={currentScene.title} onChange={handleInputChange} placeholder="Ex: Unboxing do Produto X" /></div>
+        <div>
+            <Label>Título da Cena</Label>
+            <Input name="title" value={currentScene.title} onChange={handleInputChange} placeholder="Ex: Unboxing do Produto X" />
+            <AiButton
+                onClick={handlers.generateSceneTitle}
+                loading={loadingStates.generatingTitle}
+                isLoggedIn={isLoggedIn}
+                disabled={!currentScene.setting.trim() || !currentScene.action.trim()}
+                className="mt-2"
+                variant="secondary"
+            >
+                <Bot className="mr-2 h-4 w-4" />
+                Gerar Título com IA
+            </AiButton>
+        </div>
         
         <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
             <Label className="flex items-center gap-2 font-medium"><UploadCloud />Referência de Cenário (Opcional)</Label>
