@@ -10,6 +10,7 @@ import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { generateVideoScript } from '@/ai/flows/generate-video-script';
+import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
 import { LoginModal } from './login-modal';
@@ -40,7 +41,7 @@ export default function ScriptifyStudio() {
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
 
-    // Load from localStorage on mount
+    // Load from localStorage/IndexedDB on mount
     useEffect(() => {
         setHasMounted(true);
         const savedApiKey = localStorage.getItem('geminiApiKey');
@@ -49,35 +50,22 @@ export default function ScriptifyStudio() {
             setIsLoggedIn(true);
         }
 
-        try {
-            const savedInfluencers = localStorage.getItem('scriptify-influencers');
-            if (savedInfluencers) {
-                setGalleryInfluencers(JSON.parse(savedInfluencers));
+        async function loadData() {
+            try {
+                const [savedInfluencers, savedScenes] = await Promise.all([
+                    getAllInfluencers(),
+                    getAllScenes()
+                ]);
+                setGalleryInfluencers(savedInfluencers);
+                setScenes(savedScenes);
+            } catch (error) {
+                console.error("Failed to load data from IndexedDB", error);
+                toast({ variant: 'destructive', title: "Erro ao carregar dados locais", description: "Os seus dados guardados não puderam ser carregados." });
             }
-
-            const savedScenes = localStorage.getItem('scriptify-scenes');
-            if (savedScenes) {
-                setScenes(JSON.parse(savedScenes));
-            }
-        } catch (error) {
-            console.error("Failed to parse data from localStorage", error);
-            toast({ variant: 'destructive', title: "Erro ao carregar dados locais", description: "Os seus dados guardados podem estar corrompidos." });
         }
+
+        loadData();
     }, [toast]);
-
-    // Save influencers to localStorage whenever they change
-    useEffect(() => {
-        if (hasMounted) {
-            localStorage.setItem('scriptify-influencers', JSON.stringify(galleryInfluencers));
-        }
-    }, [galleryInfluencers, hasMounted]);
-
-    // Save scenes to localStorage whenever they change
-    useEffect(() => {
-        if (hasMounted) {
-            localStorage.setItem('scriptify-scenes', JSON.stringify(scenes));
-        }
-    }, [scenes, hasMounted]);
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
         setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -226,33 +214,48 @@ export default function ScriptifyStudio() {
         }
     };
 
-    // LocalStorage Handlers
-    const saveOrUpdateInfluencer = () => {
+    // IndexedDB Handlers
+    const saveOrUpdateInfluencer = async () => {
         if (!influencer.name) {
             return toast({ variant: 'destructive', title: "Campo em falta", description: "Por favor, preencha o campo: nome." });
         }
 
         setLoading('savingInfluencer', true);
         try {
+            const influencerToSave = { ...influencer };
+            if (!influencerToSave.id) {
+                influencerToSave.id = crypto.randomUUID();
+            }
+            
+            await saveInfluencer(influencerToSave);
+
             if (influencer.id) {
-                setGalleryInfluencers(prev => prev.map(inf => inf.id === influencer.id ? influencer : inf));
+                setGalleryInfluencers(prev => prev.map(inf => inf.id === influencerToSave.id ? influencerToSave : inf));
                 toast({ title: "Influenciador atualizado com sucesso!", className: "bg-green-100 text-green-800" });
             } else {
-                const newInfluencer = { ...influencer, id: crypto.randomUUID() };
-                setGalleryInfluencers(prev => [...prev, newInfluencer]);
-                setInfluencer(newInfluencer);
+                setGalleryInfluencers(prev => [...prev, influencerToSave]);
+                setInfluencer(influencerToSave);
                 toast({ title: "Influenciador adicionado à galeria!", className: "bg-green-100 text-green-800" });
             }
+        } catch (error) {
+            console.error("Failed to save influencer:", error);
+            toast({ variant: 'destructive', title: "Erro ao Guardar", description: "Não foi possível guardar o influenciador." });
         } finally {
             setLoading('savingInfluencer', false);
         }
     };
     
-    const deleteInfluencer = (idToDelete: string) => {
-        setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
-        toast({ title: "Influenciador excluído!" });
-        if (influencer.id === idToDelete) {
-            setInfluencer(initialInfluencerState);
+    const deleteInfluencer = async (idToDelete: string) => {
+        try {
+            await deleteInfluencerDB(idToDelete);
+            setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
+            toast({ title: "Influenciador excluído!" });
+            if (influencer.id === idToDelete) {
+                setInfluencer(initialInfluencerState);
+            }
+        } catch (error) {
+            console.error("Failed to delete influencer:", error);
+            toast({ variant: 'destructive', title: "Erro ao Excluir", description: "Não foi possível excluir o influenciador." });
         }
     };
     
@@ -265,30 +268,45 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleAddUpdateScene = () => {
+    const handleAddUpdateScene = async () => {
         if (!currentScene.setting && !currentScene.title) return toast({ variant: 'destructive', title: "Dados em falta", description: "Preencha pelo menos um título ou um cenário." });
 
         setLoading('savingScene', true);
         try {
+            const sceneToSave = { ...currentScene };
+            if (!sceneToSave.id) {
+                sceneToSave.id = crypto.randomUUID();
+            }
+
+            await saveScene(sceneToSave);
+
             if (currentScene.id) {
-                setScenes(prev => prev.map(s => s.id === currentScene.id ? currentScene : s));
+                setScenes(prev => prev.map(s => s.id === sceneToSave.id ? sceneToSave : s));
                 toast({ title: "Cena atualizada com sucesso!", className: "bg-green-100 text-green-800" });
             } else {
-                const newScene = { ...currentScene, id: crypto.randomUUID() };
-                setScenes(prev => [...prev, newScene]);
-                setCurrentScene(newScene);
+                setScenes(prev => [...prev, sceneToSave]);
+                setCurrentScene(sceneToSave);
                 toast({ title: "Cena adicionada com sucesso!", className: "bg-green-100 text-green-800" });
             }
+        } catch (error) {
+            console.error("Failed to save scene:", error);
+            toast({ variant: 'destructive', title: "Erro ao Guardar", description: "Não foi possível guardar a cena." });
         } finally {
             setLoading('savingScene', false);
         }
     };
 
-    const deleteScene = (idToDelete: string) => {
-        setScenes(prev => prev.filter(s => s.id !== idToDelete));
-        toast({ title: "Cena excluída!" });
-        if (currentScene.id === idToDelete) {
-            setCurrentScene(initialSceneState);
+    const deleteScene = async (idToDelete: string) => {
+        try {
+            await deleteSceneDB(idToDelete);
+            setScenes(prev => prev.filter(s => s.id !== idToDelete));
+            toast({ title: "Cena excluída!" });
+            if (currentScene.id === idToDelete) {
+                setCurrentScene(initialSceneState);
+            }
+        } catch (error) {
+            console.error("Failed to delete scene:", error);
+            toast({ variant: 'destructive', title: "Erro ao Excluir", description: "Não foi possível excluir a cena." });
         }
     };
 
