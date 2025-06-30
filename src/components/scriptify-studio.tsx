@@ -470,8 +470,6 @@ export default function ScriptifyStudio() {
                         scenes={scenes}
                         onLoad={loadScene}
                         onDelete={deleteScene}
-                        onGenerateScript={generateSceneContent}
-                        isGenerationDisabled={!influencer.id}
                         onAddNew={handleAddNewScene}
                     />
                 </TabsContent>
