@@ -10,7 +10,7 @@ import { AiButton } from '@/components/ai-button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
-import { Film, UploadCloud, Bot, Package, Save, Plus, File as FileIcon } from 'lucide-react';
+import { Film, UploadCloud, Bot, Package, Save, Plus, File as FileIcon, Type } from 'lucide-react';
 
 interface SceneEditorProps {
   currentScene: Scene;
@@ -36,7 +36,7 @@ export default function SceneEditor({
     setCurrentScene(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleSelectChange = (name: keyof Scene, value: string) => {
+  const handleSelectChange = (name: keyof Scene, value: string | boolean) => {
     setCurrentScene(prev => ({ ...prev, [name]: value }));
   };
   
@@ -103,6 +103,48 @@ export default function SceneEditor({
                     <SelectItem value="1:1 (Quadrado)">1:1 (Quadrado)</SelectItem>
                   </SelectContent>
               </Select>
+            </div>
+        </div>
+        
+        <div className="space-y-4 rounded-lg border border-red-200 bg-red-50/50 p-4 dark:border-red-800 dark:bg-red-900/20">
+            <h3 className="flex items-center gap-2 text-lg font-semibold text-red-800 dark:text-red-300"><Type className="h-5 w-5"/>Controlo de Texto no Ecrã</h3>
+            
+            <div className="flex items-center justify-between">
+                <Label htmlFor="allowDigitalText-group">Permite textos digitais na tela?</Label>
+                <RadioGroup
+                    id="allowDigitalText-group"
+                    value={currentScene.allowDigitalText ? 'yes' : 'no'}
+                    onValueChange={(value) => handleSelectChange('allowDigitalText', value === 'yes')}
+                    className="flex"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="digital-yes" />
+                        <Label htmlFor="digital-yes">Sim</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="digital-no" />
+                        <Label htmlFor="digital-no">Não</Label>
+                    </div>
+                </RadioGroup>
+            </div>
+            
+            <div className="flex items-center justify-between">
+                <Label htmlFor="onlyPhysicalText-group">Apenas textos físicos como rótulos e placas reais?</Label>
+                <RadioGroup
+                    id="onlyPhysicalText-group"
+                    value={currentScene.onlyPhysicalText ? 'yes' : 'no'}
+                    onValueChange={(value) => handleSelectChange('onlyPhysicalText', value === 'yes')}
+                    className="flex"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="physical-yes" />
+                        <Label htmlFor="physical-yes">Sim</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="physical-no" />
+                        <Label htmlFor="physical-no">Não</Label>
+                    </div>
+                </RadioGroup>
             </div>
         </div>
 
