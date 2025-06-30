@@ -52,21 +52,11 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStat
                   <stop stopColor="#A855F7" />
                   <stop offset="1" stopColor="#E934C3" />
                 </linearGradient>
-                <filter id="shape-shadow" x="-5" y="-5" width="62" height="62" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                    <feOffset dy="1"/>
-                    <feGaussianBlur stdDeviation="1"/>
-                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_innerShadow"/>
-                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_innerShadow" result="shape"/>
-                </filter>
               </defs>
-              <g filter="url(#shape-shadow)" fill="#FFFFFF">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M22.5 16.2C19.3 11.1 23 8.2 28.7 9.2C34.4 10.2 36.8 15.7 34.1 19C31.4 22.3 26.9 23.6 23.9 23.3C21.7 23.09 19.96 23.66 18.5 25.5C16.8 27.6 17.5 31.6 20.3 34.1C23.1 36.6 27.8 37.1 31.3 35.6C34.8 34.1 37.5 31.5 37.8 28.1C37.89 27.1 39.39 27.8 39.5 28.6C40.2 31.8 38.1 35.8 34.6 37.7C29.6 40.4 22.9 39.8 18.8 35.7C14.7 31.6 14.1 24.9 18 21.3C20.3 19.1 22.59 19.04 24.5 19.3C27.5 19.7 30.6 18.5 32.5 16.3C34.4 14.1 33.7 11.2 30.8 10.3C27.9 9.4 24.6 11.4 22.5 16.2ZM32 40L42 35L32 30V40Z" />
-                  <path d="M19.5 10C20.0523 10 20.5 10.4477 20.5 11C20.5 11.5523 20.0523 12 19.5 12C18.9477 12 18.5 11.5523 18.5 11C18.5 10.4477 18.9477 10 19.5 10Z" />
-                  <path d="M15.0607 13.9393L13 16L15.0607 18.0607L17.1213 20.1213L17.8284 19.4142L15.7678 17.3536L19.4142 17.8284L20.1213 17.1213L18.0607 15.0607L16 13L13.9393 15.0607L13.2322 15.7678L15.7678 13.2322L13.2322 15.7678L15.0607 13.9393Z" transform="translate(-2 -2) scale(1.2)"/>
+              <g fill="white">
+                <path d="M26 13L29.29 22.71L39 26L29.29 29.29L26 39L22.71 29.29L13 26L22.71 22.71L26 13Z" />
+                <path d="M37 15L38 17L40 18L38 19L37 21L36 19L34 18L36 17L37 15Z" />
+                <path d="M15 31L16 33L18 34L16 35L15 37L14 35L12 34L14 33L15 31Z" />
               </g>
             </svg>
         </div>
