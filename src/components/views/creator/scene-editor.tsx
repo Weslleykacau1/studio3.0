@@ -69,21 +69,19 @@ export default function SceneEditor({
             <p className="mt-2 rounded-lg border bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Dica: Seja específico sobre iluminação, cores dominantes, materiais, e atmosfera. Quanto mais detalhes, melhor o resultado.</p>
         </div>
         <div>
-            <div className="flex items-center justify-between mb-1">
-                <Label>Ação Principal</Label>
-                <AiButton
-                    onClick={handlers.generateSceneAction}
-                    loading={loadingStates.generatingAction}
-                    isLoggedIn={isLoggedIn}
-                    disabled={!currentScene.setting.trim()}
-                    variant="link"
-                    className="h-auto p-0 text-sm"
-                >
-                    <Bot className="mr-1 h-3 w-3" />
-                    Gerar com IA
-                </AiButton>
-            </div>
+            <Label>Ação Principal</Label>
             <Textarea name="action" value={currentScene.action} onChange={handleInputChange} placeholder="O que o influenciador está a fazer..." />
+             <AiButton
+                onClick={handlers.generateSceneAction}
+                loading={loadingStates.generatingAction}
+                isLoggedIn={isLoggedIn}
+                disabled={!currentScene.setting.trim()}
+                className="mt-2"
+                variant="secondary"
+            >
+                <Bot className="mr-2 h-4 w-4" />
+                Gerar Ação com IA
+            </AiButton>
         </div>
         <div>
             <Label>Diálogo</Label>
