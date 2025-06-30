@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ApiKeyStatus } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -31,6 +31,7 @@ export default function ScriptifyStudio() {
     const [userApiKey, setUserApiKey] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('idle');
     
     const [influencer, setInfluencer] = useState<Influencer>(initialInfluencerState);
     const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
@@ -45,6 +46,35 @@ export default function ScriptifyStudio() {
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
 
+    const testApiKey = async (key: string) => {
+        setApiKeyStatus('testing');
+        try {
+            const payload = { contents: [{ role: 'user', parts: [{ text: 'hello' }] }] };
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                }
+            );
+            const result = await response.json();
+            if (response.ok && result.candidates) {
+                setApiKeyStatus('valid');
+                return true;
+            } else {
+                setApiKeyStatus('invalid');
+                toast({ variant: 'destructive', title: "Chave API Inválida", description: "A chave API guardada não está a funcionar." });
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro no teste da API:', error);
+            setApiKeyStatus('invalid');
+            toast({ variant: 'destructive', title: "Erro de Rede", description: "Não foi possível verificar a chave API." });
+            return false;
+        }
+    };
+    
     // Load from localStorage/IndexedDB on mount
     useEffect(() => {
         setHasMounted(true);
@@ -52,6 +82,7 @@ export default function ScriptifyStudio() {
         if (savedApiKey) {
             setUserApiKey(savedApiKey);
             setIsLoggedIn(true);
+            testApiKey(savedApiKey);
         }
 
         async function loadData() {
@@ -79,6 +110,7 @@ export default function ScriptifyStudio() {
         setUserApiKey(key);
         localStorage.setItem('geminiApiKey', key);
         setIsLoggedIn(true);
+        setApiKeyStatus('valid');
         setIsLoginModalOpen(false);
         toast({ title: "Chave API guardada e verificada!", className: "bg-green-100 text-green-800" });
     };
@@ -87,6 +119,7 @@ export default function ScriptifyStudio() {
         setUserApiKey('');
         localStorage.removeItem('geminiApiKey');
         setIsLoggedIn(false);
+        setApiKeyStatus('idle');
         toast({ title: "Chave API removida." });
     };
 
@@ -392,7 +425,7 @@ export default function ScriptifyStudio() {
     };
 
     if (!hasMounted) {
-        return null;
+        return <div suppressHydrationWarning></div>;
     }
 
 
@@ -408,6 +441,7 @@ export default function ScriptifyStudio() {
                 isLoggedIn={isLoggedIn}
                 onLoginClick={() => setIsLoginModalOpen(true)}
                 onRemoveApiKey={handleRemoveApiKey}
+                apiKeyStatus={apiKeyStatus}
             />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">

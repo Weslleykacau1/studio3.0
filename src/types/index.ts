@@ -35,6 +35,7 @@ export interface Scene {
 }
 
 export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery';
+export type ApiKeyStatus = 'idle' | 'valid' | 'invalid' | 'testing';
 
 export type LoadingStates = {
     savingInfluencer: boolean;

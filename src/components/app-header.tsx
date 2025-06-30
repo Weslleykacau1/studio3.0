@@ -1,16 +1,46 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CheckCircle, KeyRound, Plus, Settings, Sparkles } from 'lucide-react';
+import { CheckCircle, KeyRound, Plus, Sparkles, Loader2, XCircle } from 'lucide-react';
+import type { ApiKeyStatus } from '@/types';
 
 interface AppHeaderProps {
   isLoggedIn: boolean;
   onLoginClick: () => void;
   onRemoveApiKey: () => void;
+  apiKeyStatus: ApiKeyStatus;
 }
 
-export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey }: AppHeaderProps) {
+export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStatus }: AppHeaderProps) {
+  const getStatusButton = () => {
+    switch (apiKeyStatus) {
+      case 'testing':
+        return (
+          <Button variant="outline" disabled className="w-[160px]">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verificando...
+          </Button>
+        );
+      case 'valid':
+        return (
+          <Button variant="outline" className="w-[160px] border-green-600 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
+            <CheckCircle className="mr-2 h-4 w-4" /> API Ativa
+          </Button>
+        );
+      case 'invalid':
+        return (
+          <Button variant="destructive" onClick={onLoginClick} className="w-[160px]">
+            <XCircle className="mr-2 h-4 w-4" /> Chave Inválida
+          </Button>
+        );
+      default: // idle
+        return (
+          <Button variant="outline" className="w-[160px]" disabled>
+            <KeyRound className="mr-2 h-4 w-4" /> API Configurada
+          </Button>
+        );
+    }
+  };
+
   return (
     <header className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
       <div className="flex items-center gap-4">
@@ -30,14 +60,17 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey }: AppHeade
         {isLoggedIn ? (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="border-green-600 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
-                <KeyRound className="mr-2 h-4 w-4" /> API Configurada
-              </Button>
+              {getStatusButton()}
             </PopoverTrigger>
             <PopoverContent className="w-64">
-              <div className="space-y-2 p-2">
-                <h4 className="font-medium leading-none">API Key</h4>
-                <p className="text-sm text-muted-foreground">Sua chave API do Google Gemini está configurada.</p>
+              <div className="space-y-4 p-2">
+                <div>
+                  <h4 className="font-medium leading-none">Status da Chave API</h4>
+                  {apiKeyStatus === 'valid' && <p className="mt-1 text-sm text-muted-foreground">A sua chave API está configurada e a funcionar corretamente.</p>}
+                  {apiKeyStatus === 'invalid' && <p className="mt-1 text-sm text-destructive">A sua chave API é inválida ou expirou. Por favor, insira uma nova.</p>}
+                  {apiKeyStatus === 'testing' && <p className="mt-1 text-sm text-muted-foreground">A verificar a sua chave API...</p>}
+                  {apiKeyStatus === 'idle' && <p className="mt-1 text-sm text-muted-foreground">A sua chave API está configurada.</p>}
+                </div>
                 <Button variant="destructive" size="sm" className="w-full" onClick={onRemoveApiKey}>
                   Remover Chave
                 </Button>
