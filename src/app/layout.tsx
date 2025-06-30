@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Scriptify Studio',
+  title: 'Scriptify Studio 2.0',
   description: 'Create virtual influencers and generate video scripts.',
 };
 

@@ -19,7 +19,7 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey }: AppHeade
         </div>
         <div>
           <h1 className="font-headline text-2xl font-bold text-primary sm:text-3xl">
-            Scriptify Studio
+            Scriptify Studio 2.0
           </h1>
           <p className="text-sm text-muted-foreground sm:text-base">
             Crie influenciadores e gere roteiros para vídeo.
