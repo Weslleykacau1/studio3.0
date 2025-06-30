@@ -90,6 +90,8 @@ export default function CreatorView({
         isLoggedIn={isLoggedIn}
         onGenerate={() => handlers.generateSceneContent(currentScene)}
         isGenerationDisabled={!currentScene.setting || !influencer.id}
+        influencerId={influencer.id}
+        sceneSetting={currentScene.setting}
       />
     </div>
   );

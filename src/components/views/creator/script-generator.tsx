@@ -17,14 +17,32 @@ interface ScriptGeneratorProps {
   loading: boolean;
   isLoggedIn: boolean;
   isGenerationDisabled: boolean;
+  influencerId: string | null;
+  sceneSetting: string;
   onGenerate: () => void;
 }
 
 export default function ScriptGenerator({
-  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, loading, isLoggedIn, isGenerationDisabled, onGenerate
+  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const { toast } = useToast();
+
+  const getDisabledMessage = () => {
+    if (isGenerationDisabled && isLoggedIn) {
+        const reasons = [];
+        if (!influencerId) {
+            reasons.push("carregar ou guardar um influenciador");
+        }
+        if (!sceneSetting) {
+            reasons.push("preencher o campo 'Cenário' na cena");
+        }
+        if (reasons.length > 0) {
+            return `Para gerar, é preciso ${reasons.join(' e ')}.`;
+        }
+    }
+    return '';
+  };
 
   const handleCopy = () => {
     if (!generatedContent) return;
@@ -70,8 +88,7 @@ export default function ScriptGenerator({
           <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
             Gerar Roteiro da Cena Ativa
           </AiButton>
-          {isGenerationDisabled && !isLoggedIn && <p className="text-sm text-muted-foreground">Carregue um influenciador e insira uma chave API para gerar um roteiro.</p>}
-          {isGenerationDisabled && isLoggedIn && <p className="text-sm text-muted-foreground">Carregue ou guarde um influenciador para ativar a geração.</p>}
+          {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
         </CardContent>
       </Card>
 

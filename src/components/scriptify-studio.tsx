@@ -221,7 +221,7 @@ export default function ScriptifyStudio() {
     };
 
     const generateSceneContent = async (sceneToGenerate: Scene) => {
-        if (!influencer.name) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue um influenciador da sua galeria primeiro." });
+        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
         if (!sceneToGenerate.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
         
         setLoading('generatingScript', true);
@@ -270,9 +270,9 @@ export default function ScriptifyStudio() {
     // Firebase Handlers
     const saveOrUpdateInfluencer = async () => {
         if (!db || !userId) return toast({ variant: 'destructive', title: "Erro de Base de Dados" });
-        const required = ['name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
-        const missingField = required.find(f => !influencer[f as keyof Influencer]);
-        if (missingField) return toast({ variant: 'destructive', title: "Campo em falta", description: `Por favor, preencha o campo: ${missingField}` });
+        if (!influencer.name) {
+            return toast({ variant: 'destructive', title: "Campo em falta", description: "Por favor, preencha o campo: nome." });
+        }
 
         setLoading('savingInfluencer', true);
         const { id, ...dataToSave } = influencer;
