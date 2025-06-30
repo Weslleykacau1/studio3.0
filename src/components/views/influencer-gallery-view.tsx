@@ -2,16 +2,17 @@
 import type { Influencer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UploadCloud, FileText, Trash2, Palette } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, Palette, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface InfluencerGalleryViewProps {
   influencers: Influencer[];
   onLoad: (id: string) => void;
   onDelete: (id: string) => void;
+  onAddNew: () => void;
 }
 
-export default function InfluencerGalleryView({ influencers, onLoad, onDelete }: InfluencerGalleryViewProps) {
+export default function InfluencerGalleryView({ influencers, onLoad, onDelete, onAddNew }: InfluencerGalleryViewProps) {
     const { toast } = useToast();
 
     const exportInfluencerAsTxt = (influencerToExport: Influencer) => {
@@ -36,14 +37,24 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete }:
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-          <Palette className="text-primary" />
-          Galeria de Influenciadores
-        </CardTitle>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+                    <Palette className="text-primary" />
+                    Galeria de Influenciadores
+                </CardTitle>
+                <CardDescription className="mt-1">
+                    Influenciadores que você criou. Carregue um para editar ou gerar roteiros.
+                </CardDescription>
+            </div>
+            <Button onClick={onAddNew}>
+                <Plus className="mr-2 h-4 w-4" /> Novo Influenciador
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {influencers.length === 0 ? (
-          <p className="py-10 text-center text-muted-foreground italic">A sua galeria está vazia.</p>
+          <p className="py-10 text-center text-muted-foreground italic">A sua galeria está vazia. Crie um novo influenciador para começar.</p>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {influencers.map((gal) => (

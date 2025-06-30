@@ -356,6 +356,16 @@ export default function ScriptifyStudio() {
         }
     };
 
+    const handleAddNewInfluencer = () => {
+        setInfluencer(initialInfluencerState);
+        setActiveView('creator');
+    };
+
+    const handleAddNewScene = () => {
+        setCurrentScene(initialSceneState);
+        setActiveView('creator');
+    };
+
 
     return (
         <>
@@ -411,6 +421,7 @@ export default function ScriptifyStudio() {
                         influencers={galleryInfluencers}
                         onLoad={loadInfluencer}
                         onDelete={deleteInfluencer}
+                        onAddNew={handleAddNewInfluencer}
                     />
                 </TabsContent>
                 <TabsContent value="sceneGallery" className="mt-6">
@@ -420,6 +431,7 @@ export default function ScriptifyStudio() {
                         onDelete={deleteScene}
                         onGenerateScript={generateSceneContent}
                         isGenerationDisabled={!influencer.id}
+                        onAddNew={handleAddNewScene}
                     />
                 </TabsContent>
             </Tabs>
