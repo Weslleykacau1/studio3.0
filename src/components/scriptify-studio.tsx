@@ -40,7 +40,6 @@ export default function ScriptifyStudio() {
     const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
-    const [generationStatus, setGenerationStatus] = useState<string>('');
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false });
     const [pastedText, setPastedText] = useState('');
@@ -252,14 +251,21 @@ export default function ScriptifyStudio() {
         
         setLoading('generatingScript', true);
         setGeneratedContent('');
+        const { dismiss: dismissToast, update: updateToast } = toast({
+          title: 'A iniciar geração...',
+          description: 'A preparar para gerar o prompt.',
+        });
+
         try {
-            setGenerationStatus('A analisar traços do influenciador...');
             await new Promise(res => setTimeout(res, 700));
+            updateToast({ title: 'A analisar traços do influenciador...', description: 'A IA está a ler o perfil do seu influenciador.' });
 
-            setGenerationStatus('A interpretar detalhes da cena...');
             await new Promise(res => setTimeout(res, 700));
+            updateToast({ title: 'A interpretar detalhes da cena...', description: 'A IA está a analisar o cenário e a ação.' });
 
-            setGenerationStatus('A construir o prompt para a IA...');
+            await new Promise(res => setTimeout(res, 700));
+            updateToast({ title: 'A construir o prompt para a IA...', description: 'Quase pronto! A formatar as instruções finais.' });
+            
             const responseText = await generateVideoScript({
                 influencerName: influencer.name,
                 influencerPersonality: influencer.personality,
@@ -282,7 +288,7 @@ export default function ScriptifyStudio() {
                 outputFormat: outputFormat as "json" | "markdown",
             });
             
-            setGenerationStatus('A formatar o resultado final...');
+            updateToast({ title: 'A formatar o resultado final...', description: 'A preparar a visualização do prompt gerado.' });
             await new Promise(res => setTimeout(res, 500));
             
             if (outputFormat === 'json') {
@@ -298,13 +304,14 @@ export default function ScriptifyStudio() {
                 setGeneratedContent(responseText);
             }
             setActiveView('creator');
+            dismissToast();
             toast({ title: "Prompt gerado com sucesso!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
             setGeneratedContent(`**Falha ao gerar prompt:**\n\n${error.message}`);
+            dismissToast();
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
         } finally {
             setLoading('generatingScript', false);
-            setGenerationStatus('');
         }
     };
 
@@ -493,7 +500,6 @@ export default function ScriptifyStudio() {
                         generatedSeoContent={generatedSeoContent}
                         loadingStates={loadingStates}
                         isLoggedIn={isLoggedIn}
-                        generationStatus={generationStatus}
                         handlers={{
                             analyzeAndFillFromText,
                             analyzeInfluencerImageAndFill,
