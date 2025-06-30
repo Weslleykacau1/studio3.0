@@ -97,7 +97,7 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStat
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 bg-gray-100 dark:bg-gray-800">
+                <Button variant="ghost" size="icon" className="h-9 w-9 bg-gray-100 dark:bg-gray-800 transition-transform active:scale-95">
                     <Settings className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
