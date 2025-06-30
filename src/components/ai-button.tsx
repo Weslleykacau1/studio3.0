@@ -20,7 +20,7 @@ export function AiButton({ isLoggedIn, loading, children, className, disabled, .
   );
 
   const button = (
-    <Button disabled={isEffectivelyDisabled} className={cn("w-full justify-center", className)} {...props}>
+    <Button disabled={isEffectivelyDisabled} className={cn("w-full justify-center", loading && "animate-pulse", className)} {...props}>
       {buttonContent}
     </Button>
   );

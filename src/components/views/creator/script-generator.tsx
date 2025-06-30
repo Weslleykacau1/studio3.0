@@ -103,7 +103,7 @@ export default function ScriptGenerator({
             </RadioGroup>
           </div>
           <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Gerar Prompt do Roteiro
+            {loading ? 'A gerar...' : 'Gerar Prompt do Roteiro'}
           </AiButton>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
         </CardContent>
