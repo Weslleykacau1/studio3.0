@@ -39,6 +39,7 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStat
               xmlns="http://www.w3.org/2000/svg"
               className="h-full w-full"
             >
+              <rect width="52" height="52" rx="14" fill="url(#logo-gradient)" />
               <defs>
                 <linearGradient
                   id="logo-gradient"
@@ -51,69 +52,22 @@ export function AppHeader({ isLoggedIn, onLoginClick, onRemoveApiKey, apiKeyStat
                   <stop stopColor="#A855F7" />
                   <stop offset="1" stopColor="#E934C3" />
                 </linearGradient>
-              </defs>
-              <rect width="52" height="52" rx="14" fill="url(#logo-gradient)" />
-              <g filter="url(#filter0_d_90_165)">
-                <path
-                  d="M32.8681 12.3553C33.6214 11.2335 35.1226 11.1966 35.9221 12.2857L37.1555 13.9871C37.955 15.0762 37.5501 16.595 36.4952 17.2003L23.4939 25.7533C22.4389 26.3586 21.2008 25.7677 20.9381 24.5828L19.4627 17.932C19.2001 16.7471 20.0886 15.548 21.285 15.405L32.8681 12.3553Z"
-                  fill="white"
-                />
-                <path
-                  d="M19.1222 39.5298C18.3689 40.6516 16.8677 40.6885 16.0682 39.5994L14.8348 37.9092C14.0353 36.8201 14.4402 35.2901 15.4951 34.6848L28.4964 26.1318C29.5514 25.5265 30.7895 26.1174 31.0522 27.3023L32.5276 33.9531C32.7902 35.138 31.9017 36.3371 30.7053 36.4801L19.1222 39.5298Z"
-                  fill="white"
-                />
-              </g>
-              <path
-                d="M32 30L32 40L42 35L32 30Z"
-                fill="white"
-                fillOpacity="0.9"
-              />
-              <path
-                d="M40.2322 10L41.6464 11.4142L40.2322 12.8284L38.818 11.4142L40.2322 10Z"
-                fill="white"
-              />
-              <path
-                d="M12.2322 8L13.6464 9.41421L12.2322 10.8284L10.818 9.41421L12.2322 8Z"
-                fill="white"
-                fillOpacity="0.7"
-              />
-              <defs>
-                <filter
-                  id="filter0_d_90_165"
-                  x="10.834"
-                  y="10.8315"
-                  width="30.3223"
-                  height="32.8535"
-                  filterUnits="userSpaceOnUse"
-                  colorInterpolationFilters="sRGB"
-                >
-                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                  <feColorMatrix
-                    in="SourceAlpha"
-                    type="matrix"
-                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                    result="hardAlpha"
-                  />
-                  <feOffset dy="2" />
-                  <feGaussianBlur stdDeviation="1" />
-                  <feComposite in2="hardAlpha" operator="out" />
-                  <feColorMatrix
-                    type="matrix"
-                    values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"
-                  />
-                  <feBlend
-                    mode="normal"
-                    in2="BackgroundImageFix"
-                    result="effect1_dropShadow_90_165"
-                  />
-                  <feBlend
-                    mode="normal"
-                    in="SourceGraphic"
-                    in2="effect1_dropShadow_90_165"
-                    result="shape"
-                  />
+                <filter id="shape-shadow" x="-5" y="-5" width="62" height="62" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset dy="1"/>
+                    <feGaussianBlur stdDeviation="1"/>
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_innerShadow"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_innerShadow" result="shape"/>
                 </filter>
               </defs>
+              <g filter="url(#shape-shadow)" fill="#FFFFFF">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M22.5 16.2C19.3 11.1 23 8.2 28.7 9.2C34.4 10.2 36.8 15.7 34.1 19C31.4 22.3 26.9 23.6 23.9 23.3C21.7 23.09 19.96 23.66 18.5 25.5C16.8 27.6 17.5 31.6 20.3 34.1C23.1 36.6 27.8 37.1 31.3 35.6C34.8 34.1 37.5 31.5 37.8 28.1C37.89 27.1 39.39 27.8 39.5 28.6C40.2 31.8 38.1 35.8 34.6 37.7C29.6 40.4 22.9 39.8 18.8 35.7C14.7 31.6 14.1 24.9 18 21.3C20.3 19.1 22.59 19.04 24.5 19.3C27.5 19.7 30.6 18.5 32.5 16.3C34.4 14.1 33.7 11.2 30.8 10.3C27.9 9.4 24.6 11.4 22.5 16.2ZM32 40L42 35L32 30V40Z" />
+                  <path d="M19.5 10C20.0523 10 20.5 10.4477 20.5 11C20.5 11.5523 20.0523 12 19.5 12C18.9477 12 18.5 11.5523 18.5 11C18.5 10.4477 18.9477 10 19.5 10Z" />
+                  <path d="M15.0607 13.9393L13 16L15.0607 18.0607L17.1213 20.1213L17.8284 19.4142L15.7678 17.3536L19.4142 17.8284L20.1213 17.1213L18.0607 15.0607L16 13L13.9393 15.0607L13.2322 15.7678L15.7678 13.2322L13.2322 15.7678L15.0607 13.9393Z" transform="translate(-2 -2) scale(1.2)"/>
+              </g>
             </svg>
         </div>
         <div>
