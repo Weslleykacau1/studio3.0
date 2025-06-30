@@ -10,6 +10,7 @@ export interface Influencer {
     age: string;
     gender: string;
     accent: string;
+    imagePreview?: string;
 }
 
 export interface Scene {
@@ -35,7 +36,7 @@ export interface Scene {
 
 // Separate type for what is stored in Firestore
 export type InfluencerDocument = Omit<Influencer, 'id'>;
-export type SceneDocument = Omit<Scene, 'id' | 'productImagePreview' | 'scenarioImagePreview'>;
+export type SceneDocument = Omit<Scene, 'id'>;
 
 
 export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery';

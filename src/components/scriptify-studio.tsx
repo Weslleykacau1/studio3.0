@@ -27,7 +27,7 @@ declare global {
   var __app_id: string | undefined;
 }
 
-const initialInfluencerState: Influencer = { id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '' };
+const initialInfluencerState: Influencer = { id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '' };
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Vlog (Conversacional)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, };
 
 export default function ScriptifyStudio() {
@@ -44,8 +44,6 @@ export default function ScriptifyStudio() {
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false });
     const [pastedText, setPastedText] = useState('');
-    const [influencerImageFile, setInfluencerImageFile] = useState<File | null>(null);
-    const [influencerImagePreview, setInfluencerImagePreview] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const [userId, setUserId] = useState<string | null>(null);
     const [appId, setAppId] = useState('default-app-id');
@@ -137,14 +135,13 @@ export default function ScriptifyStudio() {
         handleImageUploadUtil(e, ({ preview, base64, type, file }) => {
             switch(imageType) {
                 case 'influencer':
-                    setInfluencerImagePreview(preview);
-                    setInfluencerImageFile(file);
+                    setInfluencer(inf => ({ ...inf, imagePreview: preview }));
                     break;
                 case 'scenario':
-                    setCurrentScene(cs => ({ ...cs, scenarioImagePreview: preview, scenarioImageType: type, scenarioImageBase64: base64 }));
+                    setCurrentScene(cs => ({ ...cs, scenarioImagePreview: preview, scenarioImageType: type }));
                     break;
                 case 'product':
-                    setCurrentScene(cs => ({ ...cs, productImagePreview: preview, productImageType: type, productImageBase64: base64 }));
+                    setCurrentScene(cs => ({ ...cs, productImagePreview: preview, productImageType: type }));
                     break;
             }
         });
@@ -166,25 +163,20 @@ export default function ScriptifyStudio() {
     };
     
     const analyzeInfluencerImageAndFill = async () => {
-        if (!influencerImageFile) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem para analisar." });
+        if (!influencer.imagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem para analisar." });
         
-        const reader = new FileReader();
-        reader.readAsDataURL(influencerImageFile);
-        reader.onload = async () => {
-            const photoDataUri = reader.result as string;
-            if (!photoDataUri) return;
+        const photoDataUri = influencer.imagePreview;
 
-            setLoading('analyzingInfluencer', true);
-            try {
-                const result = await analyzeInfluencerImage({ photoDataUri });
-                setInfluencer(prev => ({ ...prev, ...result }));
-                toast({ title: "Características preenchidas com detalhe!", className: "bg-green-100 text-green-800" });
-            } catch (error: any) {
-                toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-            } finally {
-                setLoading('analyzingInfluencer', false);
-            }
-        };
+        setLoading('analyzingInfluencer', true);
+        try {
+            const result = await analyzeInfluencerImage({ photoDataUri });
+            setInfluencer(prev => ({ ...prev, ...result, imagePreview: photoDataUri }));
+            toast({ title: "Características preenchidas com detalhe!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
+        } finally {
+            setLoading('analyzingInfluencer', false);
+        }
     };
 
     const analyzeScenarioImageAndFill = async () => {
@@ -323,7 +315,7 @@ export default function ScriptifyStudio() {
         if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório." });
 
         setLoading('savingScene', true);
-        const { id, productImagePreview, scenarioImagePreview, ...data } = currentScene;
+        const { id, ...data } = currentScene;
         const sceneToSave: SceneDocument = data;
 
         try {
@@ -394,7 +386,6 @@ export default function ScriptifyStudio() {
                         setCurrentScene={setCurrentScene}
                         pastedText={pastedText}
                         setPastedText={setPastedText}
-                        influencerImagePreview={influencerImagePreview}
                         outputFormat={outputFormat}
                         setOutputFormat={setOutputFormat}
                         generatedContent={generatedContent}

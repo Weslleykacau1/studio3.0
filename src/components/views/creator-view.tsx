@@ -11,7 +11,6 @@ interface CreatorViewProps {
   setCurrentScene: (scene: Scene) => void;
   pastedText: string;
   setPastedText: (text: string) => void;
-  influencerImagePreview: string;
   outputFormat: string;
   setOutputFormat: (format: string) => void;
   generatedContent: string;
@@ -39,7 +38,6 @@ export default function CreatorView({
   setCurrentScene,
   pastedText,
   setPastedText,
-  influencerImagePreview,
   outputFormat,
   setOutputFormat,
   generatedContent,
@@ -55,7 +53,7 @@ export default function CreatorView({
         setInfluencer={setInfluencer}
         pastedText={pastedText}
         setPastedText={setPastedText}
-        imagePreview={influencerImagePreview}
+        imagePreview={influencer.imagePreview || ''}
         loadingStates={loadingStates}
         isLoggedIn={isLoggedIn}
         handlers={{
