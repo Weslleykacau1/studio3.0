@@ -20,6 +20,7 @@ interface SceneEditorProps {
   handlers: {
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
+    generateDialogueSeo: () => Promise<void>;
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
@@ -67,7 +68,21 @@ export default function SceneEditor({
             <p className="mt-2 rounded-lg border bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Dica: Seja específico sobre iluminação, cores dominantes, materiais, e atmosfera. Quanto mais detalhes, melhor o resultado.</p>
         </div>
         <div><Label>Ação Principal</Label><Textarea name="action" value={currentScene.action} onChange={handleInputChange} placeholder="O que o influenciador está a fazer..." /></div>
-        <div><Label>Diálogo</Label><Textarea name="dialogue" value={currentScene.dialogue} onChange={handleInputChange} placeholder="O que o influenciador diz (em Português do Brasil)..." /></div>
+        <div>
+            <Label>Diálogo</Label>
+            <Textarea name="dialogue" value={currentScene.dialogue} onChange={handleInputChange} placeholder="O que o influenciador diz (em Português do Brasil)..." />
+            <AiButton
+                onClick={handlers.generateDialogueSeo}
+                loading={loadingStates.generatingSeo}
+                isLoggedIn={isLoggedIn}
+                disabled={!currentScene.dialogue.trim()}
+                className="mt-2"
+                variant="secondary"
+            >
+                <Bot className="mr-2 h-4 w-4" />
+                Gerar SEO do Diálogo
+            </AiButton>
+        </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>

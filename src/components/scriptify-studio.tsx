@@ -10,6 +10,7 @@ import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { generateVideoScript } from '@/ai/flows/generate-video-script';
+import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -34,8 +35,9 @@ export default function ScriptifyStudio() {
     const [scenes, setScenes] = useState<Scene[]>([]);
     const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
     const [generatedContent, setGeneratedContent] = useState('');
+    const [generatedSeoContent, setGeneratedSeoContent] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
@@ -200,7 +202,7 @@ export default function ScriptifyStudio() {
                 try {
                     const parsedResponse = JSON.parse(responseText);
                     const promptContent = parsedResponse.prompt || '';
-                    setGeneratedContent(`\`\`\`text\n${promptContent}\n\`\`\``);
+                    setGeneratedContent(`\`\`\`text\n${promptContent.trim()}\n\`\`\``);
                 } catch (error) {
                     console.error("Failed to parse JSON response from API:", error);
                     throw new Error("A API retornou um prompt com formato JSON inválido.");
@@ -215,6 +217,25 @@ export default function ScriptifyStudio() {
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
         } finally {
             setLoading('generatingScript', false);
+        }
+    };
+
+    const generateDialogueSeo = async () => {
+        if (!currentScene.dialogue) return toast({ variant: 'destructive', title: "Diálogo em falta", description: "Escreva um diálogo na cena para gerar o SEO." });
+        
+        setLoading('generatingSeo', true);
+        setGeneratedSeoContent('');
+        try {
+            const responseText = await generateSeoForPlatforms({
+                dialogue: currentScene.dialogue,
+            });
+            setGeneratedSeoContent(responseText);
+            toast({ title: "SEO gerado com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            setGeneratedSeoContent(`**Falha ao gerar SEO:**\n\n${error.message}`);
+            toast({ variant: 'destructive', title: "Erro na Geração de SEO", description: error.message });
+        } finally {
+            setLoading('generatingSeo', false);
         }
     };
 
@@ -371,6 +392,7 @@ export default function ScriptifyStudio() {
                         setOutputFormat={setOutputFormat}
                         generatedContent={generatedContent}
                         setGeneratedContent={setGeneratedContent}
+                        generatedSeoContent={generatedSeoContent}
                         loadingStates={loadingStates}
                         isLoggedIn={isLoggedIn}
                         handlers={{
@@ -379,6 +401,7 @@ export default function ScriptifyStudio() {
                             analyzeScenarioImageAndFill,
                             analyzeAndDescribeProduct,
                             generateSceneContent,
+                            generateDialogueSeo,
                             saveOrUpdateInfluencer,
                             handleAddUpdateScene,
                             handleImageUpload,

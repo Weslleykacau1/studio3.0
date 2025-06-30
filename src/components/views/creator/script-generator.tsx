@@ -14,6 +14,7 @@ interface ScriptGeneratorProps {
   setOutputFormat: (format: string) => void;
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
+  generatedSeoContent: string;
   loading: boolean;
   isLoggedIn: boolean;
   isGenerationDisabled: boolean;
@@ -23,9 +24,10 @@ interface ScriptGeneratorProps {
 }
 
 export default function ScriptGenerator({
-  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate
+  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
+  const [copySeoSuccess, setCopySeoSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
@@ -51,7 +53,7 @@ export default function ScriptGenerator({
     const codeBlockMatch = generatedContent.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
     
     if (codeBlockMatch && codeBlockMatch[1]) {
-      textToCopy = codeBlockMatch[1];
+      textToCopy = codeBlockMatch[1].trim();
     }
     
     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -60,6 +62,18 @@ export default function ScriptGenerator({
       setTimeout(() => setCopySuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy text: ', err);
+      toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
+  const handleCopySeo = () => {
+    if (!generatedSeoContent) return;
+    navigator.clipboard.writeText(generatedSeoContent).then(() => {
+      setCopySeoSuccess(true);
+      toast({ title: 'Conteúdo SEO copiado!', className: 'bg-green-100' });
+      setTimeout(() => setCopySeoSuccess(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy SEO text: ', err);
       toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
@@ -96,7 +110,7 @@ export default function ScriptGenerator({
       </Card>
 
       {generatedContent && (
-        <Card>
+        <Card className="mt-8">
           <CardHeader>
             <CardTitle className="font-headline">Prompt Gerado</CardTitle>
           </CardHeader>
@@ -105,6 +119,27 @@ export default function ScriptGenerator({
             <Button onClick={handleCopy} variant="outline" className="mt-4">
               <Copy className="mr-2 h-4 w-4" />
               {copySuccess ? 'Copiado!' : 'Copiar Prompt'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedSeoContent && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+              <Bot className="text-primary" />
+              SEO Gerado para Diálogo
+            </CardTitle>
+            <CardDescription>
+              Sugestões de títulos, descrições e hashtags para impulsionar seu vídeo.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentDisplay content={generatedSeoContent} />
+            <Button onClick={handleCopySeo} variant="outline" className="mt-4">
+              <Copy className="mr-2 h-4 w-4" />
+              {copySeoSuccess ? 'Copiado!' : 'Copiar SEO'}
             </Button>
           </CardContent>
         </Card>

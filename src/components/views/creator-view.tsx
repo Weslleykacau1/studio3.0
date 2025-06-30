@@ -8,13 +8,14 @@ interface CreatorViewProps {
   influencer: Influencer;
   setInfluencer: (influencer: Influencer) => void;
   currentScene: Scene;
-  setCurrentScene: (scene: Scene) => void;
+  setCurrentScene: (scene: Scene | ((prev: Scene) => Scene)) => void;
   pastedText: string;
   setPastedText: (text: string) => void;
   outputFormat: string;
   setOutputFormat: (format: string) => void;
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
+  generatedSeoContent: string;
   loadingStates: LoadingStates;
   isLoggedIn: boolean;
   handlers: {
@@ -23,6 +24,7 @@ interface CreatorViewProps {
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
     generateSceneContent: (scene: Scene) => Promise<void>;
+    generateDialogueSeo: () => Promise<void>;
     saveOrUpdateInfluencer: () => void;
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => void;
@@ -42,6 +44,7 @@ export default function CreatorView({
   setOutputFormat,
   generatedContent,
   setGeneratedContent,
+  generatedSeoContent,
   loadingStates,
   isLoggedIn,
   handlers,
@@ -73,6 +76,7 @@ export default function CreatorView({
         handlers={{
           analyzeScenarioImageAndFill: handlers.analyzeScenarioImageAndFill,
           analyzeAndDescribeProduct: handlers.analyzeAndDescribeProduct,
+          generateDialogueSeo: handlers.generateDialogueSeo,
           handleAddUpdateScene: handlers.handleAddUpdateScene,
           handleImageUpload: handlers.handleImageUpload,
           resetScene: handlers.resetScene,
@@ -84,6 +88,7 @@ export default function CreatorView({
         setOutputFormat={setOutputFormat}
         generatedContent={generatedContent}
         setGeneratedContent={setGeneratedContent}
+        generatedSeoContent={generatedSeoContent}
         loading={loadingStates.generatingScript}
         isLoggedIn={isLoggedIn}
         onGenerate={() => handlers.generateSceneContent(currentScene)}
