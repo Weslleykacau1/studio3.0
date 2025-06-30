@@ -397,7 +397,7 @@ export default function ScriptifyStudio() {
 
 
     return (
-        <>
+        <div suppressHydrationWarning>
             <LoginModal
                 isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
@@ -476,6 +476,6 @@ export default function ScriptifyStudio() {
                     />
                 </TabsContent>
             </Tabs>
-        </>
+        </div>
     );
 }
