@@ -77,14 +77,14 @@ export function ContentDisplay({ content }: ContentDisplayProps) {
     );
   }
 
-  const codeBlockMatch = content.match(/^```(json)?\n([\s\S]*?)```$/);
+  const codeBlockMatch = content.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
 
-  if (codeBlockMatch) {
-    const code = codeBlockMatch[2];
+  if (codeBlockMatch && codeBlockMatch[1]) {
+    const code = codeBlockMatch[1];
     return (
       <Card className="bg-gray-900 text-white dark:bg-black mt-4">
           <CardContent className="p-4">
-            <pre className="overflow-x-auto text-sm font-code">
+            <pre className="overflow-x-auto whitespace-pre-wrap text-sm font-code">
                 <code>{code}</code>
             </pre>
           </CardContent>

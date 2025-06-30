@@ -198,9 +198,9 @@ export default function ScriptifyStudio() {
             
             if (outputFormat === 'json') {
                 try {
-                    const parsedPrompt = JSON.parse(responseText);
-                    const formattedPrompt = JSON.stringify(parsedPrompt, null, 2);
-                    setGeneratedContent(`\`\`\`json\n${formattedPrompt}\n\`\`\``);
+                    const parsedResponse = JSON.parse(responseText);
+                    const promptContent = parsedResponse.prompt || '';
+                    setGeneratedContent(`\`\`\`text\n${promptContent}\n\`\`\``);
                 } catch (error) {
                     console.error("Failed to parse JSON response from API:", error);
                     throw new Error("A API retornou um prompt com formato JSON inválido.");

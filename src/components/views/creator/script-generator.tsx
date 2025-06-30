@@ -46,11 +46,14 @@ export default function ScriptGenerator({
 
   const handleCopy = () => {
     if (!generatedContent) return;
+
     let textToCopy = generatedContent;
-    if (outputFormat === 'json') {
-      const match = generatedContent.match(/```json\n([\s\S]*?)```/);
-      textToCopy = match ? match[1] : generatedContent;
+    const codeBlockMatch = generatedContent.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
+    
+    if (codeBlockMatch && codeBlockMatch[1]) {
+      textToCopy = codeBlockMatch[1];
     }
+    
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopySuccess(true);
       toast({ title: 'Prompt copiado para a área de transferência!', className: 'bg-green-100' });
