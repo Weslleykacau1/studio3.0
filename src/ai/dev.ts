@@ -7,3 +7,4 @@ import '@/ai/flows/analyze-influencer-image.ts';
 import '@/ai/flows/generate-video-script.ts';
 import '@/ai/flows/analyze-text-profile.ts';
 import '@/ai/flows/generate-seo-flow.ts';
+import '@/ai/flows/generate-scene-action.ts';
