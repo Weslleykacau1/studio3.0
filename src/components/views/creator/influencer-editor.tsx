@@ -22,7 +22,7 @@ interface InfluencerEditorProps {
     analyzeAndFillFromText: () => Promise<void>;
     analyzeInfluencerImageAndFill: () => Promise<void>;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer') => void;
-    saveOrUpdateInfluencer: () => Promise<void>;
+    saveOrUpdateInfluencer: () => void;
     resetInfluencer: () => void;
   };
 }

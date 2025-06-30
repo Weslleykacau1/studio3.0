@@ -20,7 +20,7 @@ interface SceneEditorProps {
   handlers: {
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
-    handleAddUpdateScene: () => Promise<void>;
+    handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
   };

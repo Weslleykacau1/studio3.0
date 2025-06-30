@@ -23,8 +23,8 @@ interface CreatorViewProps {
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
     generateSceneContent: (scene: Scene) => Promise<void>;
-    saveOrUpdateInfluencer: () => Promise<void>;
-    handleAddUpdateScene: () => Promise<void>;
+    saveOrUpdateInfluencer: () => void;
+    handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => void;
     resetInfluencer: () => void;
     resetScene: () => void;

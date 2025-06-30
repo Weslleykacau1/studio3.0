@@ -1,15 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { signInAnonymously, onAuthStateChanged, signInWithCustomToken, User } from 'firebase/auth';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, DocumentData } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { useState, useEffect } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates, InfluencerDocument, SceneDocument } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { formatTimeAgo, extractJson, handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { analyzeTextProfile, AnalyzeTextProfileOutput } from '@/ai/flows/analyze-text-profile';
-import { analyzeInfluencerImage, AnalyzeInfluencerImageOutput } from '@/ai/flows/analyze-influencer-image';
+import { extractJson, handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
+import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
+import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { generateVideoScript } from '@/ai/flows/generate-video-script';
@@ -20,12 +17,7 @@ import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid, Bot } from 'lucide-react';
-
-declare global {
-  var __initial_auth_token: string | undefined;
-  var __app_id: string | undefined;
-}
+import { Film, Palette, LayoutGrid } from 'lucide-react';
 
 const initialInfluencerState: Influencer = { id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '' };
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Vlog (Conversacional)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, };
@@ -45,77 +37,47 @@ export default function ScriptifyStudio() {
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
-    const [userId, setUserId] = useState<string | null>(null);
-    const [appId, setAppId] = useState('default-app-id');
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
 
+    // Load from localStorage on mount
     useEffect(() => {
         setHasMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedApiKey = localStorage.getItem('geminiApiKey');
-            if (savedApiKey) {
-                setUserApiKey(savedApiKey);
-                setIsLoggedIn(true);
-            }
-            setAppId(window.__app_id || 'default-app-id');
+        const savedApiKey = localStorage.getItem('geminiApiKey');
+        if (savedApiKey) {
+            setUserApiKey(savedApiKey);
+            setIsLoggedIn(true);
         }
 
-        if (!auth || !db) {
-            toast({ variant: 'destructive', title: 'Erro de Configuração', description: 'A configuração do Firebase não foi encontrada. Algumas funcionalidades podem não funcionar.' });
-            return;
-        }
-
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUserId(user.uid);
-            } else {
-                try {
-                    const initialAuthToken = window.__initial_auth_token;
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Firebase sign-in error:", error);
-                    toast({ variant: 'destructive', title: 'Erro de Autenticação', description: 'Não foi possível autenticar com o Firebase.' });
-                }
+        try {
+            const savedInfluencers = localStorage.getItem('scriptify-influencers');
+            if (savedInfluencers) {
+                setGalleryInfluencers(JSON.parse(savedInfluencers));
             }
-        });
-        return () => unsubscribe();
+
+            const savedScenes = localStorage.getItem('scriptify-scenes');
+            if (savedScenes) {
+                setScenes(JSON.parse(savedScenes));
+            }
+        } catch (error) {
+            console.error("Failed to parse data from localStorage", error);
+            toast({ variant: 'destructive', title: "Erro ao carregar dados locais", description: "Os seus dados guardados podem estar corrompidos." });
+        }
     }, [toast]);
 
+    // Save influencers to localStorage whenever they change
     useEffect(() => {
-        if (!db || !userId) return;
+        if (hasMounted) {
+            localStorage.setItem('scriptify-influencers', JSON.stringify(galleryInfluencers));
+        }
+    }, [galleryInfluencers, hasMounted]);
 
-        const influencerCollectionRef = collection(db, 'artifacts', appId, 'users', userId, 'influencerGallery');
-        const influencerUnsubscribe = onSnapshot(influencerCollectionRef, (snapshot) => {
-            const influencersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Influencer));
-            setGalleryInfluencers(influencersData);
-        }, (error) => {
-            console.error("Error fetching influencers:", error);
-            toast({ variant: 'destructive', title: 'Erro de Sincronização', description: 'Não foi possível carregar os influenciadores.' });
-        });
-
-        const scenesCollectionRef = collection(db, 'artifacts', appId, 'users', userId, 'scenes');
-        const scenesUnsubscribe = onSnapshot(scenesCollectionRef, (snapshot) => {
-            const scenesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Scene));
-            setScenes(scenesData);
-        }, (error) => {
-            console.error("Error fetching scenes:", error);
-            toast({ variant: 'destructive', title: 'Erro de Sincronização', description: 'Não foi possível carregar as cenas.' });
-        });
-
-        return () => {
-            influencerUnsubscribe();
-            scenesUnsubscribe();
-        };
-    }, [db, userId, appId, toast]);
-
+    // Save scenes to localStorage whenever they change
+    useEffect(() => {
+        if (hasMounted) {
+            localStorage.setItem('scriptify-scenes', JSON.stringify(scenes));
+        }
+    }, [scenes, hasMounted]);
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
         setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -264,45 +226,33 @@ export default function ScriptifyStudio() {
         }
     };
 
-    // Firebase Handlers
-    const saveOrUpdateInfluencer = async () => {
-        if (!db || !userId) return toast({ variant: 'destructive', title: "Erro de Base de Dados" });
+    // LocalStorage Handlers
+    const saveOrUpdateInfluencer = () => {
         if (!influencer.name) {
             return toast({ variant: 'destructive', title: "Campo em falta", description: "Por favor, preencha o campo: nome." });
         }
 
         setLoading('savingInfluencer', true);
-        const { id, ...dataToSave } = influencer;
-        const docData: InfluencerDocument = dataToSave;
-
         try {
-            if (id) {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'influencerGallery', id);
-                await updateDoc(docRef, docData);
+            if (influencer.id) {
+                setGalleryInfluencers(prev => prev.map(inf => inf.id === influencer.id ? influencer : inf));
                 toast({ title: "Influenciador atualizado com sucesso!", className: "bg-green-100 text-green-800" });
             } else {
-                const collectionRef = collection(db, 'artifacts', appId, 'users', userId, 'influencerGallery');
-                const newDoc = await addDoc(collectionRef, docData);
-                setInfluencer(prev => ({...prev, id: newDoc.id }));
+                const newInfluencer = { ...influencer, id: crypto.randomUUID() };
+                setGalleryInfluencers(prev => [...prev, newInfluencer]);
+                setInfluencer(newInfluencer);
                 toast({ title: "Influenciador adicionado à galeria!", className: "bg-green-100 text-green-800" });
             }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Guardar", description: error.message });
         } finally {
             setLoading('savingInfluencer', false);
         }
     };
     
-    const deleteInfluencer = async (idToDelete: string) => {
-        if (!db || !userId) return;
-        try {
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'influencerGallery', idToDelete));
-            toast({ title: "Influenciador excluído!" });
-            if (influencer.id === idToDelete) {
-                setInfluencer(initialInfluencerState);
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Excluir", description: error.message });
+    const deleteInfluencer = (idToDelete: string) => {
+        setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
+        toast({ title: "Influenciador excluído!" });
+        if (influencer.id === idToDelete) {
+            setInfluencer(initialInfluencerState);
         }
     };
     
@@ -315,40 +265,30 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleAddUpdateScene = async () => {
-        if (!db || !userId) return toast({ variant: 'destructive', title: "Erro de Base de Dados" });
-        if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório." });
+    const handleAddUpdateScene = () => {
+        if (!currentScene.setting && !currentScene.title) return toast({ variant: 'destructive', title: "Dados em falta", description: "Preencha pelo menos um título ou um cenário." });
 
         setLoading('savingScene', true);
-        const { id, ...data } = currentScene;
-        const sceneToSave: SceneDocument = data;
-
         try {
-            if (id) {
-                await updateDoc(doc(db, 'artifacts', appId, 'users', userId, 'scenes', id), sceneToSave);
+            if (currentScene.id) {
+                setScenes(prev => prev.map(s => s.id === currentScene.id ? currentScene : s));
                 toast({ title: "Cena atualizada com sucesso!", className: "bg-green-100 text-green-800" });
             } else {
-                const newDoc = await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'scenes'), sceneToSave);
-                setCurrentScene(prev => ({ ...prev, id: newDoc.id }));
+                const newScene = { ...currentScene, id: crypto.randomUUID() };
+                setScenes(prev => [...prev, newScene]);
+                setCurrentScene(newScene);
                 toast({ title: "Cena adicionada com sucesso!", className: "bg-green-100 text-green-800" });
             }
-        } catch (error: any) {
-             toast({ variant: 'destructive', title: "Erro ao Guardar Cena", description: error.message });
         } finally {
             setLoading('savingScene', false);
         }
     };
 
-    const deleteScene = async (idToDelete: string) => {
-        if (!db || !userId) return;
-        try {
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'scenes', idToDelete));
-            toast({ title: "Cena excluída!" });
-            if (currentScene.id === idToDelete) {
-                setCurrentScene(initialSceneState);
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Excluir Cena", description: error.message });
+    const deleteScene = (idToDelete: string) => {
+        setScenes(prev => prev.filter(s => s.id !== idToDelete));
+        toast({ title: "Cena excluída!" });
+        if (currentScene.id === idToDelete) {
+            setCurrentScene(initialSceneState);
         }
     };
 

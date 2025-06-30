@@ -34,11 +34,6 @@ export interface Scene {
     onlyPhysicalText: boolean;
 }
 
-// Separate type for what is stored in Firestore
-export type InfluencerDocument = Omit<Influencer, 'id'>;
-export type SceneDocument = Omit<Scene, 'id'>;
-
-
 export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery';
 
 export type LoadingStates = {
