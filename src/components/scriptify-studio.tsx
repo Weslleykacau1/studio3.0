@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import type { Influencer, Scene, ActiveView, LoadingStates, ApiKeyStatus } from '@/types';
 import { useToast } from "@/hooks/use-toast";
@@ -46,7 +46,7 @@ export default function ScriptifyStudio() {
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
 
-    const testApiKey = async (key: string) => {
+    const testApiKey = useCallback(async (key: string) => {
         setApiKeyStatus('testing');
         try {
             const payload = { contents: [{ role: 'user', parts: [{ text: 'hello' }] }] };
@@ -73,7 +73,7 @@ export default function ScriptifyStudio() {
             toast({ variant: 'destructive', title: "Erro de Rede", description: "Não foi possível verificar a chave API." });
             return false;
         }
-    };
+    }, [toast]);
     
     // Load from localStorage/IndexedDB on mount
     useEffect(() => {
@@ -100,7 +100,7 @@ export default function ScriptifyStudio() {
         }
 
         loadData();
-    }, [toast]);
+    }, [toast, testApiKey]);
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
         setLoadingStates(prev => ({ ...prev, [key]: value }));
