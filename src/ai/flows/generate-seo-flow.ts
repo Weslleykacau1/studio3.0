@@ -47,7 +47,7 @@ O resultado deve ser formatado em **Markdown**. Para cada plataforma, forneça u
 ### YouTube
 - **Título Sugerido:** [Crie um título "clickbait" mas relevante para o YouTube]
 - **Descrição:** [Escreva uma descrição detalhada para o YouTube, incluindo um resumo do vídeo, CTAs e links relevantes (use placeholders como [LINK]).]
-- **Tags:** [Liste de 10 a 15 tags relevantes, separadas por vírgulas.]
+- **Tags:** [Liste tags relevantes, separadas por vírgulas, até um limite de 500 caracteres no total.]
 
 ### TikTok
 - **Legenda:** [Crie uma legenda curta e envolvente para o TikTok, incluindo uma pergunta para engajar.]
