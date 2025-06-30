@@ -8,6 +8,7 @@ import { ContentDisplay } from '@/components/content-display';
 import { Bot, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ScriptGeneratorProps {
   outputFormat: string;
@@ -117,7 +118,14 @@ export default function ScriptGenerator({
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedContent} />
-            <Button onClick={handleCopy} variant="outline" className="mt-4">
+            <Button
+              onClick={handleCopy}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copySuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
               <Copy className="mr-2 h-4 w-4" />
               {copySuccess ? 'Copiado!' : 'Copiar Prompt'}
             </Button>
@@ -138,7 +146,14 @@ export default function ScriptGenerator({
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedSeoContent} />
-            <Button onClick={handleCopySeo} variant="outline" className="mt-4">
+            <Button
+              onClick={handleCopySeo}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copySeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
               <Copy className="mr-2 h-4 w-4" />
               {copySeoSuccess ? 'Copiado!' : 'Copiar SEO'}
             </Button>
