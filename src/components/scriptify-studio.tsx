@@ -48,6 +48,11 @@ export default function ScriptifyStudio() {
     const [userId, setUserId] = useState<string | null>(null);
     const [appId, setAppId] = useState('default-app-id');
     const { toast } = useToast();
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -365,6 +370,10 @@ export default function ScriptifyStudio() {
         setCurrentScene(initialSceneState);
         setActiveView('creator');
     };
+
+    if (!hasMounted) {
+        return null;
+    }
 
 
     return (
