@@ -32,6 +32,7 @@ export default function ScriptifyStudio() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('idle');
+    const [lastApiKeyCheck, setLastApiKeyCheck] = useState<string | null>(null);
     
     const [influencer, setInfluencer] = useState<Influencer>(initialInfluencerState);
     const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
@@ -61,15 +62,18 @@ export default function ScriptifyStudio() {
             const result = await response.json();
             if (response.ok && result.candidates) {
                 setApiKeyStatus('valid');
+                setLastApiKeyCheck(new Date().toISOString());
                 return true;
             } else {
                 setApiKeyStatus('invalid');
+                setLastApiKeyCheck(null);
                 toast({ variant: 'destructive', title: "Chave API Inválida", description: "A chave API guardada não está a funcionar." });
                 return false;
             }
         } catch (error) {
             console.error('Erro no teste da API:', error);
             setApiKeyStatus('invalid');
+            setLastApiKeyCheck(null);
             toast({ variant: 'destructive', title: "Erro de Rede", description: "Não foi possível verificar a chave API." });
             return false;
         }
@@ -111,6 +115,7 @@ export default function ScriptifyStudio() {
         localStorage.setItem('geminiApiKey', key);
         setIsLoggedIn(true);
         setApiKeyStatus('valid');
+        setLastApiKeyCheck(new Date().toISOString());
         setIsLoginModalOpen(false);
         toast({ title: "Chave API guardada e verificada!", className: "bg-green-100 text-green-800" });
     };
@@ -120,6 +125,7 @@ export default function ScriptifyStudio() {
         localStorage.removeItem('geminiApiKey');
         setIsLoggedIn(false);
         setApiKeyStatus('idle');
+        setLastApiKeyCheck(null);
         toast({ title: "Chave API removida." });
     };
 
@@ -442,6 +448,7 @@ export default function ScriptifyStudio() {
                 onLoginClick={() => setIsLoginModalOpen(true)}
                 onRemoveApiKey={handleRemoveApiKey}
                 apiKeyStatus={apiKeyStatus}
+                lastApiKeyCheck={lastApiKeyCheck}
             />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
