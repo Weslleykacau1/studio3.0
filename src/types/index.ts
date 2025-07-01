@@ -34,7 +34,7 @@ export interface Scene {
     onlyPhysicalText: boolean;
 }
 
-export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery';
+export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'veoTutorial';
 export type ApiKeyStatus = 'idle' | 'valid' | 'invalid' | 'testing';
 
 export type LoadingStates = {
