@@ -17,6 +17,8 @@ const VideoScriptInputSchema = z.object({
   influencerPersonality: z.string().describe('The personality traits of the influencer.'),
   influencerAppearance: z.string().describe('A detailed description of the influencer appearance.'),
   influencerNiche: z.string().describe('The content niche of the influencer.'),
+  influencerSeed: z.number().describe('The generation seed for the influencer.'),
+  influencerAccent: z.string().describe('The accent of the influencer in Portuguese.'),
   sceneTitle: z.string().describe('The title of the video scene.'),
   sceneSetting: z.string().describe('A detailed description of the scene setting.'),
   sceneAction: z.string().describe('The main action occurring in the scene.'),
@@ -31,7 +33,6 @@ const VideoScriptInputSchema = z.object({
   allowDigitalText: z.boolean().optional().describe('Whether digital text overlays are allowed in the scene.'),
   onlyPhysicalText: z.boolean().optional().describe('Whether only physical text (e.g., on signs) is allowed.'),
   outputFormat: z.enum(['json', 'markdown']).describe('The desired output format: json or markdown.'),
-  influencerAccent: z.string().describe('The accent of the influencer in Portuguese.'),
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
@@ -61,6 +62,7 @@ Here are the specifications to include in the prompt you generate:
 - Personality: {{{influencerPersonality}}}
 - Appearance: {{{influencerAppearance}}}
 - Niche: {{{influencerNiche}}}
+- Seed: {{{influencerSeed}}}
 
 **2. Scene Details:**
 - Title: {{{sceneTitle}}}

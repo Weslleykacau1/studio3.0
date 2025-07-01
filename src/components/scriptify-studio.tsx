@@ -271,6 +271,7 @@ export default function ScriptifyStudio() {
                 influencerPersonality: influencer.personality,
                 influencerAppearance: influencer.appearance,
                 influencerNiche: influencer.niche,
+                influencerSeed: influencer.seed,
                 influencerAccent: influencer.accent,
                 sceneTitle: sceneToGenerate.title,
                 sceneSetting: sceneToGenerate.setting,
