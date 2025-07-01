@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { AiButton } from '@/components/ai-button';
 import Image from 'next/image';
-import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon } from 'lucide-react';
+import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon, RefreshCw } from 'lucide-react';
+import React from 'react';
 
 interface InfluencerEditorProps {
   influencer: Influencer;
-  setInfluencer: (influencer: Influencer) => void;
+  setInfluencer: React.Dispatch<React.SetStateAction<Influencer>>;
   pastedText: string;
   setPastedText: (text: string) => void;
   imagePreview: string;
@@ -33,11 +34,14 @@ export default function InfluencerEditor({
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setInfluencer({ ...influencer, [name]: value });
+    setInfluencer(prev => ({ 
+      ...prev, 
+      [name]: name === 'seed' ? parseInt(value, 10) || 0 : value 
+    }));
   };
 
   const handleSelectChange = (name: keyof Influencer, value: string) => {
-    setInfluencer({ ...influencer, [name]: value });
+    setInfluencer(prev => ({ ...prev, [name]: value }));
   };
   
   return (
@@ -102,7 +106,16 @@ export default function InfluencerEditor({
                   </SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-2">
+            <div>
+              <Label>Seed de Geração</Label>
+              <div className="flex items-center gap-2">
+                <Input name="seed" type="number" value={influencer.seed || 0} onChange={handleInputChange} />
+                <Button variant="outline" size="icon" onClick={() => setInfluencer(prev => ({ ...prev, seed: Math.floor(Math.random() * 1000000) }))} aria-label="Gerar nova seed">
+                  <RefreshCw className="h-4 w-4"/>
+                </Button>
+              </div>
+            </div>
+            <div>
               <Label>Sotaque (Português do Brasil)*</Label>
               <Select value={influencer.accent} onValueChange={(v) => handleSelectChange('accent', v)}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>

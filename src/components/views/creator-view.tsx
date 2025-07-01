@@ -3,10 +3,11 @@ import type { Influencer, Scene, LoadingStates } from '@/types';
 import InfluencerEditor from './creator/influencer-editor';
 import SceneEditor from './creator/scene-editor';
 import ScriptGenerator from './creator/script-generator';
+import React from 'react';
 
 interface CreatorViewProps {
   influencer: Influencer;
-  setInfluencer: (influencer: Influencer) => void;
+  setInfluencer: React.Dispatch<React.SetStateAction<Influencer>>;
   currentScene: Scene;
   setCurrentScene: (scene: Scene | ((prev: Scene) => Scene)) => void;
   pastedText: string;

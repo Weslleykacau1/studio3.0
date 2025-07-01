@@ -23,7 +23,7 @@ import SceneGalleryView from './views/scene-gallery-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Film, Palette, LayoutGrid } from 'lucide-react';
 
-const initialInfluencerState: Influencer = { id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '' };
+const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Vlog (Conversacional)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, };
 
 export default function ScriptifyStudio() {
@@ -34,7 +34,7 @@ export default function ScriptifyStudio() {
     const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('idle');
     const [lastApiKeyCheck, setLastApiKeyCheck] = useState<string | null>(null);
     
-    const [influencer, setInfluencer] = useState<Influencer>(initialInfluencerState);
+    const [influencer, setInfluencer] = useState<Influencer>(getInitialInfluencerState());
     const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
     const [scenes, setScenes] = useState<Scene[]>([]);
     const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
@@ -151,7 +151,7 @@ export default function ScriptifyStudio() {
         setLoading('analyzingFromText', true);
         try {
             const result = await analyzeTextProfile({ pastedText });
-            setInfluencer(prev => ({ ...prev, ...result }));
+            setInfluencer(prev => ({ ...prev, ...result, seed: getInitialInfluencerState().seed }));
             toast({ title: "Características preenchidas a partir do texto!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
@@ -168,7 +168,7 @@ export default function ScriptifyStudio() {
         setLoading('analyzingInfluencer', true);
         try {
             const result = await analyzeInfluencerImage({ photoDataUri });
-            setInfluencer(prev => ({ ...prev, ...result, imagePreview: photoDataUri }));
+            setInfluencer(prev => ({ ...prev, ...result, imagePreview: photoDataUri, seed: getInitialInfluencerState().seed }));
             toast({ title: "Características preenchidas com detalhe!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
@@ -371,7 +371,7 @@ export default function ScriptifyStudio() {
             setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
             toast({ title: "Influenciador excluído!" });
             if (influencer.id === idToDelete) {
-                setInfluencer(initialInfluencerState);
+                setInfluencer(getInitialInfluencerState());
             }
         } catch (error) {
             console.error("Failed to delete influencer:", error);
@@ -440,7 +440,7 @@ export default function ScriptifyStudio() {
     };
 
     const handleAddNewInfluencer = () => {
-        setInfluencer(initialInfluencerState);
+        setInfluencer(getInitialInfluencerState());
         setActiveView('creator');
     };
 
@@ -512,7 +512,7 @@ export default function ScriptifyStudio() {
                             saveOrUpdateInfluencer,
                             handleAddUpdateScene,
                             handleImageUpload,
-                            resetInfluencer: () => setInfluencer(initialInfluencerState),
+                            resetInfluencer: () => setInfluencer(getInitialInfluencerState()),
                             resetScene: () => setCurrentScene(initialSceneState),
                         }}
                     />

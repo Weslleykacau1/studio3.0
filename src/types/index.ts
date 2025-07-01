@@ -10,6 +10,7 @@ export interface Influencer {
     age: string;
     gender: string;
     accent: string;
+    seed: number;
     imagePreview?: string;
 }
 
