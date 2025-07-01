@@ -50,4 +50,5 @@ export type LoadingStates = {
     generatingSeo: boolean;
     generatingAction: boolean;
     generatingTitle: boolean;
+    generatingDialogue: boolean;
 };

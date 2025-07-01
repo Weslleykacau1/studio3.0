@@ -13,6 +13,7 @@ import { generateVideoScript } from '@/ai/flows/generate-video-script';
 import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
+import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -41,7 +42,7 @@ export default function ScriptifyStudio() {
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
@@ -226,6 +227,27 @@ export default function ScriptifyStudio() {
             toast({ variant: 'destructive', title: "Erro na Geração do Título", description: error.message });
         } finally {
             setLoading('generatingTitle', false);
+        }
+    };
+
+    const generateSceneDialogueHandler = async () => {
+        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue um influenciador primeiro." });
+        if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um diálogo." });
+        
+        setLoading('generatingDialogue', true);
+        try {
+            const result = await generateSceneDialogue({
+                influencerPersonality: influencer.personality,
+                influencerAccent: influencer.accent,
+                sceneSetting: currentScene.setting,
+                sceneAction: currentScene.action,
+            });
+            setCurrentScene(prev => ({ ...prev, dialogue: result.dialogue || '' }));
+            toast({ title: "Diálogo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Geração do Diálogo", description: error.message });
+        } finally {
+            setLoading('generatingDialogue', false);
         }
     };
 
@@ -510,6 +532,7 @@ export default function ScriptifyStudio() {
                             generateDialogueSeo,
                             generateSceneAction: generateSceneActionHandler,
                             generateSceneTitle: generateSceneTitleHandler,
+                            generateSceneDialogue: generateSceneDialogueHandler,
                             saveOrUpdateInfluencer,
                             handleAddUpdateScene,
                             handleImageUpload,

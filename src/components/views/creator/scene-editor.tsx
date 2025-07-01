@@ -23,6 +23,7 @@ interface SceneEditorProps {
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
     generateSceneTitle: () => Promise<void>;
+    generateSceneDialogue: () => Promise<void>;
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
@@ -101,17 +102,28 @@ export default function SceneEditor({
         <div>
             <Label>Diálogo</Label>
             <Textarea name="dialogue" value={currentScene.dialogue} onChange={handleInputChange} placeholder="O que o influenciador diz (em Português do Brasil)..." />
-            <AiButton
-                onClick={handlers.generateDialogueSeo}
-                loading={loadingStates.generatingSeo}
-                isLoggedIn={isLoggedIn}
-                disabled={!currentScene.dialogue.trim()}
-                className="mt-2"
-                variant="secondary"
-            >
-                <Bot className="mr-2 h-4 w-4" />
-                Gerar SEO do Diálogo
-            </AiButton>
+            <div className="mt-2 flex flex-wrap gap-2">
+                <AiButton
+                    onClick={handlers.generateSceneDialogue}
+                    loading={loadingStates.generatingDialogue}
+                    isLoggedIn={isLoggedIn}
+                    disabled={!currentScene.setting.trim() || !currentScene.action.trim()}
+                    variant="secondary"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    Gerar Diálogo
+                </AiButton>
+                <AiButton
+                    onClick={handlers.generateDialogueSeo}
+                    loading={loadingStates.generatingSeo}
+                    isLoggedIn={isLoggedIn}
+                    disabled={!currentScene.dialogue.trim()}
+                    variant="secondary"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    Gerar SEO
+                </AiButton>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

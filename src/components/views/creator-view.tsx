@@ -28,6 +28,7 @@ interface CreatorViewProps {
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
     generateSceneTitle: () => Promise<void>;
+    generateSceneDialogue: () => Promise<void>;
     saveOrUpdateInfluencer: () => void;
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => void;
@@ -82,6 +83,7 @@ export default function CreatorView({
           generateDialogueSeo: handlers.generateDialogueSeo,
           generateSceneAction: handlers.generateSceneAction,
           generateSceneTitle: handlers.generateSceneTitle,
+          generateSceneDialogue: handlers.generateSceneDialogue,
           handleAddUpdateScene: handlers.handleAddUpdateScene,
           handleImageUpload: handlers.handleImageUpload,
           resetScene: handlers.resetScene,
