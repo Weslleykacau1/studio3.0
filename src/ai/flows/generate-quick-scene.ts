@@ -36,7 +36,7 @@ const prompt = ai.definePrompt({
     name: 'generateQuickScenePrompt',
     input: {schema: GenerateQuickSceneInputSchema},
     output: {schema: GenerateQuickSceneOutputSchema},
-    prompt: `Você é um roteirista de comédia criativo. Com base na personalidade e no nicho do influenciador, e no tema da piada fornecido, crie uma cena curta e engraçada.
+    prompt: `Você é um roteirista de comédia criativo. Com base na personalidade e no nicho do influenciador, e no tema da piada fornecido, crie uma cena curta e engraçada. O diálogo resultante deve ser adequado para um vídeo com duração máxima de 8 segundos.
 
 A cena DEVE incluir um título, uma descrição do cenário, a ação principal e um diálogo curto.
 
