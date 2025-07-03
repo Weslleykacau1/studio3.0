@@ -13,7 +13,7 @@ interface QuickSceneModalProps {
   isOpen: boolean;
   onClose: () => void;
   influencer: Influencer | null;
-  onGenerate: (jokeTheme: string) => Promise<void>;
+  onGenerate: (jokeTheme: string, scenarioSuggestion?: string) => Promise<void>;
   onSave: () => Promise<void>;
   generatedScene: Scene | null;
   loading: boolean;
@@ -24,12 +24,13 @@ export function QuickSceneModal({
   isOpen, onClose, influencer, onGenerate, onSave, generatedScene, loading, isLoggedIn
 }: QuickSceneModalProps) {
   const [jokeTheme, setJokeTheme] = useState('');
+  const [scenarioSuggestion, setScenarioSuggestion] = useState('');
 
   if (!influencer) return null;
 
   const handleGenerateClick = () => {
     if (jokeTheme.trim()) {
-      onGenerate(jokeTheme);
+      onGenerate(jokeTheme, scenarioSuggestion);
     }
   };
 
@@ -41,18 +42,27 @@ export function QuickSceneModal({
             <Sparkles className="h-6 w-6 text-primary" /> Gerador de Cena Rápida
           </DialogTitle>
           <DialogDescription>
-            Crie uma cena cômica para <strong>{influencer.name}</strong> com base em um tema.
+            Crie uma cena cômica para <strong>{influencer.name}</strong> com base em um tema e um cenário.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="joke-theme">Tema da Piada ou Situação</Label>
+            <Label htmlFor="joke-theme">Piada</Label>
             <Input 
               id="joke-theme" 
-              placeholder="Ex: tecnologia, animais, comida" 
+              placeholder="Digite o tema da piada ou situação cômica" 
               value={jokeTheme}
               onChange={(e) => setJokeTheme(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="scenario-suggestion">Cenário</Label>
+            <Input 
+              id="scenario-suggestion" 
+              placeholder="Digite a sua ideia para o cenário (opcional)" 
+              value={scenarioSuggestion}
+              onChange={(e) => setScenarioSuggestion(e.target.value)}
             />
           </div>
           <AiButton
@@ -87,7 +97,7 @@ export function QuickSceneModal({
             type="button" 
             onClick={onSave} 
             disabled={!generatedScene}
-            className="shadow-lg transition-transform hover:scale-105"
+            className="bg-primary shadow-lg transition-transform hover:scale-105"
           >
             <Save className="mr-2 h-4 w-4" /> Salvar e Carregar Cena
           </Button>

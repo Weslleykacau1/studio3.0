@@ -373,7 +373,7 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateQuickScene = async (jokeTheme: string) => {
+    const handleGenerateQuickScene = async (jokeTheme: string, scenarioSuggestion?: string) => {
         if (!selectedInfluencerForQuickScene) return;
         setLoading('generatingQuickScene', true);
         setGeneratedQuickScene(null);
@@ -382,6 +382,7 @@ export default function ScriptifyStudio() {
                 influencerPersonality: selectedInfluencerForQuickScene.personality,
                 influencerNiche: selectedInfluencerForQuickScene.niche,
                 jokeTheme: jokeTheme,
+                scenarioSuggestion: scenarioSuggestion,
             });
             const newScene: Scene = {
                 ...initialSceneState, // use initial state for other fields
