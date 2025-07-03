@@ -386,6 +386,7 @@ export default function ScriptifyStudio() {
             const newScene: Scene = {
                 ...initialSceneState, // use initial state for other fields
                 ...result,
+                duration: '8 seg',
             };
             setGeneratedQuickScene(newScene);
             toast({ title: "Cena rápida gerada com sucesso!", className: "bg-green-100 text-green-800" });
