@@ -2,7 +2,7 @@
 import type { Influencer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UploadCloud, FileText, Trash2, Palette, Plus } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, Palette, Plus, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface InfluencerGalleryViewProps {
@@ -10,13 +10,14 @@ interface InfluencerGalleryViewProps {
   onLoad: (id: string) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
+  onQuickScene: (id: string) => void;
 }
 
-export default function InfluencerGalleryView({ influencers, onLoad, onDelete, onAddNew }: InfluencerGalleryViewProps) {
+export default function InfluencerGalleryView({ influencers, onLoad, onDelete, onAddNew, onQuickScene }: InfluencerGalleryViewProps) {
     const { toast } = useToast();
 
     const exportInfluencerAsTxt = (influencerToExport: Influencer) => {
-        const { id, ...data } = influencerToExport;
+        const { id, imagePreview, ...data } = influencerToExport;
         const content = Object.entries(data)
             .map(([key, value]) => `${key}: ${value}`)
             .join('\n');
@@ -67,17 +68,22 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                   <p className="line-clamp-3 h-[60px] text-sm text-muted-foreground">{gal.bio}</p>
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
-                  <Button onClick={() => onLoad(gal.id!)} className="w-full">
-                    <UploadCloud className="mr-2 h-4 w-4" /> Carregar
-                  </Button>
-                  <div className="flex w-full gap-2">
-                    <Button onClick={() => exportInfluencerAsTxt(gal)} variant="secondary" className="w-full">
-                      <FileText className="mr-2 h-4 w-4" /> Exportar
-                    </Button>
-                    <Button onClick={() => onDelete(gal.id!)} variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                    <div className="grid w-full grid-cols-2 gap-2">
+                        <Button onClick={() => onLoad(gal.id!)} className="w-full">
+                            <UploadCloud className="mr-2 h-4 w-4" /> Carregar
+                        </Button>
+                        <Button onClick={() => onQuickScene(gal.id!)} variant="outline" className="w-full">
+                            <Sparkles className="mr-2 h-4 w-4" /> Cena Rápida
+                        </Button>
+                    </div>
+                    <div className="grid w-full grid-cols-[1fr_auto] gap-2">
+                        <Button onClick={() => exportInfluencerAsTxt(gal)} variant="secondary" className="w-full">
+                          <FileText className="mr-2 h-4 w-4" /> Exportar
+                        </Button>
+                        <Button onClick={() => onDelete(gal.id!)} variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </div>
                 </CardFooter>
               </Card>
             ))}

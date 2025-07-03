@@ -10,3 +10,4 @@ import '@/ai/flows/generate-seo-flow.ts';
 import '@/ai/flows/generate-scene-action.ts';
 import '@/ai/flows/generate-scene-title.ts';
 import '@/ai/flows/generate-scene-dialogue.ts';
+import '@/ai/flows/generate-quick-scene.ts';

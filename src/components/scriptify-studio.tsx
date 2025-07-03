@@ -14,10 +14,12 @@ import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
+import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
 import { LoginModal } from './login-modal';
+import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
@@ -42,11 +44,15 @@ export default function ScriptifyStudio() {
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
+    
+    const [isQuickSceneModalOpen, setIsQuickSceneModalOpen] = useState(false);
+    const [selectedInfluencerForQuickScene, setSelectedInfluencerForQuickScene] = useState<Influencer | null>(null);
+    const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
 
     const testApiKey = useCallback(async (key: string) => {
         setApiKeyStatus('testing');
@@ -357,6 +363,57 @@ export default function ScriptifyStudio() {
         }
     };
 
+    // Quick Scene Handlers
+    const handleOpenQuickSceneModal = (id: string) => {
+        const influencerToLoad = galleryInfluencers.find(inf => inf.id === id);
+        if (influencerToLoad) {
+            setSelectedInfluencerForQuickScene(influencerToLoad);
+            setGeneratedQuickScene(null); // Reset previous generation
+            setIsQuickSceneModalOpen(true);
+        }
+    };
+
+    const handleGenerateQuickScene = async (jokeTheme: string) => {
+        if (!selectedInfluencerForQuickScene) return;
+        setLoading('generatingQuickScene', true);
+        setGeneratedQuickScene(null);
+        try {
+            const result = await generateQuickScene({
+                influencerPersonality: selectedInfluencerForQuickScene.personality,
+                influencerNiche: selectedInfluencerForQuickScene.niche,
+                jokeTheme: jokeTheme,
+            });
+            const newScene: Scene = {
+                ...initialSceneState, // use initial state for other fields
+                ...result,
+            };
+            setGeneratedQuickScene(newScene);
+            toast({ title: "Cena rápida gerada com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro ao gerar cena", description: error.message });
+        } finally {
+            setLoading('generatingQuickScene', false);
+        }
+    };
+
+    const handleSaveAndLoadQuickScene = async () => {
+        if (!generatedQuickScene || !selectedInfluencerForQuickScene) return;
+
+        // Save the scene
+        const sceneToSave = { ...generatedQuickScene, id: crypto.randomUUID() };
+        await saveScene(sceneToSave);
+        setScenes(prev => [...prev, sceneToSave]);
+
+        // Load influencer and scene into editors
+        setInfluencer(selectedInfluencerForQuickScene);
+        setCurrentScene(sceneToSave);
+        
+        // Switch view and close modal
+        setActiveView('creator');
+        setIsQuickSceneModalOpen(false);
+        toast({ title: "Cena salva e carregada no editor!", className: "bg-blue-100 text-blue-800" });
+    };
+    
     // IndexedDB Handlers
     const saveOrUpdateInfluencer = async () => {
         if (!influencer.name) {
@@ -485,6 +542,17 @@ export default function ScriptifyStudio() {
                 onSave={handleSaveApiKey}
             />
 
+            <QuickSceneModal
+                isOpen={isQuickSceneModalOpen}
+                onClose={() => setIsQuickSceneModalOpen(false)}
+                influencer={selectedInfluencerForQuickScene}
+                onGenerate={handleGenerateQuickScene}
+                onSave={handleSaveAndLoadQuickScene}
+                generatedScene={generatedQuickScene}
+                loading={loadingStates.generatingQuickScene}
+                isLoggedIn={isLoggedIn}
+            />
+
             <AppHeader
                 isLoggedIn={isLoggedIn}
                 onLoginClick={() => setIsLoginModalOpen(true)}
@@ -547,6 +615,7 @@ export default function ScriptifyStudio() {
                         onLoad={loadInfluencer}
                         onDelete={deleteInfluencer}
                         onAddNew={handleAddNewInfluencer}
+                        onQuickScene={handleOpenQuickSceneModal}
                     />
                 </TabsContent>
                 <TabsContent value="sceneGallery" className="mt-6">
