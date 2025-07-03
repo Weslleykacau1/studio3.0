@@ -132,6 +132,7 @@ export default function SceneEditor({
               <Select value={currentScene.cameraAngle} onValueChange={(v) => handleSelectChange('cameraAngle', v)}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="Câmera Dinâmica (Criatividade da IA)">Câmera Dinâmica (Criatividade da IA)</SelectItem>
                     <SelectItem value="Vlog (Conversacional)">Vlog (Conversacional)</SelectItem>
                     <SelectItem value="Selfie (Plano próximo, filmado pelo próprio)">Selfie</SelectItem>
                     <SelectItem value="Ponto de Vista (Influenciador)">Ponto de Vista</SelectItem>

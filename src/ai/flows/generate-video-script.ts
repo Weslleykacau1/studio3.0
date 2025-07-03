@@ -120,15 +120,23 @@ const generateVideoScriptFlow = ai.defineFlow(
     outputSchema: VideoScriptOutputSchema,
   },
   async input => {
+    // Create a mutable copy of the input
+    const processedInput = { ...input };
+
+    // Check for the dynamic camera option and replace it with a detailed instruction for the AI.
+    if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
+      processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
+    }
+
     if (input.outputFormat === 'markdown') {
-        const {output} = await generateMarkdownPrompt(input);
+        const {output} = await generateMarkdownPrompt(processedInput);
         if (!output || !output.markdownPrompt) {
             throw new Error("A geração do prompt em Markdown falhou ao não retornar dados. Tente novamente.");
         }
         return output.markdownPrompt;
     }
     
-    const {output} = await generateJsonPrompt(input);
+    const {output} = await generateJsonPrompt(processedInput);
     if (!output || !output.prompt) {
         throw new Error("A geração do prompt em JSON falhou ao não retornar dados. Tente novamente.");
     }
