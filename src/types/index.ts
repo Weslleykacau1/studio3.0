@@ -52,4 +52,5 @@ export type LoadingStates = {
     generatingTitle: boolean;
     generatingDialogue: boolean;
     generatingQuickScene: boolean;
+    generatingVeoPrompt: boolean;
 };

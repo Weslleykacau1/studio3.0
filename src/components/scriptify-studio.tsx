@@ -15,6 +15,7 @@ import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
+import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -43,8 +44,9 @@ export default function ScriptifyStudio() {
     const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
+    const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false });
     const [pastedText, setPastedText] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
@@ -343,6 +345,31 @@ export default function ScriptifyStudio() {
             setLoading('generatingScript', false);
         }
     };
+    
+    const generateVeoPromptHandler = async () => {
+        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
+        if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
+        
+        setLoading('generatingVeoPrompt', true);
+        setGeneratedVeoPrompt('');
+        try {
+            const result = await generateVeoPrompt({
+                influencerAppearance: influencer.appearance,
+                sceneSetting: currentScene.setting,
+                sceneAction: currentScene.action,
+                sceneDialogue: currentScene.dialogue,
+                sceneCameraAngle: currentScene.cameraAngle,
+                videoFormat: currentScene.videoFormat,
+            });
+            
+            setGeneratedVeoPrompt(result.veoPrompt);
+            toast({ title: "Prompt para Veo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
+        } finally {
+            setLoading('generatingVeoPrompt', false);
+        }
+    };
 
     const generateDialogueSeo = async () => {
         if (!currentScene.dialogue) return toast({ variant: 'destructive', title: "Diálogo em falta", description: "Escreva um diálogo na cena para gerar o SEO." });
@@ -619,6 +646,7 @@ export default function ScriptifyStudio() {
                         generatedContent={generatedContent}
                         setGeneratedContent={setGeneratedContent}
                         generatedSeoContent={generatedSeoContent}
+                        generatedVeoPrompt={generatedVeoPrompt}
                         loadingStates={loadingStates}
                         isLoggedIn={isLoggedIn}
                         handlers={{
@@ -627,6 +655,7 @@ export default function ScriptifyStudio() {
                             analyzeScenarioImageAndFill,
                             analyzeAndDescribeProduct,
                             generateSceneContent,
+                            generateVeoPrompt: generateVeoPromptHandler,
                             generateDialogueSeo,
                             generateSceneAction: generateSceneActionHandler,
                             generateSceneTitle: generateSceneTitleHandler,

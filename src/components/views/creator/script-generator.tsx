@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { AiButton } from '@/components/ai-button';
 import { ContentDisplay } from '@/components/content-display';
-import { Bot, Copy } from 'lucide-react';
+import { Bot, Copy, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -16,19 +16,23 @@ interface ScriptGeneratorProps {
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
+  generatedVeoPrompt: string;
   loading: boolean;
+  loadingVeo: boolean;
   isLoggedIn: boolean;
   isGenerationDisabled: boolean;
   influencerId: string | null;
   sceneSetting: string;
   onGenerate: () => void;
+  onGenerateVeoPrompt: () => void;
 }
 
 export default function ScriptGenerator({
-  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, loading, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate
+  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, generatedVeoPrompt, loading, loadingVeo, isLoggedIn, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateVeoPrompt
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
+  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
@@ -79,6 +83,18 @@ export default function ScriptGenerator({
     });
   };
 
+  const handleCopyVeo = () => {
+    if (!generatedVeoPrompt) return;
+    navigator.clipboard.writeText(generatedVeoPrompt).then(() => {
+      setCopyVeoSuccess(true);
+      toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
+      setTimeout(() => setCopyVeoSuccess(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy Veo prompt: ', err);
+      toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
   return (
     <>
       <Card>
@@ -91,7 +107,7 @@ export default function ScriptGenerator({
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <Label className="font-medium">Formato de Saída:</Label>
+            <Label className="font-medium">Formato de Saída (Roteiro Detalhado):</Label>
             <RadioGroup value={outputFormat} onValueChange={setOutputFormat} className="flex items-center gap-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="json" id="json" />
@@ -103,9 +119,22 @@ export default function ScriptGenerator({
               </div>
             </RadioGroup>
           </div>
-          <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            {loading ? 'A gerar...' : 'Gerar Prompt do Roteiro'}
-          </AiButton>
+          <div className="flex flex-wrap items-start gap-2">
+            <AiButton onClick={onGenerate} loading={loading} isLoggedIn={isLoggedIn} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              {loading ? 'A gerar...' : 'Gerar Prompt do Roteiro'}
+            </AiButton>
+            <AiButton 
+              onClick={onGenerateVeoPrompt} 
+              loading={loadingVeo} 
+              isLoggedIn={isLoggedIn} 
+              disabled={isGenerationDisabled}
+              variant="secondary"
+              className="border border-purple-300 bg-purple-50 text-purple-800 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+            >
+              <Video className="mr-2 h-4 w-4" />
+              {loadingVeo ? 'A gerar para Veo...' : 'Gerar Prompt para Veo'}
+            </AiButton>
+          </div>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
         </CardContent>
       </Card>
@@ -113,7 +142,7 @@ export default function ScriptGenerator({
       {generatedContent && (
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="font-headline">Prompt Gerado</CardTitle>
+            <CardTitle className="font-headline">Prompt Detalhado Gerado</CardTitle>
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedContent} />
@@ -127,6 +156,34 @@ export default function ScriptGenerator({
             >
               <Copy className="mr-2 h-4 w-4" />
               {copySuccess ? 'Copiado!' : 'Copiar Prompt'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedVeoPrompt && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-headline">
+              <Video className="text-purple-600" />
+              Prompt Gerado para Veo
+            </CardTitle>
+            <CardDescription>Este prompt conciso pode ser usado em plataformas de vídeo generativo como o Veo.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-sm dark:prose-invert mt-4 max-w-none rounded-xl border bg-secondary/20 p-6 leading-relaxed">
+              <p>{generatedVeoPrompt}</p>
+            </div>
+            <Button
+              onClick={handleCopyVeo}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copyVeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              {copyVeoSuccess ? 'Copiado!' : 'Copiar Prompt Veo'}
             </Button>
           </CardContent>
         </Card>
