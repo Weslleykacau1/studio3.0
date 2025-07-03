@@ -83,7 +83,12 @@ export function QuickSceneModal({
           <Button type="button" variant="ghost" onClick={onClose}>
             Fechar
           </Button>
-          <Button type="button" onClick={onSave} disabled={!generatedScene}>
+          <Button 
+            type="button" 
+            onClick={onSave} 
+            disabled={!generatedScene}
+            className="bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg transition-transform hover:scale-105"
+          >
             <Save className="mr-2 h-4 w-4" /> Salvar e Carregar Cena
           </Button>
         </DialogFooter>
