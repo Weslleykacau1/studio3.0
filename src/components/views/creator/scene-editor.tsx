@@ -80,7 +80,7 @@ export default function SceneEditor({
         </div>
 
         <div>
-            <Label>Cenário*</Label>
+            <Label>Cenário</Label>
             <Textarea name="setting" value={currentScene.setting} onChange={handleInputChange} placeholder="Descreva o ambiente em detalhes - iluminação, cores, objetos, atmosfera..." />
             <p className="mt-2 rounded-lg border bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Dica: Seja específico sobre iluminação, cores dominantes, materiais, e atmosfera. Quanto mais detalhes, melhor o resultado.</p>
         </div>

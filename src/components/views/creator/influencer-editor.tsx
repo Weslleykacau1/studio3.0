@@ -84,19 +84,19 @@ export default function InfluencerEditor({
         </div>
 
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-            <div><Label>Nome*</Label><Input name="name" value={influencer.name} onChange={handleInputChange} placeholder="Ex: Luna Silva" /></div>
-            <div><Label>Nicho*</Label><Input name="niche" value={influencer.niche} onChange={handleInputChange} placeholder="Ex: Moda, Jogos" /></div>
-            <div className="md:col-span-2"><Label>Traços de Personalidade*</Label><Textarea name="personality" value={influencer.personality} onChange={handleInputChange} /></div>
+            <div><Label>Nome</Label><Input name="name" value={influencer.name} onChange={handleInputChange} placeholder="Ex: Luna Silva" /></div>
+            <div><Label>Nicho</Label><Input name="niche" value={influencer.niche} onChange={handleInputChange} placeholder="Ex: Moda, Jogos" /></div>
+            <div className="md:col-span-2"><Label>Traços de Personalidade</Label><Textarea name="personality" value={influencer.personality} onChange={handleInputChange} /></div>
             <div className="md:col-span-2">
-                <Label>Detalhes de Aparência*</Label>
+                <Label>Detalhes de Aparência</Label>
                 <Textarea name="appearance" value={influencer.appearance} onChange={handleInputChange} placeholder="Descreva a aparência física em detalhe extremo..." />
                 <p className="mt-2 rounded-lg border bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Dica: Seja detalhado - formato do rosto, cor dos olhos, textura do cabelo, etc. para melhor geração de vídeo.</p>
             </div>
-            <div className="md:col-span-2"><Label>Biografia Curta*</Label><Input name="bio" value={influencer.bio} onChange={handleInputChange} /></div>
-            <div className="md:col-span-2"><Label>Traço Único/Peculiar*</Label><Input name="uniqueTrait" value={influencer.uniqueTrait} onChange={handleInputChange} /></div>
-            <div><Label>Idade*</Label><Input name="age" type="number" value={influencer.age} onChange={handleInputChange} /></div>
+            <div className="md:col-span-2"><Label>Biografia Curta</Label><Input name="bio" value={influencer.bio} onChange={handleInputChange} /></div>
+            <div className="md:col-span-2"><Label>Traço Único/Peculiar</Label><Input name="uniqueTrait" value={influencer.uniqueTrait} onChange={handleInputChange} /></div>
+            <div><Label>Idade</Label><Input name="age" type="number" value={influencer.age} onChange={handleInputChange} /></div>
             <div>
-              <Label>Género*</Label>
+              <Label>Género</Label>
               <Select value={influencer.gender} onValueChange={(v) => handleSelectChange('gender', v)}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
@@ -116,7 +116,7 @@ export default function InfluencerEditor({
               </div>
             </div>
             <div>
-              <Label>Sotaque (Português do Brasil)*</Label>
+              <Label>Sotaque (Português do Brasil)</Label>
               <Select value={influencer.accent} onValueChange={(v) => handleSelectChange('accent', v)}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>

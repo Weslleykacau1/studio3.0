@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
     prompt: `Você é um roteirista criativo. Com base na personalidade do influenciador, no cenário e na ação da cena, crie um diálogo curto e envolvente. O influenciador não precisa se apresentar; a fala deve começar diretamente no contexto da cena.
 
 O diálogo DEVE ser em **Português do Brasil**, correspondendo ao sotaque do influenciador: {{{influencerAccent}}}.
-**Crucialmente, o diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses) e enfatizar palavras ou frases-chave para guiar a atuação do influenciador.** Por exemplo: "(surpreso) Uau, eu *não* acredito nisso!".
+**Crucialmente, o diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses) e enfatizar palavras ou frases-chave para guiar a atuação do influenciador.** Por exemplo: "(surpreso) Uau, eu não acredito nisso!".
 
 **Personalidade do Influenciador:**
 """

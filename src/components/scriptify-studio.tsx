@@ -418,8 +418,35 @@ export default function ScriptifyStudio() {
     
     // IndexedDB Handlers
     const saveOrUpdateInfluencer = async () => {
-        if (!influencer.name) {
-            return toast({ variant: 'destructive', title: "Campo em falta", description: "Por favor, preencha o campo: nome." });
+        const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
+        
+        const missingFields = requiredFields.filter(field => {
+            const value = influencer[field];
+            if (typeof value === 'string') {
+                return !value.trim();
+            }
+            return !value;
+        });
+
+        if (missingFields.length > 0) {
+            const fieldLabels: Record<string, string> = {
+                name: 'Nome',
+                niche: 'Nicho',
+                personality: 'Traços de Personalidade',
+                appearance: 'Detalhes de Aparência',
+                bio: 'Biografia Curta',
+                uniqueTrait: 'Traço Único/Peculiar',
+                age: 'Idade',
+                gender: 'Género',
+                accent: 'Sotaque',
+            };
+            const missingLabels = missingFields.map(field => fieldLabels[field as keyof typeof fieldLabels] || field).join(', ');
+            toast({
+                variant: 'destructive',
+                title: "Campos obrigatórios em falta",
+                description: `Por favor, preencha os seguintes campos: ${missingLabels}.`,
+            });
+            return;
         }
 
         setLoading('savingInfluencer', true);

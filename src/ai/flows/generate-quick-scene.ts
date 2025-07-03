@@ -45,7 +45,7 @@ Use a seguinte sugestão como inspiração para o cenário: "{{{scenarioSuggesti
 {{/if}}
 
 O diálogo DEVE ser em **Português do Brasil**.
-**Crucialmente, o diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses) e enfatizar palavras ou frases-chave para guiar a atuação.** Exemplo: "(chocado) Eu *nunca* esperei por isso!".
+**Crucialmente, o diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses) e enfatizar palavras ou frases-chave para guiar a atuação.** Exemplo: "(chocado) Eu nunca esperei por isso!".
 
 **Personalidade do Influenciador:**
 """
