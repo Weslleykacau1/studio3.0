@@ -373,7 +373,7 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateQuickScene = async (jokeTheme: string, scenarioSuggestion?: string) => {
+    const handleGenerateQuickScene = async (jokeTheme: string, scenarioSuggestion?: string, imageReferenceDataUri?: string) => {
         if (!selectedInfluencerForQuickScene) return;
         setLoading('generatingQuickScene', true);
         setGeneratedQuickScene(null);
@@ -383,6 +383,7 @@ export default function ScriptifyStudio() {
                 influencerNiche: selectedInfluencerForQuickScene.niche,
                 jokeTheme: jokeTheme,
                 scenarioSuggestion: scenarioSuggestion,
+                imageReferenceDataUri: imageReferenceDataUri,
             });
             const newScene: Scene = {
                 ...initialSceneState, // use initial state for other fields
@@ -573,7 +574,7 @@ export default function ScriptifyStudio() {
 
             <QuickSceneModal
                 isOpen={isQuickSceneModalOpen}
-                onClose={() => setIsQuickSceneModalOpen(false)}
+                onClose={() => setIsLoginModalOpen(false)}
                 influencer={selectedInfluencerForQuickScene}
                 onGenerate={handleGenerateQuickScene}
                 onSave={handleSaveAndLoadQuickScene}

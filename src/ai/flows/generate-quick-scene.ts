@@ -17,6 +17,7 @@ const GenerateQuickSceneInputSchema = z.object({
   influencerNiche: z.string().describe("The influencer's content niche."),
   jokeTheme: z.string().describe('The theme for the joke or funny situation.'),
   scenarioSuggestion: z.string().optional().describe("The user's idea for the scene setting."),
+  imageReferenceDataUri: z.string().optional().describe("An optional image reference for the scene background, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 export type GenerateQuickSceneInput = z.infer<typeof GenerateQuickSceneInputSchema>;
 
@@ -40,8 +41,10 @@ const prompt = ai.definePrompt({
     prompt: `Você é um roteirista de comédia criativo. Com base na personalidade e no nicho do influenciador, e no tema da piada fornecido, crie uma cena curta e engraçada. O diálogo resultante deve ser adequado para um vídeo com duração máxima de 8 segundos. O diálogo deve ser direto, sem que o influenciador precise se apresentar.
 
 A cena DEVE incluir um título, uma descrição do cenário, a ação principal e um diálogo curto.
-{{#if scenarioSuggestion}}
-Use a seguinte sugestão como inspiração para o cenário: "{{{scenarioSuggestion}}}"
+{{#if imageReferenceDataUri}}
+Use a seguinte imagem como INSPIRAÇÃO VISUAL PRIMÁRIA para o cenário: {{media url=imageReferenceDataUri}}
+{{else if scenarioSuggestion}}
+Use a seguinte sugestão de texto como inspiração para o cenário: "{{{scenarioSuggestion}}}"
 {{/if}}
 
 O diálogo DEVE ser em **Português do Brasil**.

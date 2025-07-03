@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Influencer, Scene } from '@/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { Button } from './ui/button';
@@ -7,13 +7,15 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { AiButton } from './ai-button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Bot, Save, Sparkles } from 'lucide-react';
+import { Bot, Save, Sparkles, UploadCloud, X } from 'lucide-react';
+import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
+import Image from 'next/image';
 
 interface QuickSceneModalProps {
   isOpen: boolean;
   onClose: () => void;
   influencer: Influencer | null;
-  onGenerate: (jokeTheme: string, scenarioSuggestion?: string) => Promise<void>;
+  onGenerate: (jokeTheme: string, scenarioSuggestion?: string, imageReferenceDataUri?: string) => Promise<void>;
   onSave: () => Promise<void>;
   generatedScene: Scene | null;
   loading: boolean;
@@ -25,12 +27,28 @@ export function QuickSceneModal({
 }: QuickSceneModalProps) {
   const [jokeTheme, setJokeTheme] = useState('');
   const [scenarioSuggestion, setScenarioSuggestion] = useState('');
+  const [imageReference, setImageReference] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset local state when modal is closed
+      setJokeTheme('');
+      setScenarioSuggestion('');
+      setImageReference(null);
+    }
+  }, [isOpen]);
 
   if (!influencer) return null;
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleImageUploadUtil(e, ({ preview }) => {
+      setImageReference(preview);
+    });
+  };
+
   const handleGenerateClick = () => {
     if (jokeTheme.trim()) {
-      onGenerate(jokeTheme, scenarioSuggestion);
+      onGenerate(jokeTheme, scenarioSuggestion, imageReference ?? undefined);
     }
   };
 
@@ -57,13 +75,32 @@ export function QuickSceneModal({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="scenario-suggestion">Cenário</Label>
+            <Label htmlFor="scenario-suggestion">Cenário (Texto)</Label>
             <Input 
               id="scenario-suggestion" 
               placeholder="Digite a sua ideia para o cenário (opcional)" 
               value={scenarioSuggestion}
               onChange={(e) => setScenarioSuggestion(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+              <Label htmlFor="image-reference-upload">Cenário (Imagem de Referência)</Label>
+              <div className="flex items-center gap-4">
+                  <input id="image-reference-upload" type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  <Button asChild variant="outline">
+                      <Label htmlFor="image-reference-upload" className="cursor-pointer gap-2">
+                          <UploadCloud className="h-4 w-4" /> Escolher Imagem
+                      </Label>
+                  </Button>
+                  {imageReference && (
+                      <div className="relative">
+                          <Image src={imageReference} alt="Prévia do cenário" width={48} height={48} className="h-12 w-12 rounded-md object-cover" />
+                          <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 z-10 h-6 w-6 rounded-full" onClick={() => setImageReference(null)}>
+                              <X className="h-3 w-3" />
+                          </Button>
+                      </div>
+                  )}
+              </div>
           </div>
           <AiButton
             onClick={handleGenerateClick}
