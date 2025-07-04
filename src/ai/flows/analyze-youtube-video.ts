@@ -20,7 +20,6 @@ const AnalyzeYouTubeVideoOutputSchema = z.object({
   title: z.string().describe('A catchy title for the new scene, inspired by the video, in Brazilian Portuguese.'),
   setting: z.string().describe("A detailed description of the new scene's setting, inspired by the video, in Brazilian Portuguese."),
   action: z.string().describe('An original main action for the new scene, inspired by the video, in Brazilian Portuguese.'),
-  dialogue: z.string().describe('An original piece of dialogue for the new scene, in Brazilian Portuguese, with English emotional cues.'),
 });
 export type AnalyzeYouTubeVideoOutput = z.infer<typeof AnalyzeYouTubeVideoOutputSchema>;
 
@@ -32,7 +31,7 @@ const analyzeVideoPrompt = ai.definePrompt({
     name: 'analyzeVideoPrompt',
     input: { schema: AnalyzeYouTubeVideoInputSchema },
     output: { schema: AnalyzeYouTubeVideoOutputSchema },
-    prompt: `You are a creative director and scriptwriter tasked with creating a new video scene inspired by an existing YouTube video. Your goal is to capture the original video's **style, theme, and energy**, but create a **new, original scene**.
+    prompt: `You are a creative director and scriptwriter tasked with creating a new video scene inspired by an existing YouTube video. Your goal is to capture the original video's **style, theme, and energy**, but create a **new, original scene without dialogue**.
 
 Your response MUST be in Brazilian Portuguese for all fields.
 
@@ -40,7 +39,6 @@ Based on the content of the YouTube video at the URL below, please generate the 
 1.  **title**: A short, catchy title that reflects the new scene, but is in the same "clickbait" style as the original video.
 2.  **setting**: Describe a detailed setting for the new scene that matches the vibe and context of the original video.
 3.  **action**: Describe the main action for the new scene. It should be an original action that fits the influencer's style.
-4.  **dialogue**: Write a short, original piece of dialogue for the new scene. It should sound like something the person in the original video would say. **Crucially, this dialogue must include emotional cues in English (e.g., (surprised), (laughing)) and emphasize key words or phrases to guide an actor's performance.**
 
 The new scene should be a fresh take, not a direct copy. Use the video at the URL below as your inspiration for the style and theme.
 
