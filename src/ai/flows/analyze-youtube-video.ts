@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview Analyzes a YouTube video transcript to generate scene properties.
+ * @fileOverview Analyzes a YouTube video to create an inspired scene.
  *
- * - analyzeYouTubeVideo - Fetches transcript and uses AI to generate scene details.
+ * - analyzeYouTubeVideo - Fetches transcript and uses AI to generate an original scene based on the video's style.
  * - AnalyzeYouTubeVideoInput - Input schema for the flow.
  * - AnalyzeYouTubeVideoOutput - Output schema for the flow.
  */
@@ -18,10 +18,10 @@ const AnalyzeYouTubeVideoInputSchema = z.object({
 export type AnalyzeYouTubeVideoInput = z.infer<typeof AnalyzeYouTubeVideoInputSchema>;
 
 const AnalyzeYouTubeVideoOutputSchema = z.object({
-  title: z.string().describe('A catchy title for the scene based on the video content, in Brazilian Portuguese.'),
-  setting: z.string().describe('A detailed description of the inferred scene setting, in Brazilian Portuguese.'),
-  action: z.string().describe('The main action or event occurring in the video, in Brazilian Portuguese.'),
-  dialogue: z.string().describe('A key or representative piece of dialogue from the video, in Brazilian Portuguese, with English emotional cues.'),
+  title: z.string().describe('A catchy title for the new scene, inspired by the video, in Brazilian Portuguese.'),
+  setting: z.string().describe("A detailed description of the new scene's setting, inspired by the video, in Brazilian Portuguese."),
+  action: z.string().describe('An original main action for the new scene, inspired by the video, in Brazilian Portuguese.'),
+  dialogue: z.string().describe('An original piece of dialogue for the new scene, in Brazilian Portuguese, with English emotional cues.'),
 });
 export type AnalyzeYouTubeVideoOutput = z.infer<typeof AnalyzeYouTubeVideoOutputSchema>;
 
@@ -33,17 +33,19 @@ const analyzeTranscriptPrompt = ai.definePrompt({
     name: 'analyzeTranscriptPrompt',
     input: { schema: z.object({ transcript: z.string() }) },
     output: { schema: AnalyzeYouTubeVideoOutputSchema },
-    prompt: `You are a creative video script analyst. Your task is to analyze the following video transcript and extract the key elements to create a scene.
+    prompt: `You are a creative director and scriptwriter tasked with creating a new video scene inspired by an existing YouTube video. Your goal is to capture the original video's **style, theme, and energy**, but create a **new, original scene**.
 
 Your response MUST be in Brazilian Portuguese for all fields.
 
-Based on the transcript, please provide:
-1.  **title**: A short, catchy, "clickbait" style title that captures the essence of the video.
-2.  **setting**: Infer and describe the physical environment or setting where the video likely takes place. Be descriptive. If it's not clear, suggest a plausible setting.
-3.  **action**: Describe the main action or event happening in the scene. What are the people doing?
-4.  **dialogue**: Extract a short, representative, and impactful piece of dialogue. **Crucially, this dialogue must include emotional cues in English (e.g., (surprised), (laughing)) and emphasize key words or phrases to guide an actor's performance.**
+Based on the transcript of the original video, please generate the following for the new scene:
+1.  **title**: A short, catchy title that reflects the new scene, but is in the same "clickbait" style as the original video.
+2.  **setting**: Describe a detailed setting for the new scene that matches the vibe and context of the original video.
+3.  **action**: Describe the main action for the new scene. It should be an original action that fits the influencer's style.
+4.  **dialogue**: Write a short, original piece of dialogue for the new scene. It should sound like something the person in the original video would say. **Crucially, this dialogue must include emotional cues in English (e.g., (surprised), (laughing)) and emphasize key words or phrases to guide an actor's performance.**
 
-Transcript to analyze:
+The new scene should be a fresh take, not a direct copy. Use the transcript below as your inspiration for the style and theme.
+
+Transcript for inspiration:
 """
 {{{transcript}}}
 """
