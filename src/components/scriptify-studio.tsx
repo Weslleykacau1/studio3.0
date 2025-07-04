@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -405,7 +406,8 @@ export default function ScriptifyStudio() {
             const newScene: Scene = {
                 ...initialSceneState,
                 id: crypto.randomUUID(),
-                ...result
+                ...result,
+                duration: '8 seg',
             };
 
             await saveScene(newScene);
@@ -751,3 +753,5 @@ export default function ScriptifyStudio() {
         </div>
     );
 }
+
+    
