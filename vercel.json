@@ -1,0 +1,5 @@
+{
+  "env": {
+    "GENKIT_ENV": "production"
+  }
+}
