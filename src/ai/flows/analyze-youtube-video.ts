@@ -59,25 +59,29 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
     outputSchema: AnalyzeYouTubeVideoOutputSchema,
   },
   async (input) => {
-    let transcriptText = '';
+    let transcript: { text: string }[] = [];
     try {
-      const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl, { lang: 'pt' });
-      transcriptText = transcript.map(t => t.text).join(' ');
+      // First, try to fetch the Portuguese transcript.
+      transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl, { lang: 'pt' });
     } catch (error) {
-      console.warn(`Could not fetch 'pt' transcript for ${input.youtubeUrl}, trying default.`, error);
+      console.warn(`Could not fetch 'pt' transcript for ${input.youtubeUrl}, trying default language.`, error);
       try {
-        const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl);
-        transcriptText = transcript.map(t => t.text).join(' ');
+        // If Portuguese fails, try fetching the default language transcript.
+        transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl);
       } catch (fallbackError) {
-        // Both failed, transcriptText remains empty. The check below will handle it.
+        // If both attempts fail, 'transcript' will remain an empty array.
+        // The check below will catch this and throw a user-friendly error.
         console.error(`Failed to fetch any transcript for ${input.youtubeUrl}`, fallbackError);
       }
     }
 
-    if (!transcriptText.trim()) {
-      throw new Error("Não foi possível obter a transcrição do vídeo. Verifique se o URL está correto e se o vídeo possui legendas em português ou inglês.");
+    // Check if the transcript is empty or couldn't be fetched.
+    if (!transcript || transcript.length === 0) {
+      throw new Error("Não foi possível obter a transcrição do vídeo. Verifique se o URL está correto e se o vídeo possui legendas disponíveis (em português ou inglês).");
     }
     
+    const transcriptText = transcript.map(t => t.text).join(' ');
+
     const { output } = await analyzeTranscriptPrompt({ transcript: transcriptText });
 
     if (!output) {
