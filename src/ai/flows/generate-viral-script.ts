@@ -26,7 +26,7 @@ const GenerateViralScriptOutputSchema = z.object({
     title: z.string().describe('The final title for the viral video scene.'),
     setting: z.string().describe('A detailed description of the scene setting, inspired by the image and title.'),
     action: z.string().describe('The main, fast-paced, and engaging action occurring in the scene.'),
-    dialogue: z.string().describe('A short, punchy dialogue for the scene, in Brazilian Portuguese with English emotional cues. It should be memorable and fit within a few seconds.'),
+    dialogue: z.string().describe('A short, punchy dialogue for the scene, in Brazilian Portuguese with English emotional cues. It should be memorable and fit within a few seconds, including a CTA.'),
 });
 export type GenerateViralScriptOutput = z.infer<typeof GenerateViralScriptOutputSchema>;
 
@@ -45,11 +45,15 @@ Based on the provided viral video title and the visual inspiration from the imag
 
 The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
 
-**Key requirements for the script:**
-1.  **Hook:** The action must provide a strong visual hook in the first 2 seconds.
-2.  **Pacing:** The action should be quick and dynamic.
-3.  **Payoff:** There must be a surprising, funny, or satisfying payoff at the end.
-4.  **Dialogue:** The dialogue must be extremely short, punchy, and memorable. It should start directly, no introductions. Include emotional cues in English, like (surprised) or (excited).
+**MEGAVIRAL SHORTS FORMULA:**
+Your generated scene must follow this structure:
+1.  **Set up**: A one-liner that contains stakes (easy to understand).
+2.  **Unexpected action (Hook)**: The hook of the video, happening in the first 2 seconds.
+3.  **Explanation of action / escalation**: What happens next, building suspense or humor.
+4.  **Climax / Twist / Punchline**: The surprising, funny, or satisfying payoff at the end.
+5.  **CTA**: A simple call to action at the very end.
+
+Combine the setup, hook, escalation, and punchline into the 'action' and 'dialogue' fields. The dialogue should be extremely short, punchy, and memorable, starting directly without introductions. Include emotional cues in English, like (surprised) or (excited). Include the CTA at the end of the dialogue.
 
 **Video Title:**
 """
