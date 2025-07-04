@@ -426,15 +426,15 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateThumbnailIdeas = async (influencerPhotoDataUri: string, videoTheme: string) => {
-        if (!influencerPhotoDataUri || !videoTheme) {
+    const handleGenerateThumbnailIdeas = async (referenceImageDataUri: string, videoTheme: string) => {
+        if (!referenceImageDataUri || !videoTheme) {
             return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue a imagem e preencha o tema do vídeo." });
         }
         
         setLoading('generatingThumbnail', true);
         setGeneratedThumbnailIdeas(null);
         try {
-            const result = await generateThumbnailIdeas({ influencerPhotoDataUri, videoTheme });
+            const result = await generateThumbnailIdeas({ referenceImageDataUri, videoTheme });
             setGeneratedThumbnailIdeas(result);
             toast({ title: "Ideias para thumbnail geradas!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {

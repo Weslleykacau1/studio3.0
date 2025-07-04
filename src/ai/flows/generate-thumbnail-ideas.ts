@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Analyzes an influencer photo and a style reference thumbnail, generates thumbnail ideas, and creates two sample thumbnail images.
+ * @fileOverview Analyzes a reference image and a video theme, generates thumbnail ideas, and creates two sample thumbnail images.
  *
  * - generateThumbnailIdeas - A function that handles the thumbnail idea and image generation process.
  * - GenerateThumbnailIdeasInput - The input type for the function.
@@ -11,10 +11,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateThumbnailIdeasInputSchema = z.object({
-  influencerPhotoDataUri: z
+  referenceImageDataUri: z
     .string()
     .describe(
-      "A photo of the influencer, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A reference image for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   videoTheme: z.string().describe('The theme or topic of the video.'),
 });
@@ -45,12 +45,12 @@ const textIdeasPrompt = ai.definePrompt({
   name: 'generateThumbnailTextIdeasPrompt',
   input: {schema: GenerateThumbnailIdeasInputSchema},
   output: {schema: TextIdeasSchema},
-  prompt: `You are a specialist in creating thumbnails for viral videos with a high-energy, high-contrast style. Analyze the provided influencer photo and video theme to generate ideas for a highly clickable thumbnail.
+  prompt: `You are a specialist in creating thumbnails for viral videos with a high-energy, high-contrast style. Analyze the provided reference image and video theme to generate ideas for a highly clickable thumbnail.
 
 The output must be in **Brazilian Portuguese**.
 
 Based on the image and theme, generate:
-1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the influencer image and video theme.
+1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the reference image and video theme.
 2.  **overlayText**: A very short (max 5 words) and impactful text to be placed directly on the thumbnail. This should complement the title and image.
 3.  **styleDescription**: Describe a high-impact visual style. It should include: bold, sans-serif fonts (like 'Komika Axis'), vibrant and high-contrast colors (yellows, blues, reds), attention-grabbing elements like circles or arrows, and exaggerated facial expressions.
 4.  **emoji**: Suggest a single, powerful emoji to use in the title or thumbnail.
@@ -58,8 +58,8 @@ Based on the image and theme, generate:
 **Video Theme:**
 {{{videoTheme}}}
 
-Influencer Photo for analysis:
-{{media url=influencerPhotoDataUri}}`,
+Reference image for analysis:
+{{media url=referenceImageDataUri}}`,
 });
 
 const generateThumbnailIdeasFlow = ai.defineFlow(
@@ -74,14 +74,14 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
     }
 
-    const imageGenPromptText1 = `Generate a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The main subject is the person in the influencer photo. The image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the person's face. Do NOT include any text in the image.`;
-    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The subject is the person in the influencer photo. Make this version more dramatic or use a different angle, maintaining the high-energy, high-contrast style. Do NOT include any text in the image.`;
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The main subject should be based on the character/subject in the reference image. The generated image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the subject's face. Do NOT include any text in the image.`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The subject is based on the character/subject in the reference image. Make this version more dramatic or use a different angle, maintaining the high-energy, high-contrast style. Do NOT include any text in the image.`;
     
     const [image1Result, image2Result] = await Promise.all([
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-          { media: { url: input.influencerPhotoDataUri } },
+          { media: { url: input.referenceImageDataUri } },
           { text: imageGenPromptText1 },
         ],
         config: {
@@ -91,7 +91,7 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-          { media: { url: input.influencerPhotoDataUri } },
+          { media: { url: input.referenceImageDataUri } },
           { text: imageGenPromptText2 },
         ],
         config: {

@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, User } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download } from 'lucide-react';
 import type { ThumbnailIdeas } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 
 interface ViralVideoViewProps {
-  onGenerate: (influencerPhotoDataUri: string, videoTheme: string) => void;
+  onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
   generatedIdeas: ThumbnailIdeas | null;
   loading: boolean;
   isLoggedIn: boolean;
@@ -101,24 +101,24 @@ export default function ViralVideoView({
               Gerador de Thumbnail Viral
             </CardTitle>
             <CardDescription>
-              Anexe uma foto do influenciador e digite o tema para a IA gerar duas opções de thumbnail com alto potencial de clique.
+              Anexe uma imagem de referência e digite o tema para a IA gerar duas opções de thumbnail com alto potencial de clique.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
              <div className="space-y-2">
-              <Label htmlFor="influencer-photo-upload" className="flex items-center gap-2"><User className="h-4 w-4"/> Foto do Influenciador</Label>
+              <Label htmlFor="reference-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem de Referência</Label>
               <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
                 {influencerPhotoPreview ? (
-                  <Image src={influencerPhotoPreview} alt="Prévia do influenciador" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
+                  <Image src={influencerPhotoPreview} alt="Prévia da referência" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
                 ) : (
                   <div className="space-y-2 py-8 text-muted-foreground">
-                    <User className="mx-auto h-10 w-10" />
-                    <p className="text-xs">Carregue a foto do seu personagem</p>
+                    <ImageIcon className="mx-auto h-10 w-10" />
+                    <p className="text-xs">Carregue uma imagem de referência</p>
                   </div>
                 )}
-                 <input id="influencer-photo-upload" type="file" className="hidden" accept="image/*" onChange={handleInfluencerPhotoUpload} />
+                 <input id="reference-image-upload" type="file" className="hidden" accept="image/*" onChange={handleInfluencerPhotoUpload} />
                  <Button asChild variant="outline" size="sm" className="mt-4">
-                    <Label htmlFor="influencer-photo-upload" className="cursor-pointer gap-2">
+                    <Label htmlFor="reference-image-upload" className="cursor-pointer gap-2">
                         <UploadCloud className="h-4 w-4" /> 
                         {influencerPhotoPreview ? 'Trocar' : 'Escolher'}
                     </Label>
