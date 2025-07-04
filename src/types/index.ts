@@ -35,7 +35,14 @@ export interface Scene {
     onlyPhysicalText: boolean;
 }
 
-export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery';
+export interface ThumbnailIdeas {
+    title: string;
+    overlayText: string;
+    styleDescription: string;
+    emoji: string;
+}
+
+export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo' | 'veoTutorial';
 export type ApiKeyStatus = 'idle' | 'valid' | 'invalid' | 'testing';
 
 export type LoadingStates = {
@@ -54,4 +61,5 @@ export type LoadingStates = {
     generatingQuickScene: boolean;
     generatingVeoPrompt: boolean;
     analyzingYouTube: boolean;
+    generatingThumbnail: boolean;
 };

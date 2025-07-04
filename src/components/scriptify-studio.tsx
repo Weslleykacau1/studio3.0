@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates, ApiKeyStatus } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ApiKeyStatus, ThumbnailIdeas } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -17,6 +17,7 @@ import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
+import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -25,8 +26,10 @@ import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
+import ViralVideoView from './views/viral-video-view';
+import VeoTutorialView from './views/veo-tutorial-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid } from 'lucide-react';
+import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, };
@@ -46,8 +49,9 @@ export default function ScriptifyStudio() {
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
+    const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
@@ -420,6 +424,22 @@ export default function ScriptifyStudio() {
         }
     };
 
+    const handleGenerateThumbnailIdeas = async (imageDataUri: string) => {
+        if (!imageDataUri) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Carregue uma imagem para gerar ideias." });
+        
+        setLoading('generatingThumbnail', true);
+        setGeneratedThumbnailIdeas(null);
+        try {
+            const result = await generateThumbnailIdeas({ imageDataUri });
+            setGeneratedThumbnailIdeas(result);
+            toast({ title: "Ideias para thumbnail geradas!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
+        } finally {
+            setLoading('generatingThumbnail', false);
+        }
+    };
+
     // Quick Scene Handlers
     const handleOpenQuickSceneModal = (id: string) => {
         const influencerToLoad = galleryInfluencers.find(inf => inf.id === id);
@@ -649,7 +669,7 @@ export default function ScriptifyStudio() {
             />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-primary/10">
+                <TabsList className="grid w-full grid-cols-5 bg-primary/10">
                     <TabsTrigger value="creator"><Film className="mr-2 h-4 w-4 hidden sm:inline-block" />Criador</TabsTrigger>
                     <TabsTrigger value="influencerGallery">
                         <Palette className="mr-2 h-4 w-4 hidden sm:inline-block" />
@@ -661,6 +681,8 @@ export default function ScriptifyStudio() {
                         <span className='sm:hidden'>Cenas</span>
                         <span className='hidden sm:inline'>Galeria de Cenas</span>
                     </TabsTrigger>
+                    <TabsTrigger value="viralVideo"><Zap className="mr-2 h-4 w-4 hidden sm:inline-block" />Vídeo Viral</TabsTrigger>
+                    <TabsTrigger value="veoTutorial"><BookOpen className="mr-2 h-4 w-4 hidden sm:inline-block" />Tutorial Veo</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="creator" className="mt-6">
@@ -719,6 +741,17 @@ export default function ScriptifyStudio() {
                         loadingYouTube={loadingStates.analyzingYouTube}
                         isLoggedIn={isLoggedIn}
                     />
+                </TabsContent>
+                <TabsContent value="viralVideo" className="mt-6">
+                    <ViralVideoView
+                        onGenerate={handleGenerateThumbnailIdeas}
+                        generatedIdeas={generatedThumbnailIdeas}
+                        loading={loadingStates.generatingThumbnail}
+                        isLoggedIn={isLoggedIn}
+                    />
+                </TabsContent>
+                <TabsContent value="veoTutorial" className="mt-6">
+                    <VeoTutorialView />
                 </TabsContent>
             </Tabs>
         </div>
