@@ -137,14 +137,14 @@ export default function ViralVideoView({
           </CardContent>
         </Card>
 
-        <Card className={generatedIdeas || loading ? 'block' : 'hidden lg:block'}>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <Sparkles className="text-primary" />
-              Ideias Geradas
+              Resultado e Ações
             </CardTitle>
             <CardDescription>
-              {generatedIdeas ? "Aqui estão as sugestões da IA para a sua thumbnail." : "As sugestões da IA aparecerão aqui após a geração."}
+              {generatedIdeas ? "Aqui estão as sugestões da IA. Use o botão abaixo para gerar um roteiro viral." : "As sugestões e o botão para gerar o roteiro aparecerão aqui."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -159,7 +159,7 @@ export default function ViralVideoView({
                     <Skeleton className="h-10 w-full" />
                 </div>
             ) : generatedIdeas ? (
-              <>
+              <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {generatedIdeas.generatedImage1DataUri && (
                     <div className="space-y-2">
@@ -204,27 +204,28 @@ export default function ViralVideoView({
                   <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
                   <p className="rounded-md border bg-secondary/30 p-3">{generatedIdeas.styleDescription}</p>
                 </div>
-
-                <div className="!mt-6 border-t pt-6">
-                    <AiButton
-                        onClick={handleGenerateViralScriptClick}
-                        loading={loadingViralScript}
-                        isLoggedIn={isLoggedIn}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
-                    >
-                        <Bot className="mr-2 h-5 w-5" />
-                        Gerar Roteiro Mega Viral
-                    </AiButton>
-                    <p className="mt-2 text-center text-xs text-muted-foreground">
-                        Isto irá gerar uma nova cena e guardá-la na sua galeria.
-                    </p>
-                </div>
-              </>
+              </div>
             ) : (
               <div className="flex h-full min-h-[200px] items-center justify-center text-center text-muted-foreground">
                 <p>Aguardando a geração de ideias...</p>
               </div>
             )}
+
+            <div className="!mt-6 border-t pt-6">
+                <AiButton
+                    onClick={handleGenerateViralScriptClick}
+                    loading={loadingViralScript}
+                    isLoggedIn={isLoggedIn}
+                    disabled={!generatedIdeas}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
+                >
+                    <Bot className="mr-2 h-5 w-5" />
+                    Gerar Roteiro Mega Viral
+                </AiButton>
+                <p className="mt-2 text-center text-xs text-muted-foreground">
+                    {generatedIdeas ? "Isto irá gerar uma nova cena e guardá-la na sua galeria." : "Primeiro, gere as ideias para a thumbnail."}
+                </p>
+            </div>
           </CardContent>
         </Card>
       </div>
