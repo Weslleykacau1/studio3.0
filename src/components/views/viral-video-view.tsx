@@ -12,7 +12,7 @@ import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 
 interface ViralVideoViewProps {
-  onGenerate: (influencerPhotoDataUri: string, styleReferenceThumbnailDataUri: string) => void;
+  onGenerate: (influencerPhotoDataUri: string, styleReferenceThumbnailDataUri: string, videoTheme: string) => void;
   generatedIdeas: ThumbnailIdeas | null;
   loading: boolean;
   isLoggedIn: boolean;
@@ -33,6 +33,7 @@ export default function ViralVideoView({
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
   const [styleRefPreview, setStyleRefPreview] = useState<string | null>(null);
   const [styleRefDataUri, setStyleRefDataUri] = useState<string | null>(null);
+  const [videoTheme, setVideoTheme] = useState('');
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -49,8 +50,8 @@ export default function ViralVideoView({
   };
 
   const handleGenerateClick = () => {
-    if (influencerPhotoDataUri && styleRefDataUri) {
-      onGenerate(influencerPhotoDataUri, styleRefDataUri);
+    if (influencerPhotoDataUri && styleRefDataUri && videoTheme) {
+      onGenerate(influencerPhotoDataUri, styleRefDataUri, videoTheme);
     }
   };
 
@@ -109,7 +110,7 @@ export default function ViralVideoView({
               Gerador de Thumbnail
             </CardTitle>
             <CardDescription>
-              Anexe uma foto do influenciador e uma thumbnail de referência para a IA gerar duas novas opções.
+              Anexe uma foto, uma thumbnail de referência, e digite o tema para a IA gerar duas opções.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -155,11 +156,22 @@ export default function ViralVideoView({
                 </div>
               </div>
             </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="video-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Vídeo</Label>
+                <Input 
+                    id="video-theme"
+                    value={videoTheme}
+                    onChange={(e) => setVideoTheme(e.target.value)}
+                    placeholder="Ex: Minha rotina de skincare, Review do novo jogo, etc."
+                />
+            </div>
+            
             <AiButton
               onClick={handleGenerateClick}
               loading={loading}
               isLoggedIn={isLoggedIn}
-              disabled={!influencerPhotoPreview || !styleRefPreview}
+              disabled={!influencerPhotoPreview || !styleRefPreview || !videoTheme.trim()}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Bot className="mr-2 h-5 w-5" />

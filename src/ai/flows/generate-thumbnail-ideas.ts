@@ -21,6 +21,7 @@ const GenerateThumbnailIdeasInputSchema = z.object({
     .describe(
       "A reference thumbnail image for style inspiration, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+  videoTheme: z.string().describe('The theme or topic of the video.'),
 });
 export type GenerateThumbnailIdeasInput = z.infer<typeof GenerateThumbnailIdeasInputSchema>;
 
@@ -49,15 +50,18 @@ const textIdeasPrompt = ai.definePrompt({
   name: 'generateThumbnailTextIdeasPrompt',
   input: {schema: GenerateThumbnailIdeasInputSchema},
   output: {schema: TextIdeasSchema},
-  prompt: `You are a specialist in creating viral video thumbnails for platforms like YouTube and TikTok. Analyze the provided influencer photo and the reference thumbnail to generate ideas to make a highly clickable final thumbnail.
+  prompt: `You are a specialist in creating viral video thumbnails for platforms like YouTube and TikTok. Analyze the provided influencer photo, the reference thumbnail, and the video theme to generate ideas to make a highly clickable final thumbnail.
 
 The output must be in **Brazilian Portuguese**.
 
-Based on the images, generate:
-1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the influencer image.
+Based on the images and theme, generate:
+1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the influencer image and video theme.
 2.  **overlayText**: A very short (max 5 words) and impactful text to be placed directly on the thumbnail. This should complement the title and image.
 3.  **styleDescription**: Describe the visual treatment based *only* on the reference thumbnail. Suggest bold font types, vibrant color palettes (e.g., "high-contrast red and yellow"), effects like outlines or drop shadows on the text, and any other elements to maximize impact.
 4.  **emoji**: Suggest a single, powerful emoji to use in the title or thumbnail.
+
+**Video Theme:**
+{{{videoTheme}}}
 
 Influencer Photo for analysis:
 {{media url=influencerPhotoDataUri}}
@@ -78,8 +82,8 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
     }
 
-    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. The main subject is the person in the influencer photo. Recreate the style (colors, fonts, composition) from the reference thumbnail. The video is about: "${textIdeas.title}". The image should be visually striking and eye-catching. Do NOT include any text in the image.`;
-    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. The subject is the person in the influencer photo. Recreate the style of the reference thumbnail. The video is about: "${textIdeas.title}". Make this version more dramatic or use a different angle. Do NOT include any text in the image.`;
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. The video is about: "${input.videoTheme}". The title will be similar to: "${textIdeas.title}". The main subject is the person in the influencer photo. Recreate the visual style (colors, fonts, composition) from the reference thumbnail. The image should be visually striking and eye-catching. Do NOT include any text in the image.`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. The video is about: "${input.videoTheme}". The title will be similar to: "${textIdeas.title}". The subject is the person in the influencer photo. Recreate the style of the reference thumbnail. Make this version more dramatic or use a different angle. Do NOT include any text in the image.`;
     
     const [image1Result, image2Result] = await Promise.all([
       ai.generate({
