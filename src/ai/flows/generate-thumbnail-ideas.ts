@@ -74,8 +74,8 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
     }
 
-    const imageGenPromptText1 = `Generate a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The main subject should be based on the character/subject in the reference image. The generated image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the subject's face. Do NOT include any text in the image.`;
-    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail with a high-energy, high-contrast style. The video is about: "${input.videoTheme}". The subject is based on the character/subject in the reference image. Make this version more dramatic or use a different angle, maintaining the high-energy, high-contrast style. Do NOT include any text in the image.`;
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail with a high-energy, high-contrast style. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". The main subject should be based on the character/subject in the reference image. The generated image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the subject's face. Do NOT include any text in the image.`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail with a high-energy, high-contrast style. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". The subject is based on the character/subject in the reference image. Make this version more dramatic or use a different angle, maintaining the high-energy, high-contrast style. Do NOT include any text in the image.`;
     
     const [image1Result, image2Result] = await Promise.all([
       ai.generate({
