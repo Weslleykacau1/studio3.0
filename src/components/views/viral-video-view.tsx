@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download } from 'lucide-react';
 import type { ThumbnailIdeas } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -40,6 +40,15 @@ export default function ViralVideoView({
     if (imageDataUri) {
       onGenerate(imageDataUri);
     }
+  };
+
+  const handleDownloadImage = (dataUri: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = dataUri;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -147,12 +156,30 @@ export default function ViralVideoView({
                     <div className="space-y-2">
                       <h4 className="font-semibold">Opção 1</h4>
                       <Image src={generatedIdeas.generatedImage1DataUri} alt="Thumbnail gerada 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                       <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleDownloadImage(generatedIdeas.generatedImage1DataUri, 'thumbnail_opcao_1.png')}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Baixar Opção 1
+                      </Button>
                     </div>
                   )}
                   {generatedIdeas.generatedImage2DataUri && (
                     <div className="space-y-2">
                       <h4 className="font-semibold">Opção 2</h4>
                       <Image src={generatedIdeas.generatedImage2DataUri} alt="Thumbnail gerada 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                       <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleDownloadImage(generatedIdeas.generatedImage2DataUri, 'thumbnail_opcao_2.png')}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Baixar Opção 2
+                      </Button>
                     </div>
                   )}
                 </div>
