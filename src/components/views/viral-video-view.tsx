@@ -168,7 +168,6 @@ export default function ViralVideoView({
                     </div>
                     <Skeleton className="h-10 w-full" />
                     <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
                 </div>
             ) : generatedIdeas ? (
               <div className="space-y-4">
@@ -207,10 +206,6 @@ export default function ViralVideoView({
                 <div className="space-y-1 pt-4">
                   <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
                   <p className="rounded-md border bg-secondary/30 p-3">{generatedIdeas.emoji} {generatedIdeas.title}</p>
-                </div>
-                <div className="space-y-1">
-                  <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Texto para a Thumbnail</h4>
-                  <p className="rounded-md border bg-secondary/30 p-3">{generatedIdeas.overlayText}</p>
                 </div>
                 <div className="space-y-1">
                   <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
