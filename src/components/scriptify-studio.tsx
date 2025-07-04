@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates, ApiKeyStatus, ThumbnailIdeas } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -23,7 +23,6 @@ import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
-import { LoginModal } from './login-modal';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
@@ -35,13 +34,12 @@ import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, };
 
-export default function ScriptifyStudio() {
+interface ScriptifyStudioProps {
+  isApiConfigured: boolean;
+}
+
+export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProps) {
     const [activeView, setActiveView] = useState<ActiveView>('creator');
-    const [userApiKey, setUserApiKey] = useState('');
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus>('idle');
-    const [lastApiKeyCheck, setLastApiKeyCheck] = useState<string | null>(null);
     
     const [influencer, setInfluencer] = useState<Influencer>(getInitialInfluencerState());
     const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
@@ -52,7 +50,7 @@ export default function ScriptifyStudio() {
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
@@ -62,49 +60,10 @@ export default function ScriptifyStudio() {
     const [isQuickSceneModalOpen, setIsQuickSceneModalOpen] = useState(false);
     const [selectedInfluencerForQuickScene, setSelectedInfluencerForQuickScene] = useState<Influencer | null>(null);
     const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
-
-    const testApiKey = useCallback(async (key: string) => {
-        setApiKeyStatus('testing');
-        try {
-            const payload = { contents: [{ role: 'user', parts: [{ text: 'hello' }] }] };
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                }
-            );
-            const result = await response.json();
-            if (response.ok && result.candidates) {
-                setApiKeyStatus('valid');
-                setLastApiKeyCheck(new Date().toISOString());
-                return true;
-            } else {
-                setApiKeyStatus('invalid');
-                setLastApiKeyCheck(null);
-                toast({ variant: 'destructive', title: "Chave API Inválida", description: "A chave API guardada não está a funcionar." });
-                return false;
-            }
-        } catch (error) {
-            console.error('Erro no teste da API:', error);
-            setApiKeyStatus('invalid');
-            setLastApiKeyCheck(null);
-            toast({ variant: 'destructive', title: "Erro de Rede", description: "Não foi possível verificar a chave API." });
-            return false;
-        }
-    }, [toast]);
     
-    // Load from localStorage/IndexedDB on mount
     useEffect(() => {
         setHasMounted(true);
-        const savedApiKey = localStorage.getItem('geminiApiKey');
-        if (savedApiKey) {
-            setUserApiKey(savedApiKey);
-            setIsLoggedIn(true);
-            testApiKey(savedApiKey);
-        }
-
+        
         async function loadData() {
             try {
                 const [savedInfluencers, savedScenes] = await Promise.all([
@@ -120,29 +79,10 @@ export default function ScriptifyStudio() {
         }
 
         loadData();
-    }, [toast, testApiKey]);
+    }, [toast]);
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
         setLoadingStates(prev => ({ ...prev, [key]: value }));
-    };
-
-    const handleSaveApiKey = (key: string) => {
-        setUserApiKey(key);
-        localStorage.setItem('geminiApiKey', key);
-        setIsLoggedIn(true);
-        setApiKeyStatus('valid');
-        setLastApiKeyCheck(new Date().toISOString());
-        setIsLoginModalOpen(false);
-        toast({ title: "Chave API guardada e verificada!", className: "bg-green-100 text-green-800" });
-    };
-
-    const handleRemoveApiKey = () => {
-        setUserApiKey('');
-        localStorage.removeItem('geminiApiKey');
-        setIsLoggedIn(false);
-        setApiKeyStatus('idle');
-        setLastApiKeyCheck(null);
-        toast({ title: "Chave API removida." });
     };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, imageType: 'influencer' | 'scenario' | 'product') => {
@@ -399,7 +339,7 @@ export default function ScriptifyStudio() {
 
     const handleAnalyzeYouTubeVideo = async () => {
         if (!youtubeUrl.trim()) return toast({ variant: 'destructive', title: "URL em falta", description: "Por favor, cole um URL do YouTube." });
-        if (!isLoggedIn) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('analyzingYouTube', true);
         try {
@@ -499,7 +439,7 @@ export default function ScriptifyStudio() {
     };
 
     const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string) => {
-        if (!isLoggedIn) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
         if (!videoTitle || !imageDataUri) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso gerar ideias de thumbnail primeiro." });
 
         setLoading('generatingViralScript', true);
@@ -679,29 +619,19 @@ export default function ScriptifyStudio() {
 
     return (
         <div suppressHydrationWarning>
-            <LoginModal
-                isOpen={isLoginModalOpen}
-                onClose={() => setIsLoginModalOpen(false)}
-                onSave={handleSaveApiKey}
-            />
-
             <QuickSceneModal
                 isOpen={isQuickSceneModalOpen}
-                onClose={() => setIsLoginModalOpen(false)}
+                onClose={() => setIsQuickSceneModalOpen(false)}
                 influencer={selectedInfluencerForQuickScene}
                 onGenerate={handleGenerateQuickScene}
                 onSave={handleSaveAndLoadQuickScene}
                 generatedScene={generatedQuickScene}
                 loading={loadingStates.generatingQuickScene}
-                isLoggedIn={isLoggedIn}
+                isApiConfigured={isApiConfigured}
             />
 
             <AppHeader
-                isLoggedIn={isLoggedIn}
-                onLoginClick={() => setIsLoginModalOpen(true)}
-                onRemoveApiKey={handleRemoveApiKey}
-                apiKeyStatus={apiKeyStatus}
-                lastApiKeyCheck={lastApiKeyCheck}
+                isApiConfigured={isApiConfigured}
             />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
@@ -735,7 +665,7 @@ export default function ScriptifyStudio() {
                         generatedSeoContent={generatedSeoContent}
                         generatedVeoPrompt={generatedVeoPrompt}
                         loadingStates={loadingStates}
-                        isLoggedIn={isLoggedIn}
+                        isApiConfigured={isApiConfigured}
                         handlers={{
                             analyzeAndFillFromText,
                             analyzeInfluencerImageAndFill,
@@ -777,7 +707,7 @@ export default function ScriptifyStudio() {
                         onGenerate={handleGenerateThumbnailIdeas}
                         generatedIdeas={generatedThumbnailIdeas}
                         loading={loadingStates.generatingThumbnail}
-                        isLoggedIn={isLoggedIn}
+                        isApiConfigured={isApiConfigured}
                         youtubeUrl={youtubeUrl}
                         setYoutubeUrl={setYoutubeUrl}
                         onAnalyzeVideo={handleAnalyzeYouTubeVideo}
@@ -790,5 +720,3 @@ export default function ScriptifyStudio() {
         </div>
     );
 }
-
-    
