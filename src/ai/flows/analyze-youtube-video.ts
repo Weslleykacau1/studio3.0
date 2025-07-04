@@ -59,21 +59,21 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
   async (input) => {
     let transcriptText = '';
     try {
-        const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl, { lang: 'pt' });
-        transcriptText = transcript.map(t => t.text).join(' ');
+      const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl, { lang: 'pt' });
+      transcriptText = transcript.map(t => t.text).join(' ');
     } catch (error) {
-        console.error(`Failed to fetch PT transcript for ${input.youtubeUrl}:`, error);
-        try {
-            const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl);
-            transcriptText = transcript.map(t => t.text).join(' ');
-        } catch (fallbackError) {
-            console.error(`Failed to fetch EN fallback transcript for ${input.youtubeUrl}:`, fallbackError);
-            throw new Error("Não foi possível obter a transcrição do URL do YouTube fornecido. Verifique se ele possui legendas disponíveis em português ou inglês.");
-        }
+      console.warn(`Could not fetch 'pt' transcript for ${input.youtubeUrl}, trying default.`, error);
+      try {
+        const transcript = await YoutubeTranscript.fetchTranscript(input.youtubeUrl);
+        transcriptText = transcript.map(t => t.text).join(' ');
+      } catch (fallbackError) {
+        // Both failed, transcriptText remains empty. The check below will handle it.
+        console.error(`Failed to fetch any transcript for ${input.youtubeUrl}`, fallbackError);
+      }
     }
-    
-    if (!transcriptText) {
-        throw new Error("A transcrição do vídeo está vazia.");
+
+    if (!transcriptText.trim()) {
+      throw new Error("Não foi possível obter a transcrição do vídeo. Verifique se o URL está correto e se o vídeo possui legendas em português ou inglês.");
     }
     
     const { output } = await analyzeTranscriptPrompt({ transcript: transcriptText });
