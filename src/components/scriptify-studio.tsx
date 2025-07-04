@@ -735,11 +735,6 @@ export default function ScriptifyStudio() {
                         onLoad={loadScene}
                         onDelete={deleteScene}
                         onAddNew={handleAddNewScene}
-                        youtubeUrl={youtubeUrl}
-                        setYoutubeUrl={setYoutubeUrl}
-                        onAnalyzeVideo={handleAnalyzeYouTubeVideo}
-                        loadingYouTube={loadingStates.analyzingYouTube}
-                        isLoggedIn={isLoggedIn}
                     />
                 </TabsContent>
                 <TabsContent value="viralVideo" className="mt-6">
@@ -748,6 +743,10 @@ export default function ScriptifyStudio() {
                         generatedIdeas={generatedThumbnailIdeas}
                         loading={loadingStates.generatingThumbnail}
                         isLoggedIn={isLoggedIn}
+                        youtubeUrl={youtubeUrl}
+                        setYoutubeUrl={setYoutubeUrl}
+                        onAnalyzeVideo={handleAnalyzeYouTubeVideo}
+                        loadingYouTube={loadingStates.analyzingYouTube}
                     />
                 </TabsContent>
                 <TabsContent value="veoTutorial" className="mt-6">
