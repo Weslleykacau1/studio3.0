@@ -148,6 +148,9 @@ export default function SceneEditor({
                   <SelectContent>
                     <SelectItem value="5 seg">5 seg</SelectItem>
                     <SelectItem value="8 seg">8 seg</SelectItem>
+                    <SelectItem value="10 seg">10 seg</SelectItem>
+                    <SelectItem value="20 seg">20 seg</SelectItem>
+                    <SelectItem value="30 seg">30 seg</SelectItem>
                   </SelectContent>
               </Select>
             </div>
