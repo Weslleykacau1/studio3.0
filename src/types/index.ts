@@ -64,4 +64,5 @@ export type LoadingStates = {
     generatingVeoPrompt: boolean;
     analyzingYouTube: boolean;
     generatingThumbnail: boolean;
+    generatingViralScript: boolean;
 };

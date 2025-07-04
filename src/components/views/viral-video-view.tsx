@@ -20,11 +20,14 @@ interface ViralVideoViewProps {
   setYoutubeUrl: (url: string) => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
+  onGenerateViralScript: (videoTitle: string, imageDataUri: string) => void;
+  loadingViralScript: boolean;
 }
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isLoggedIn, 
-    youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube 
+    youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
+    onGenerateViralScript, loadingViralScript
 }: ViralVideoViewProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageDataUri, setImageDataUri] = useState<string | null>(null);
@@ -49,6 +52,12 @@ export default function ViralVideoView({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleGenerateViralScriptClick = () => {
+    if (generatedIdeas && imageDataUri) {
+        onGenerateViralScript(generatedIdeas.title, imageDataUri);
+    }
   };
 
   return (
@@ -194,6 +203,21 @@ export default function ViralVideoView({
                 <div className="space-y-1">
                   <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
                   <p className="rounded-md border bg-secondary/30 p-3">{generatedIdeas.styleDescription}</p>
+                </div>
+
+                <div className="!mt-6 border-t pt-6">
+                    <AiButton
+                        onClick={handleGenerateViralScriptClick}
+                        loading={loadingViralScript}
+                        isLoggedIn={isLoggedIn}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
+                    >
+                        <Bot className="mr-2 h-5 w-5" />
+                        Gerar Roteiro Mega Viral
+                    </AiButton>
+                    <p className="mt-2 text-center text-xs text-muted-foreground">
+                        Isto irá gerar uma nova cena e guardá-la na sua galeria.
+                    </p>
                 </div>
               </>
             ) : (

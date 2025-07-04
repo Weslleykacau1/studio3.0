@@ -19,6 +19,7 @@ import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
+import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -51,7 +52,7 @@ export default function ScriptifyStudio() {
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
@@ -494,6 +495,38 @@ export default function ScriptifyStudio() {
         setIsQuickSceneModalOpen(false);
         toast({ title: "Cena salva e carregada no editor!", className: "bg-blue-100 text-blue-800" });
     };
+
+    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string) => {
+        if (!isLoggedIn) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+        if (!videoTitle || !imageDataUri) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso gerar ideias de thumbnail primeiro." });
+
+        setLoading('generatingViralScript', true);
+        try {
+            const result = await generateViralScript({ videoTitle, imageDataUri });
+
+            const newScene: Scene = {
+                ...initialSceneState,
+                id: crypto.randomUUID(),
+                ...result,
+                duration: '8 seg', // Viral videos are short
+            };
+
+            await saveScene(newScene);
+            setScenes(prev => [newScene, ...prev]);
+
+            toast({ 
+                title: "Roteiro viral gerado!", 
+                description: `A cena "${newScene.title}" foi guardada na sua galeria.`,
+                className: "bg-green-100 text-green-800"
+            });
+
+        } catch (error: any) {
+            console.error("Failed to generate viral script:", error);
+            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
+        } finally {
+            setLoading('generatingViralScript', false);
+        }
+    };
     
     // IndexedDB Handlers
     const saveOrUpdateInfluencer = async () => {
@@ -747,6 +780,8 @@ export default function ScriptifyStudio() {
                         setYoutubeUrl={setYoutubeUrl}
                         onAnalyzeVideo={handleAnalyzeYouTubeVideo}
                         loadingYouTube={loadingStates.analyzingYouTube}
+                        onGenerateViralScript={handleGenerateViralScript}
+                        loadingViralScript={loadingStates.generatingViralScript}
                     />
                 </TabsContent>
             </Tabs>
