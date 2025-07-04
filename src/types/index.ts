@@ -42,7 +42,7 @@ export interface ThumbnailIdeas {
     emoji: string;
 }
 
-export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo' | 'veoTutorial';
+export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo';
 export type ApiKeyStatus = 'idle' | 'valid' | 'invalid' | 'testing';
 
 export type LoadingStates = {
