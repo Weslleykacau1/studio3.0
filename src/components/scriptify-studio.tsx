@@ -426,13 +426,13 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateThumbnailIdeas = async (imageDataUri: string) => {
-        if (!imageDataUri) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Carregue uma imagem para gerar ideias." });
+    const handleGenerateThumbnailIdeas = async (influencerPhotoDataUri: string, styleReferenceThumbnailDataUri: string) => {
+        if (!influencerPhotoDataUri || !styleReferenceThumbnailDataUri) return toast({ variant: 'destructive', title: "Imagens em falta", description: "Por favor, carregue a foto do influenciador e a thumbnail de referência." });
         
         setLoading('generatingThumbnail', true);
         setGeneratedThumbnailIdeas(null);
         try {
-            const result = await generateThumbnailIdeas({ imageDataUri });
+            const result = await generateThumbnailIdeas({ influencerPhotoDataUri, styleReferenceThumbnailDataUri });
             setGeneratedThumbnailIdeas(result);
             toast({ title: "Ideias para thumbnail geradas!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {

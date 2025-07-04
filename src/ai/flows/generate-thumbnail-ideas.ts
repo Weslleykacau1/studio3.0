@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Analyzes an image, generates thumbnail ideas, and creates two sample thumbnail images.
+ * @fileOverview Analyzes an influencer photo and a style reference thumbnail, generates thumbnail ideas, and creates two sample thumbnail images.
  *
  * - generateThumbnailIdeas - A function that handles the thumbnail idea and image generation process.
  * - GenerateThumbnailIdeasInput - The input type for the function.
@@ -11,10 +11,15 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateThumbnailIdeasInputSchema = z.object({
-  imageDataUri: z
+  influencerPhotoDataUri: z
     .string()
     .describe(
-      "The image to be used as a base for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo of the influencer, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
+  styleReferenceThumbnailDataUri: z
+    .string()
+    .describe(
+      "A reference thumbnail image for style inspiration, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type GenerateThumbnailIdeasInput = z.infer<typeof GenerateThumbnailIdeasInputSchema>;
@@ -44,18 +49,21 @@ const textIdeasPrompt = ai.definePrompt({
   name: 'generateThumbnailTextIdeasPrompt',
   input: {schema: GenerateThumbnailIdeasInputSchema},
   output: {schema: TextIdeasSchema},
-  prompt: `You are a specialist in creating viral video thumbnails for platforms like YouTube and TikTok. Analyze the provided image and generate ideas to make it a highly clickable thumbnail.
+  prompt: `You are a specialist in creating viral video thumbnails for platforms like YouTube and TikTok. Analyze the provided influencer photo and the reference thumbnail to generate ideas to make a highly clickable final thumbnail.
 
 The output must be in **Brazilian Portuguese**.
 
-Based on the image, generate:
-1.  **title**: A highly engaging, "clickbait" title that creates curiosity.
+Based on the images, generate:
+1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the influencer image.
 2.  **overlayText**: A very short (max 5 words) and impactful text to be placed directly on the thumbnail. This should complement the title and image.
-3.  **styleDescription**: Describe the visual treatment. Suggest bold font types, vibrant color palettes (e.g., "high-contrast red and yellow"), effects like outlines or drop shadows on the text, and any other elements to maximize impact.
+3.  **styleDescription**: Describe the visual treatment based *only* on the reference thumbnail. Suggest bold font types, vibrant color palettes (e.g., "high-contrast red and yellow"), effects like outlines or drop shadows on the text, and any other elements to maximize impact.
 4.  **emoji**: Suggest a single, powerful emoji to use in the title or thumbnail.
 
-Image for analysis:
-{{media url=imageDataUri}}`,
+Influencer Photo for analysis:
+{{media url=influencerPhotoDataUri}}
+
+Style Reference Thumbnail for analysis:
+{{media url=styleReferenceThumbnailDataUri}}`,
 });
 
 const generateThumbnailIdeasFlow = ai.defineFlow(
@@ -70,14 +78,15 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
     }
 
-    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. Use the reference image as the base. Apply this style: "${textIdeas.styleDescription}". The video is about: "${textIdeas.title}". The image should be visually striking and eye-catching. Do NOT include any text in the image.`;
-    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. Use the reference image as the base. Apply this style: "${textIdeas.styleDescription}". The video is about: "${textIdeas.title}". Make this version more dramatic or use a different angle. Do NOT include any text in the image.`;
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. The main subject is the person in the influencer photo. Recreate the style (colors, fonts, composition) from the reference thumbnail. The video is about: "${textIdeas.title}". The image should be visually striking and eye-catching. Do NOT include any text in the image.`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. The subject is the person in the influencer photo. Recreate the style of the reference thumbnail. The video is about: "${textIdeas.title}". Make this version more dramatic or use a different angle. Do NOT include any text in the image.`;
     
     const [image1Result, image2Result] = await Promise.all([
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-          { media: { url: input.imageDataUri } },
+          { media: { url: input.influencerPhotoDataUri } },
+          { media: { url: input.styleReferenceThumbnailDataUri } },
           { text: imageGenPromptText1 },
         ],
         config: {
@@ -87,7 +96,8 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
         prompt: [
-          { media: { url: input.imageDataUri } },
+          { media: { url: input.influencerPhotoDataUri } },
+          { media: { url: input.styleReferenceThumbnailDataUri } },
           { text: imageGenPromptText2 },
         ],
         config: {
