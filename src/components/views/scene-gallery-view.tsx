@@ -3,17 +3,24 @@ import type { Scene } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UploadCloud, FileText, Trash2, LayoutGrid, Plus } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, LayoutGrid, Plus, Youtube } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { AiButton } from '../ai-button';
 
 interface SceneGalleryViewProps {
   scenes: Scene[];
   onLoad: (id: string) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
+  youtubeUrl: string;
+  setYoutubeUrl: (url: string) => void;
+  onAnalyzeVideo: () => void;
+  loadingYouTube: boolean;
+  isLoggedIn: boolean;
 }
 
-export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew }: SceneGalleryViewProps) {
+export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew, youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube, isLoggedIn }: SceneGalleryViewProps) {
   const { toast } = useToast();
 
   const exportSceneAsTxt = (sceneToExport: Scene) => {
@@ -52,6 +59,31 @@ export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew }:
             <Button onClick={onAddNew}>
                 <Plus className="mr-2 h-4 w-4" /> Nova Cena
             </Button>
+        </div>
+        <div className="mt-6 rounded-lg border bg-secondary/30 p-4">
+            <h3 className="mb-2 flex items-center gap-2 font-semibold">
+                <Youtube className="h-5 w-5 text-red-500" />
+                Analisar Vídeo do YouTube
+            </h3>
+            <p className="mb-3 text-sm text-muted-foreground">
+                Cole um URL de um vídeo do YouTube com legendas para extrair e criar uma nova cena automaticamente.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+                <Input 
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)} 
+                />
+                <AiButton
+                    onClick={onAnalyzeVideo}
+                    loading={loadingYouTube}
+                    isLoggedIn={isLoggedIn}
+                    disabled={!youtubeUrl.trim()}
+                    className="bg-red-500 text-white hover:bg-red-600"
+                >
+                    {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
+                </AiButton>
+            </div>
         </div>
       </CardHeader>
       <CardContent>

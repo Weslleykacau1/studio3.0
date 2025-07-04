@@ -16,6 +16,7 @@ import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
+import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -46,8 +47,9 @@ export default function ScriptifyStudio() {
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, testingApi: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false });
     const [pastedText, setPastedText] = useState('');
+    const [youtubeUrl, setYoutubeUrl] = useState('');
     const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
@@ -390,6 +392,34 @@ export default function ScriptifyStudio() {
         }
     };
 
+    const handleAnalyzeYouTubeVideo = async () => {
+        if (!youtubeUrl.trim()) return toast({ variant: 'destructive', title: "URL em falta", description: "Por favor, cole um URL do YouTube." });
+        if (!isLoggedIn) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+
+        setLoading('analyzingYouTube', true);
+        try {
+            const result = await analyzeYouTubeVideo({ youtubeUrl });
+            const newScene: Scene = {
+                ...initialSceneState,
+                id: crypto.randomUUID(),
+                ...result
+            };
+
+            await saveScene(newScene);
+            setScenes(prev => [newScene, ...prev]);
+            setCurrentScene(newScene);
+            setActiveView('creator');
+            setYoutubeUrl('');
+            toast({ title: "Cena criada a partir do vídeo!", description: `Cena "${newScene.title}" carregada no editor.`, className: "bg-green-100 text-green-800" });
+
+        } catch (error: any) {
+            console.error("Failed to analyze YouTube video:", error);
+            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
+        } finally {
+            setLoading('analyzingYouTube', false);
+        }
+    };
+
     // Quick Scene Handlers
     const handleOpenQuickSceneModal = (id: string) => {
         const influencerToLoad = galleryInfluencers.find(inf => inf.id === id);
@@ -683,6 +713,11 @@ export default function ScriptifyStudio() {
                         onLoad={loadScene}
                         onDelete={deleteScene}
                         onAddNew={handleAddNewScene}
+                        youtubeUrl={youtubeUrl}
+                        setYoutubeUrl={setYoutubeUrl}
+                        onAnalyzeVideo={handleAnalyzeYouTubeVideo}
+                        loadingYouTube={loadingStates.analyzingYouTube}
+                        isLoggedIn={isLoggedIn}
                     />
                 </TabsContent>
             </Tabs>

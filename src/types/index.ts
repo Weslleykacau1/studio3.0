@@ -53,4 +53,5 @@ export type LoadingStates = {
     generatingDialogue: boolean;
     generatingQuickScene: boolean;
     generatingVeoPrompt: boolean;
+    analyzingYouTube: boolean;
 };
