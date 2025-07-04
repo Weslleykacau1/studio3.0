@@ -98,10 +98,10 @@ export default function ViralVideoView({
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <ImageIcon className="text-primary" />
-              Gerador de Thumbnail (Estilo MrBeast)
+              Gerador de Thumbnail Viral
             </CardTitle>
             <CardDescription>
-              Anexe uma foto do influenciador e digite o tema para a IA gerar duas opções no estilo MrBeast.
+              Anexe uma foto do influenciador e digite o tema para a IA gerar duas opções de thumbnail com alto potencial de clique.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
