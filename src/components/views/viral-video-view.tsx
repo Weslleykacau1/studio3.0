@@ -9,6 +9,7 @@ import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube } from 'lucide-react';
 import type { ThumbnailIdeas } from '@/types';
 import { Input } from '../ui/input';
+import { Skeleton } from '../ui/skeleton';
 
 interface ViralVideoViewProps {
   onGenerate: (imageDataUri: string) => void;
@@ -29,9 +30,9 @@ export default function ViralVideoView({
   const [imageDataUri, setImageDataUri] = useState<string | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleImageUploadUtil(e, ({ preview, base64 }) => {
+    handleImageUploadUtil(e, ({ preview, base64, type }) => {
       setImagePreview(preview);
-      setImageDataUri(`data:${e.target.files?.[0].type};base64,${base64}`);
+      setImageDataUri(`data:${type};base64,${base64}`);
     });
   };
 
@@ -81,7 +82,7 @@ export default function ViralVideoView({
               Gerador de Thumbnail
             </CardTitle>
             <CardDescription>
-              Anexe uma imagem e a IA irá sugerir elementos para criar uma thumbnail viral.
+              Anexe uma imagem e a IA irá sugerir elementos e gerar duas opções de thumbnail para um vídeo viral.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -118,7 +119,7 @@ export default function ViralVideoView({
           </CardContent>
         </Card>
 
-        <Card className={generatedIdeas ? 'block' : 'hidden lg:block'}>
+        <Card className={generatedIdeas || loading ? 'block' : 'hidden lg:block'}>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <Sparkles className="text-primary" />
@@ -129,9 +130,33 @@ export default function ViralVideoView({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {generatedIdeas ? (
+            {loading ? (
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <Skeleton className="h-[150px] w-full" />
+                        <Skeleton className="h-[150px] w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            ) : generatedIdeas ? (
               <>
-                <div className="space-y-1">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {generatedIdeas.generatedImage1DataUri && (
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Opção 1</h4>
+                      <Image src={generatedIdeas.generatedImage1DataUri} alt="Thumbnail gerada 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    </div>
+                  )}
+                  {generatedIdeas.generatedImage2DataUri && (
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Opção 2</h4>
+                      <Image src={generatedIdeas.generatedImage2DataUri} alt="Thumbnail gerada 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1 pt-4">
                   <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
                   <p className="rounded-md border bg-secondary/30 p-3">{generatedIdeas.emoji} {generatedIdeas.title}</p>
                 </div>

@@ -40,6 +40,8 @@ export interface ThumbnailIdeas {
     overlayText: string;
     styleDescription: string;
     emoji: string;
+    generatedImage1DataUri: string;
+    generatedImage2DataUri: string;
 }
 
 export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo';

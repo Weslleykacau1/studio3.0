@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview Analyzes an image and generates thumbnail ideas for a viral video.
+ * @fileOverview Analyzes an image, generates thumbnail ideas, and creates two sample thumbnail images.
  *
- * - generateThumbnailIdeas - A function that handles the thumbnail idea generation process.
+ * - generateThumbnailIdeas - A function that handles the thumbnail idea and image generation process.
  * - GenerateThumbnailIdeasInput - The input type for the function.
  * - GenerateThumbnailIdeasOutput - The return type for the function.
  */
@@ -24,6 +24,8 @@ const GenerateThumbnailIdeasOutputSchema = z.object({
   overlayText: z.string().describe('A very short, high-impact text to overlay on the thumbnail image (max 5 words), in Brazilian Portuguese.'),
   styleDescription: z.string().describe('A description of the recommended visual style for the thumbnail, including fonts, colors, and effects.'),
   emoji: z.string().describe('A single, relevant emoji that could be used in the title or on the thumbnail to grab attention.'),
+  generatedImage1DataUri: z.string().url().describe("The first generated thumbnail image variant, as a data URI."),
+  generatedImage2DataUri: z.string().url().describe("The second generated thumbnail image variant, as a data URI."),
 });
 export type GenerateThumbnailIdeasOutput = z.infer<typeof GenerateThumbnailIdeasOutputSchema>;
 
@@ -31,10 +33,17 @@ export async function generateThumbnailIdeas(input: GenerateThumbnailIdeasInput)
   return generateThumbnailIdeasFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateThumbnailIdeasPrompt',
+const TextIdeasSchema = z.object({
+    title: z.string().describe('A catchy, viral, clickbait-style title for the video, in Brazilian Portuguese.'),
+    overlayText: z.string().describe('A very short, high-impact text to overlay on the thumbnail image (max 5 words), in Brazilian Portuguese.'),
+    styleDescription: z.string().describe('A description of the recommended visual style for the thumbnail, including fonts, colors, and effects.'),
+    emoji: z.string().describe('A single, relevant emoji that could be used in the title or on the thumbnail to grab attention.'),
+});
+
+const textIdeasPrompt = ai.definePrompt({
+  name: 'generateThumbnailTextIdeasPrompt',
   input: {schema: GenerateThumbnailIdeasInputSchema},
-  output: {schema: GenerateThumbnailIdeasOutputSchema},
+  output: {schema: TextIdeasSchema},
   prompt: `You are a specialist in creating viral video thumbnails for platforms like YouTube and TikTok. Analyze the provided image and generate ideas to make it a highly clickable thumbnail.
 
 The output must be in **Brazilian Portuguese**.
@@ -55,8 +64,49 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
     inputSchema: GenerateThumbnailIdeasInputSchema,
     outputSchema: GenerateThumbnailIdeasOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  async (input) => {
+    const { output: textIdeas } = await textIdeasPrompt(input);
+    if (!textIdeas) {
+      throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
+    }
+
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. Use the reference image as the base. Apply this style: "${textIdeas.styleDescription}". The video is about: "${textIdeas.title}". The image should be visually striking and eye-catching. Do NOT include any text in the image.`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. Use the reference image as the base. Apply this style: "${textIdeas.styleDescription}". The video is about: "${textIdeas.title}". Make this version more dramatic or use a different angle. Do NOT include any text in the image.`;
+    
+    const [image1Result, image2Result] = await Promise.all([
+      ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: [
+          { media: { url: input.imageDataUri } },
+          { text: imageGenPromptText1 },
+        ],
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      }),
+      ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: [
+          { media: { url: input.imageDataUri } },
+          { text: imageGenPromptText2 },
+        ],
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      }),
+    ]);
+    
+    const image1 = image1Result.media;
+    const image2 = image2Result.media;
+
+    if (!image1?.url || !image2?.url) {
+        throw new Error("Falha ao gerar imagens para a thumbnail.");
+    }
+    
+    return {
+      ...textIdeas,
+      generatedImage1DataUri: image1.url,
+      generatedImage2DataUri: image2.url,
+    };
   }
 );
