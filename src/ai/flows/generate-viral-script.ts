@@ -40,19 +40,21 @@ const prompt = ai.definePrompt({
     name: 'generateViralScriptPrompt',
     input: {schema: GenerateViralScriptInputSchema},
     output: {schema: GenerateViralScriptOutputSchema},
-    prompt: `You are an expert in creating "mega viral" video scripts for platforms like TikTok and YouTube Shorts. Your goal is to create a script for a video that is fast-paced, highly engaging, and has a high potential to go viral. The script should be for a video of around {{{duration}}}.
+    prompt: `You are an expert in creating "mega viral" video scripts for platforms like TikTok and YouTube Shorts. Your goal is to create a script for a video that is fast-paced, highly engaging, and has a high potential to go viral. The script's total duration MUST precisely match the requested duration: {{{duration}}}.
 
 Based on the provided viral video title and the visual inspiration from the image, create a complete scene.
 
 The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
 
 **MEGAVIRAL SHORTS FORMULA:**
-Your generated scene must follow this structure:
-1.  **Set up**: A one-liner that contains stakes (easy to understand).
-2.  **Unexpected action (Hook)**: The hook of the video, happening in the first 2 seconds.
-3.  **Explanation of action / escalation**: What happens next, building suspense or humor.
-4.  **Climax / Twist / Punchline**: The surprising, funny, or satisfying payoff at the end.
-5.  **CTA**: A simple call to action at the very end.
+Your generated scene must follow this structure, and the actions and dialogue you create must be paced to fit perfectly within the {{{duration}}}:
+1.  **Set up**: A one-liner that contains stakes (easy to understand). This should take up the first ~15% of the video's duration.
+2.  **Unexpected action (Hook)**: The hook of the video, happening immediately after the setup. This should be a quick, impactful moment.
+3.  **Explanation of action / escalation**: What happens next, building suspense or humor. This should be the main body of the video, taking up ~60% of the duration.
+4.  **Climax / Twist / Punchline**: The surprising, funny, or satisfying payoff at the end. This should happen in the last ~20% of the video's duration.
+5.  **CTA**: A simple call to action at the very end of the dialogue.
+
+When you write the 'action' and 'dialogue', make sure they are detailed enough to fill the {{{duration}}} with engaging content. For example, for a 10-second video, the action should describe what happens over those 10 seconds, not just a single event. The dialogue must also be timed to fit within the video's length.
 
 Combine the setup, hook, escalation, and punchline into the 'action' and 'dialogue' fields. The dialogue should be extremely short, punchy, and memorable, starting directly without introductions. Include emotional cues in English, like (surprised) or (excited). Include the CTA at the end of the dialogue.
 
