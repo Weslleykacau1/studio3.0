@@ -323,7 +323,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 ...initialSceneState,
                 id: crypto.randomUUID(),
                 ...result,
-                duration: '8 seg',
+                duration: result.duration || '8 seg', // Use result's duration or fallback
             };
 
             await saveScene(newScene);

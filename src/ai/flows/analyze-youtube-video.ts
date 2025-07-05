@@ -23,6 +23,7 @@ const AnalyzeYouTubeVideoOutputSchema = z.object({
   action: z.string().describe('A ação principal da cena, com base no vídeo, em Português do Brasil.'),
   dialogue: z.string().describe("O diálogo do roteiro, com base no conteúdo do vídeo, em Português do Brasil. Inclua dicas de emoção em inglês, como (surpreso)."),
   markdownScript: z.string().describe('A formatted script in Markdown, including title, setting, action, and dialogue.'),
+  duration: z.string().describe("A duração do vídeo, como uma string (ex: '8 seg', '25 seg'). Se for um vídeo curto, respeite a sua duração. Se for longo, pode ser um valor aproximado para a cena gerada.").optional(),
 });
 export type AnalyzeYouTubeVideoOutput = z.infer<typeof AnalyzeYouTubeVideoOutputSchema>;
 
@@ -40,17 +41,18 @@ const analyzeVideoPrompt = ai.definePrompt({
     input: { schema: PromptInputSchema },
     output: { schema: AnalyzeYouTubeVideoOutputSchema },
     prompt: `
-A sua resposta DEVE ser um objeto JSON contendo 'title', 'setting', 'action', 'dialogue', e 'markdownScript'.
+A sua resposta DEVE ser um objeto JSON contendo 'title', 'setting', 'action', 'dialogue', 'markdownScript', e 'duration'.
+O campo 'duration' DEVE refletir a duração do vídeo original (ex: "8 seg", "15 seg"). O roteiro gerado (ação e diálogo) deve ser dimensionado para se ajustar a essa duração.
 O campo 'markdownScript' deve ser uma string formatada em Markdown contendo o roteiro completo, com seções para Título, Cenário, Ação e Diálogo.
 Todos os campos de texto devem ser em Português do Brasil.
 O diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses).
 
 {{#if isIdentical}}
 Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel.
-Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel; uma descrição das ações principais; e uma transcrição ou adaptação fiel do diálogo.
+Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel; uma descrição das ações principais; e uma transcrição ou adaptação fiel do diálogo. O roteiro gerado deve ser dimensionado para se ajustar à duração original do vídeo.
 Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
 {{else}}
-Você é um diretor criativo e roteirista. Seu objetivo é assistir ao vídeo do YouTube e se INSPIRAR em seu estilo, tema e energia para criar uma cena COMPLETAMENTE NOVA e original. Não copie o conteúdo ou o diálogo.
+Você é um diretor criativo e roteirista. Seu objetivo é assistir ao vídeo do YouTube e se INSPIRAR em seu estilo, tema e energia para criar uma cena COMPLETAMENTE NOVA e original. Não copie o conteúdo ou o diálogo. A cena deve ter uma duração apropriada inspirada no vídeo original.
 Gere: um título original inspirado no estilo; um novo cenário inspirado no vídeo; uma ação original e envolvente; e um diálogo curto e original.
 Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação.** Exemplo: "(animado) Vamos tentar algo totalmente diferente!".
 {{/if}}
