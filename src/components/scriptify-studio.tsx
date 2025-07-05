@@ -218,8 +218,13 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             const result = await analyzeProductImage({
                 productImageDataUri: currentScene.productImagePreview,
             });
-            setCurrentScene(prev => ({ ...prev, productDescription: result.productDescription || '' }));
-            toast({ variant: 'success', title: "Descrição do produto gerada!" });
+            setCurrentScene(prev => ({ 
+                ...prev, 
+                productName: result.productName ?? prev.productName,
+                productBrand: result.productBrand ?? prev.productBrand,
+                productDescription: result.productDescription || '' 
+            }));
+            toast({ variant: 'success', title: "Análise do produto concluída!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {

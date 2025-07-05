@@ -21,6 +21,8 @@ const AnalyzeProductImageInputSchema = z.object({
 export type AnalyzeProductImageInput = z.infer<typeof AnalyzeProductImageInputSchema>;
 
 const AnalyzeProductImageOutputSchema = z.object({
+  productName: z.string().describe('The name of the product in Brazilian Portuguese.').optional(),
+  productBrand: z.string().describe('The brand of the product in Brazilian Portuguese.').optional(),
   productDescription: z.string().describe('A detailed description of the product in Brazilian Portuguese.'),
 });
 export type AnalyzeProductImageOutput = z.infer<typeof AnalyzeProductImageOutputSchema>;
@@ -33,15 +35,17 @@ const prompt = ai.definePrompt({
   name: 'analyzeProductImagePrompt',
   input: {schema: AnalyzeProductImageInputSchema},
   output: {schema: AnalyzeProductImageOutputSchema},
-  prompt: `Você é um especialista em análise de produtos. Sua tarefa é examinar a imagem do produto fornecida e extrair uma descrição extremamente detalhada e fiel em Português do Brasil.
+  prompt: `Você é um especialista em análise de produtos. Sua tarefa é examinar a imagem do produto fornecida e extrair o nome, a marca e uma descrição detalhada em Português do Brasil.
 
-**CRÍTICO: A descrição DEVE incluir todas as especificações visíveis no rótulo, embalagem ou no próprio produto. Capture detalhes como nome do modelo, números, ingredientes, instruções, logotipos e qualquer outro texto ou símbolo presente.** O objetivo é criar uma representação fiel do produto para ser usada na geração de uma cena de vídeo.
+**CRÍTICO: A descrição DEVE incluir todas as especificações visíveis no rótulo, embalagem ou no próprio produto. Capture detalhes como nome do modelo, números, ingredientes, instruções, logotipos e qualquer outro texto ou símbolo presente.** Se o nome do produto ou a marca não forem claramente visíveis, deixe os campos correspondentes vazios.
+
+O objetivo é criar uma representação fiel do produto para ser usada na geração de uma cena de vídeo.
+
+O resultado DEVE ser um objeto JSON com as chaves 'productName', 'productBrand', e 'productDescription'.
 
 Use a seguinte imagem como fonte primária de informação sobre o produto:
 
-{{media url=productImageDataUri}}
-
-A sua descrição deve ser detalhada o suficiente para gerar uma imagem convincente e precisa do produto.`, 
+{{media url=productImageDataUri}}`, 
 });
 
 const analyzeProductImageFlow = ai.defineFlow(
