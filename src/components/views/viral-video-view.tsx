@@ -30,9 +30,6 @@ interface ViralVideoViewProps {
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
   onLoadToCreator: (scene: Scene) => void;
-  onGenerateVeoPromptForViral: (scene: Scene) => void;
-  loadingVeoForViral: boolean;
-  generatedVeoPromptForViral: string;
   onTranscribeUploadedVideo: (videoDataUri: string) => void;
   loadingUploadedVideoTranscription: boolean;
   generatedUploadedVideoTranscription: string;
@@ -49,9 +46,6 @@ export default function ViralVideoView({
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
-    onGenerateVeoPromptForViral,
-    loadingVeoForViral,
-    generatedVeoPromptForViral,
     onTranscribeUploadedVideo,
     loadingUploadedVideoTranscription,
     generatedUploadedVideoTranscription,
@@ -67,7 +61,7 @@ export default function ViralVideoView({
   const [scriptTheme, setScriptTheme] = useState('');
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
-  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
+  const [copyViralScriptSuccess, setCopyViralScriptSuccess] = useState(false);
   const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
   const { toast } = useToast();
@@ -113,10 +107,10 @@ export default function ViralVideoView({
     }
   };
   
-  const handleCopyVeo = () => {
-    if (!generatedVeoPromptForViral) return;
+  const handleCopyViralScript = () => {
+    if (!generatedViralScene?.markdownScript) return;
 
-    let textToCopy = generatedVeoPromptForViral;
+    let textToCopy = generatedViralScene.markdownScript;
     const codeBlockMatch = textToCopy.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
     
     if (codeBlockMatch && codeBlockMatch[1]) {
@@ -124,11 +118,11 @@ export default function ViralVideoView({
     }
     
     navigator.clipboard.writeText(textToCopy).then(() => {
-        setCopyVeoSuccess(true);
-        toast({ variant: 'success', title: 'Prompt Veo copiado!' });
-        setTimeout(() => setCopyVeoSuccess(false), 2000);
+        setCopyViralScriptSuccess(true);
+        toast({ variant: 'success', title: 'Roteiro copiado!' });
+        setTimeout(() => setCopyViralScriptSuccess(false), 2000);
     }).catch(err => {
-        console.error('Failed to copy Veo prompt: ', err);
+        console.error('Failed to copy script text: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
@@ -526,7 +520,7 @@ export default function ViralVideoView({
                 </div>
             )}
 
-            {(generatedViralScene || generatedVeoPromptForViral) && !loadingViralScript && generatedViralScene && (
+            {generatedViralScene && !loadingViralScript && (
                 <div className="mt-4 space-y-4">
                     <Card className="bg-secondary/30">
                         <CardHeader>
@@ -543,42 +537,18 @@ export default function ViralVideoView({
                             <UploadCloud className="mr-2 h-4 w-4" />
                             Carregar para o Criador
                         </Button>
-                        <AiButton
-                            onClick={() => onGenerateVeoPromptForViral(generatedViralScene)}
-                            loading={loadingVeoForViral}
-                            isApiConfigured={isApiConfigured}
-                            variant="secondary"
-                            className="border border-purple-300 bg-purple-50 text-purple-800 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                        <Button
+                          onClick={handleCopyViralScript}
+                          variant="outline"
+                          className={cn(
+                            'transition-colors',
+                            copyViralScriptSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                          )}
                         >
-                            <VideoIcon className="mr-2 h-4 w-4" />
-                            {loadingVeoForViral ? 'A gerar...' : 'Gerar Prompt para Veo'}
-                        </AiButton>
+                          <Copy className="mr-2 h-4 w-4" />
+                          {copyViralScriptSuccess ? 'Copiado!' : 'Copiar Roteiro'}
+                        </Button>
                     </div>
-
-                    {generatedVeoPromptForViral && (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2 font-headline">
-                              <VideoIcon />
-                              Prompt Gerado para Veo
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ContentDisplay content={generatedVeoPromptForViral} />
-                            <Button
-                              onClick={handleCopyVeo}
-                              variant="outline"
-                              className={cn(
-                                'mt-4 transition-colors',
-                                copyVeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
-                              )}
-                            >
-                              <Copy className="mr-2 h-4 w-4" />
-                              {copyVeoSuccess ? 'Copiado!' : 'Copiar Prompt Veo'}
-                            </Button>
-                          </CardContent>
-                        </Card>
-                    )}
                 </div>
             )}
         </CardContent>

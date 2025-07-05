@@ -51,12 +51,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
-    const [generatedVeoPromptForViral, setGeneratedVeoPromptForViral] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -319,7 +318,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         setLoading('analyzingYouTube', true);
         setGeneratedViralScene(null);
-        setGeneratedVeoPromptForViral('');
         try {
             const result = await analyzeYouTubeVideo({ youtubeUrl });
             const newScene: Scene = {
@@ -497,7 +495,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         setLoading('generatingViralScript', true);
         setGeneratedViralScene(null);
-        setGeneratedVeoPromptForViral(''); // Clear previous Veo prompt
         try {
             const result = await generateViralScript({ 
                 videoTitle, 
@@ -531,31 +528,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         }
     };
     
-    const handleGenerateVeoPromptForViralScene = async (scene: Scene) => {
-        if (!scene.setting) {
-            return toast({ variant: 'destructive', title: "Cenário em falta", description: "A cena gerada não tem um cenário para criar um prompt Veo." });
-        }
-        
-        setLoading('generatingVeoPromptForViral', true);
-        setGeneratedVeoPromptForViral('');
-        try {
-            const result = await generateVeoPrompt({
-                sceneSetting: scene.setting,
-                sceneAction: scene.action,
-                sceneDialogue: scene.dialogue,
-                sceneCameraAngle: scene.cameraAngle,
-                videoFormat: scene.videoFormat,
-            });
-            
-            setGeneratedVeoPromptForViral(result.veoPrompt);
-            toast({ variant: 'success', title: "Prompt para Veo gerado com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
-        } finally {
-            setLoading('generatingVeoPromptForViral', false);
-        }
-    };
-
     const handleLoadViralSceneToCreator = (scene: Scene) => {
         if (scene) {
             setCurrentScene(scene);
@@ -816,9 +788,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
                         onLoadToCreator={handleLoadViralSceneToCreator}
-                        onGenerateVeoPromptForViral={handleGenerateVeoPromptForViralScene}
-                        loadingVeoForViral={loadingStates.generatingVeoPromptForViral}
-                        generatedVeoPromptForViral={generatedVeoPromptForViral}
                         onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
                         loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
                         generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
