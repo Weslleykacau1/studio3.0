@@ -48,9 +48,9 @@ Todos os campos de texto devem ser em Português do Brasil.
 O diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses).
 
 {{#if isIdentical}}
-Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel.
-Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel; uma descrição das ações principais; e uma transcrição ou adaptação fiel do diálogo. O roteiro gerado deve ser dimensionado para se ajustar à duração original do vídeo.
-Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
+Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Sua tarefa principal é **transcrever o áudio do vídeo** e usar essa transcrição como base para o diálogo do roteiro. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel.
+Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel baseada no visual do vídeo; uma descrição das ações principais observadas; e um roteiro de diálogo baseado na **transcrição direta do áudio do vídeo**. O roteiro gerado deve ser dimensionado para se ajustar à duração original do vídeo.
+Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação, com base na entoação ouvida no vídeo.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
 {{else}}
 Você é um diretor criativo e roteirista. Seu objetivo é assistir ao vídeo do YouTube e se INSPIRAR em seu estilo, tema e energia para criar uma cena COMPLETAMENTE NOVA e original. Não copie o conteúdo ou o diálogo. A cena deve ter uma duração apropriada inspirada no vídeo original.
 Gere: um título original inspirado no estilo; um novo cenário inspirado no vídeo; uma ação original e envolvente; e um diálogo curto e original.
