@@ -38,6 +38,7 @@ interface ViralVideoViewProps {
   generatedUploadedVideoTranscription: string;
   onGenerateScriptFromTranscription: () => void;
   loadingScriptFromTranscription: boolean;
+  onClearTranscription: () => void;
 }
 
 export default function ViralVideoView({ 
@@ -53,7 +54,8 @@ export default function ViralVideoView({
     loadingUploadedVideoTranscription,
     generatedUploadedVideoTranscription,
     onGenerateScriptFromTranscription,
-    loadingScriptFromTranscription
+    loadingScriptFromTranscription,
+    onClearTranscription
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -76,6 +78,7 @@ export default function ViralVideoView({
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview }) => {
       setUploadedVideoUri(preview);
+      onClearTranscription();
     });
   };
 
