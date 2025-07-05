@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download } from 'lucide-react';
-import type { ThumbnailIdeas } from '@/types';
+import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 
@@ -22,12 +23,14 @@ interface ViralVideoViewProps {
   loadingYouTube: boolean;
   onGenerateViralScript: (videoTitle: string, imageDataUri: string) => void;
   loadingViralScript: boolean;
+  generatedViralScene: Scene | null;
 }
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
     youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
-    onGenerateViralScript, loadingViralScript
+    onGenerateViralScript, loadingViralScript,
+    generatedViralScene
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -98,7 +101,7 @@ export default function ViralVideoView({
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <ImageIcon className="text-primary" />
-              Gerador de Thumbnail Viral
+              Passo 1: Gerar Ideias para Thumbnail
             </CardTitle>
             <CardDescription>
               Anexe uma imagem de referência e digite o tema para a IA gerar duas opções de thumbnail com alto potencial de clique.
@@ -153,10 +156,10 @@ export default function ViralVideoView({
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <Sparkles className="text-primary" />
-              Resultado e Ações
+              Passo 2: Resultado da Thumbnail
             </CardTitle>
             <CardDescription>
-              {generatedIdeas ? "Aqui estão as sugestões da IA. Use o botão abaixo para gerar um roteiro viral." : "As sugestões e o botão para gerar o roteiro aparecerão aqui."}
+              Aqui estão as sugestões da IA. Use o botão no passo 3 para gerar um roteiro viral.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -217,25 +220,58 @@ export default function ViralVideoView({
                 <p>Aguardando a geração de ideias...</p>
               </div>
             )}
-
-            <div className="!mt-6 border-t pt-6">
-                <AiButton
-                    onClick={handleGenerateViralScriptClick}
-                    loading={loadingViralScript}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!generatedIdeas}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
-                >
-                    <Bot className="mr-2 h-5 w-5" />
-                    Gerar Roteiro Mega Viral
-                </AiButton>
-                <p className="mt-2 text-center text-xs text-muted-foreground">
-                    {generatedIdeas ? "Isto irá gerar uma nova cena e guardá-la na sua galeria." : "Primeiro, gere as ideias para a thumbnail."}
-                </p>
-            </div>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+              <Pencil className="text-primary" />
+              Passo 3: Gerar Roteiro Viral
+            </CardTitle>
+            <CardDescription>
+              Com base nas ideias geradas, clique no botão para criar um roteiro curto e viral. O resultado será guardado na sua galeria.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <AiButton
+                onClick={handleGenerateViralScriptClick}
+                loading={loadingViralScript}
+                isApiConfigured={isApiConfigured}
+                disabled={!generatedIdeas}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
+            >
+                <Bot className="mr-2 h-5 w-5" />
+                Gerar Roteiro Mega Viral
+            </AiButton>
+            <p className="text-center text-xs text-muted-foreground">
+                {generatedIdeas ? "Isto irá gerar uma nova cena e guardá-la na sua galeria." : "Primeiro, gere as ideias para a thumbnail no Passo 1."}
+            </p>
+
+            {loadingViralScript && (
+                <div className="space-y-4 pt-4">
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-4/5" />
+                </div>
+            )}
+
+            {generatedViralScene && !loadingViralScript && (
+                <Card className="mt-4 bg-secondary/30">
+                    <CardHeader>
+                        <CardTitle className="text-lg">{generatedViralScene.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <p><strong>Cenário:</strong> {generatedViralScene.setting}</p>
+                        <p><strong>Ação:</strong> {generatedViralScene.action}</p>
+                        <p><strong>Diálogo:</strong> {generatedViralScene.dialogue}</p>
+                    </CardContent>
+                </Card>
+            )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

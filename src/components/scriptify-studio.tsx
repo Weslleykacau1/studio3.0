@@ -49,6 +49,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
+    const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
     const [pastedText, setPastedText] = useState('');
@@ -443,6 +444,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         if (!videoTitle || !imageDataUri) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso gerar ideias de thumbnail primeiro." });
 
         setLoading('generatingViralScript', true);
+        setGeneratedViralScene(null);
         try {
             const result = await generateViralScript({ videoTitle, imageDataUri });
 
@@ -455,10 +457,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
             await saveScene(newScene);
             setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
 
             toast({ 
                 title: "Roteiro viral gerado!", 
-                description: `A cena "${newScene.title}" foi guardada na sua galeria.`,
+                description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`,
                 className: "bg-green-100 text-green-800"
             });
 
@@ -714,6 +717,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         loadingYouTube={loadingStates.analyzingYouTube}
                         onGenerateViralScript={handleGenerateViralScript}
                         loadingViralScript={loadingStates.generatingViralScript}
+                        generatedViralScene={generatedViralScene}
                     />
                 </TabsContent>
             </Tabs>
