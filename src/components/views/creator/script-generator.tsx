@@ -59,7 +59,7 @@ export default function ScriptGenerator({
     
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopySuccess(true);
-      toast({ title: 'Prompt copiado para a área de transferência!', className: 'bg-green-100' });
+      toast({ title: 'Roteiro copiado para a área de transferência!', className: 'bg-green-100' });
       setTimeout(() => setCopySuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy text: ', err);
@@ -81,7 +81,15 @@ export default function ScriptGenerator({
 
   const handleCopyVeo = () => {
     if (!generatedVeoPrompt) return;
-    navigator.clipboard.writeText(generatedVeoPrompt).then(() => {
+    
+    let textToCopy = generatedVeoPrompt;
+    const codeBlockMatch = generatedVeoPrompt.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
+    
+    if (codeBlockMatch && codeBlockMatch[1]) {
+        textToCopy = codeBlockMatch[1].trim();
+    }
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
       setCopyVeoSuccess(true);
       toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
       setTimeout(() => setCopyVeoSuccess(false), 2000);
@@ -154,9 +162,7 @@ export default function ScriptGenerator({
             <CardDescription>Este prompt conciso pode ser usado em plataformas de vídeo generativo como o Veo.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm dark:prose-invert mt-4 max-w-none rounded-xl border bg-secondary/20 p-6 leading-relaxed">
-              <p>{generatedVeoPrompt}</p>
-            </div>
+            <ContentDisplay content={generatedVeoPrompt} />
             <Button
               onClick={handleCopyVeo}
               variant="outline"

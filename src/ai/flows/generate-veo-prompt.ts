@@ -23,7 +23,7 @@ const GenerateVeoPromptInputSchema = z.object({
 export type GenerateVeoPromptInput = z.infer<typeof GenerateVeoPromptInputSchema>;
 
 const GenerateVeoPromptOutputSchema = z.object({
-    veoPrompt: z.string().describe('A single, concise, and descriptive prompt for a text-to-video model like Veo.'),
+    veoPrompt: z.string().describe('A single, concise, and descriptive prompt for a text-to-video model like Veo, formatted as a Markdown code block.'),
 });
 export type GenerateVeoPromptOutput = z.infer<typeof GenerateVeoPromptOutputSchema>;
 
@@ -62,7 +62,7 @@ Crucially, you must embed the dialogue directly into the prompt in a natural way
 **Dialogue to include:**
 "{{{sceneDialogue}}}"
 
-Generate a single paragraph prompt that combines all these elements fluidly.
+Generate a single paragraph prompt that combines all these elements fluidly. The final output for the 'veoPrompt' field MUST be a Markdown code block containing only the generated prompt text.
 `
 });
 

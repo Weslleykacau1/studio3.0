@@ -86,7 +86,15 @@ export default function ViralVideoView({
   
   const handleCopyVeo = () => {
     if (!generatedVeoPromptForViral) return;
-    navigator.clipboard.writeText(generatedVeoPromptForViral).then(() => {
+
+    let textToCopy = generatedVeoPromptForViral;
+    const codeBlockMatch = textToCopy.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
+    
+    if (codeBlockMatch && codeBlockMatch[1]) {
+        textToCopy = codeBlockMatch[1].trim();
+    }
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
         setCopyVeoSuccess(true);
         toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
         setTimeout(() => setCopyVeoSuccess(false), 2000);
@@ -434,9 +442,7 @@ export default function ViralVideoView({
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="prose prose-sm dark:prose-invert mt-4 max-w-none rounded-xl border bg-secondary/20 p-6 leading-relaxed">
-                              <p>{generatedVeoPromptForViral}</p>
-                            </div>
+                            <ContentDisplay content={generatedVeoPromptForViral} />
                             <Button
                               onClick={handleCopyVeo}
                               variant="outline"
