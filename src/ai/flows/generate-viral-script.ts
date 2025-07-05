@@ -18,7 +18,7 @@ const GenerateViralScriptInputSchema = z.object({
     .string()
     .describe(
       "The base image for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
+    ).optional(),
   duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
   videoType: z.enum(['shorts', 'watch']).describe("The type of video: 'shorts' for vertical, fast-paced videos, or 'watch' for standard horizontal videos."),
 });
@@ -70,9 +70,10 @@ Please generate the script according to the format specified (shorts or watch) a
 """
 {{{videoTitle}}}
 """
-
+{{#if imageDataUri}}
 **Visual Inspiration (use this image to define the setting and character style):**
 {{media url=imageDataUri}}
+{{/if}}
 `
 });
 

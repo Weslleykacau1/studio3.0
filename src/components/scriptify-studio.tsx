@@ -228,21 +228,8 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         
         setLoading('generatingScript', true);
         setGeneratedContent('');
-        const { dismiss: dismissToast, update: updateToast } = toast({
-          title: 'A iniciar geração...',
-          description: 'A preparar para gerar o prompt.',
-        });
-
+        
         try {
-            await new Promise(res => setTimeout(res, 700));
-            updateToast({ title: 'A analisar traços do influenciador...', description: 'A IA está a ler o perfil do seu influenciador.' });
-
-            await new Promise(res => setTimeout(res, 700));
-            updateToast({ title: 'A interpretar detalhes da cena...', description: 'A IA está a analisar o cenário e a ação.' });
-
-            await new Promise(res => setTimeout(res, 700));
-            updateToast({ title: 'A construir o prompt para a IA...', description: 'Quase pronto! A formatar as instruções finais.' });
-            
             const responseText = await generateVideoScript({
                 influencerName: influencer.name,
                 influencerPersonality: influencer.personality,
@@ -265,17 +252,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 onlyPhysicalText: sceneToGenerate.onlyPhysicalText,
             });
             
-            updateToast({ title: 'A formatar o resultado final...', description: 'A preparar a visualização do prompt gerado.' });
-            await new Promise(res => setTimeout(res, 500));
-            
             setGeneratedContent(responseText);
             
-            setActiveView('creator');
-            dismissToast();
             toast({ title: "Prompt gerado com sucesso!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
             setGeneratedContent(`**Falha ao gerar prompt:**\n\n${error.message}`);
-            dismissToast();
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
         } finally {
             setLoading('generatingScript', false);
@@ -427,14 +408,19 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         toast({ title: "Cena salva e carregada no editor!", className: "bg-blue-100 text-blue-800" });
     };
 
-    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string, duration: string, videoType: 'shorts' | 'watch') => {
+    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => {
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
-        if (!videoTitle || !imageDataUri) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso gerar ideias de thumbnail primeiro." });
+        if (!videoTitle.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
 
         setLoading('generatingViralScript', true);
         setGeneratedViralScene(null);
         try {
-            const result = await generateViralScript({ videoTitle, imageDataUri, duration, videoType });
+            const result = await generateViralScript({ 
+                videoTitle, 
+                imageDataUri: imageDataUri || undefined,
+                duration, 
+                videoType 
+            });
 
             const newScene: Scene = {
                 ...initialSceneState,
