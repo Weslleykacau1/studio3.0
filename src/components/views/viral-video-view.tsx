@@ -26,13 +26,15 @@ interface ViralVideoViewProps {
   onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => void;
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
+  onLoadToCreator: (scene: Scene) => void;
 }
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
     youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
-    generatedViralScene
+    generatedViralScene,
+    onLoadToCreator
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -106,10 +108,10 @@ export default function ViralVideoView({
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <ImageIcon />
-              Passo 1: Gerar Ideias para Thumbnail
+              Passo 1: Imagem de Referência
             </CardTitle>
             <CardDescription>
-              Anexe uma imagem de referência e digite o tema para a IA gerar duas opções de thumbnail com alto potencial de clique.
+              Anexe uma imagem de referência e digite um tema para gerar ideias de thumbnail, ou apenas use a imagem como inspiração para o roteiro viral.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -121,7 +123,7 @@ export default function ViralVideoView({
                 ) : (
                   <div className="space-y-2 py-8 text-muted-foreground">
                     <ImageIcon className="mx-auto h-10 w-10" />
-                    <p className="text-xs">Carregue uma imagem de referência</p>
+                    <p className="text-xs">Carregue uma imagem de referência (opcional para roteiro)</p>
                   </div>
                 )}
                  <input id="reference-image-upload" type="file" className="hidden" accept="image/*" onChange={handleInfluencerPhotoUpload} />
@@ -135,7 +137,7 @@ export default function ViralVideoView({
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="video-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Vídeo</Label>
+                <Label htmlFor="video-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema para Thumbnail</Label>
                 <Input 
                     id="video-theme"
                     value={videoTheme}
@@ -236,7 +238,7 @@ export default function ViralVideoView({
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
-              Escreva um tema, opcionalmente use a imagem de referência acima, e clique no botão para criar um roteiro curto e viral. O resultado será guardado na sua galeria.
+              Escreva um tema, escolha as opções e clique no botão para criar um roteiro. O resultado será guardado na sua galeria.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -307,16 +309,25 @@ export default function ViralVideoView({
             )}
 
             {generatedViralScene && !loadingViralScript && (
-                <Card className="mt-4 bg-secondary/30">
-                    <CardHeader>
-                        <CardTitle className="text-lg">{generatedViralScene.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                        <p><strong>Cenário:</strong> {generatedViralScene.setting}</p>
-                        <p><strong>Ação:</strong> {generatedViralScene.action}</p>
-                        <p><strong>Diálogo:</strong> {generatedViralScene.dialogue}</p>
-                    </CardContent>
-                </Card>
+                <div className="mt-4">
+                    <Card className="bg-secondary/30">
+                        <CardHeader>
+                            <CardTitle className="text-lg">{generatedViralScene.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <p><strong>Cenário:</strong> {generatedViralScene.setting}</p>
+                            <p><strong>Ação:</strong> {generatedViralScene.action}</p>
+                            <p><strong>Diálogo:</strong> {generatedViralScene.dialogue}</p>
+                        </CardContent>
+                    </Card>
+                    <Button
+                        onClick={() => onLoadToCreator(generatedViralScene)}
+                        className="mt-4"
+                    >
+                        <UploadCloud className="mr-2 h-4 w-4" />
+                        Carregar para o Criador
+                    </Button>
+                </div>
             )}
         </CardContent>
       </Card>

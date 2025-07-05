@@ -446,6 +446,18 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             setLoading('generatingViralScript', false);
         }
     };
+
+    const handleLoadViralSceneToCreator = (scene: Scene) => {
+        if (scene) {
+            setCurrentScene(scene);
+            setActiveView('creator');
+            toast({ 
+                title: `Cena "${scene.title || 'sem título'}" carregada!`, 
+                description: "A cena está pronta para ser editada ou usada para gerar um roteiro.",
+                className: "bg-blue-100 text-blue-800" 
+            });
+        }
+    };
     
     // IndexedDB Handlers
     const saveOrUpdateInfluencer = async () => {
@@ -690,6 +702,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         onGenerateViralScript={handleGenerateViralScript}
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
+                        onLoadToCreator={handleLoadViralSceneToCreator}
                     />
                 </TabsContent>
             </Tabs>
