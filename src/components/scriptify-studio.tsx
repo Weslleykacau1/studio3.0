@@ -21,6 +21,7 @@ import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeYouTubeVideo } from '@/ai/flows/transcribe-youtube-video';
+import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -53,8 +54,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
     const [generatedTranscription, setGeneratedTranscription] = useState('');
+    const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingYouTube: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingYouTube: false, transcribingUploadedVideo: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [youtubeConsistencyType, setYoutubeConsistencyType] = useState<'identical' | 'inspired'>('identical');
@@ -360,6 +362,24 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
         } finally {
             setLoading('transcribingYouTube', false);
+        }
+    };
+
+    const handleTranscribeUploadedVideo = async (videoDataUri: string) => {
+        if (!videoDataUri) return toast({ variant: 'destructive', title: "Ficheiro em falta", description: "Por favor, anexe um ficheiro de vídeo." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+
+        setLoading('transcribingUploadedVideo', true);
+        setGeneratedUploadedVideoTranscription('');
+        try {
+            const result = await transcribeUploadedVideo({ videoDataUri });
+            setGeneratedUploadedVideoTranscription(result.transcription);
+            toast({ title: "Transcrição concluída com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            console.error("Failed to transcribe uploaded video:", error);
+            toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
+        } finally {
+            setLoading('transcribingUploadedVideo', false);
         }
     };
 
@@ -764,6 +784,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         onTranscribeVideo={handleTranscribeYouTubeVideo}
                         loadingTranscription={loadingStates.transcribingYouTube}
                         generatedTranscription={generatedTranscription}
+                        onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
+                        loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
+                        generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
                     />
                 </TabsContent>
             </Tabs>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy, Wand, FileText } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText } from 'lucide-react';
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -38,6 +38,9 @@ interface ViralVideoViewProps {
   onTranscribeVideo: () => void;
   loadingTranscription: boolean;
   generatedTranscription: string;
+  onTranscribeUploadedVideo: (videoDataUri: string) => void;
+  loadingUploadedVideoTranscription: boolean;
+  generatedUploadedVideoTranscription: string;
 }
 
 export default function ViralVideoView({ 
@@ -51,7 +54,10 @@ export default function ViralVideoView({
     generatedVeoPromptForViral,
     onTranscribeVideo,
     loadingTranscription,
-    generatedTranscription
+    generatedTranscription,
+    onTranscribeUploadedVideo,
+    loadingUploadedVideoTranscription,
+    generatedUploadedVideoTranscription
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -61,12 +67,20 @@ export default function ViralVideoView({
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
   const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
   const [copyTranscriptionSuccess, setCopyTranscriptionSuccess] = useState(false);
+  const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
+  const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
       setInfluencerPhotoPreview(preview);
       setInfluencerPhotoDataUri(`data:${type};base64,${base64}`);
+    });
+  };
+  
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleImageUploadUtil(e, ({ preview }) => {
+      setUploadedVideoUri(preview);
     });
   };
 
@@ -88,6 +102,12 @@ export default function ViralVideoView({
   const handleGenerateViralScriptClick = () => {
     if (scriptTheme) {
         onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration, videoType);
+    }
+  };
+
+  const handleTranscribeUploadedVideoClick = () => {
+    if (uploadedVideoUri) {
+      onTranscribeUploadedVideo(uploadedVideoUri);
     }
   };
   
@@ -117,6 +137,18 @@ export default function ViralVideoView({
         setCopyTranscriptionSuccess(true);
         toast({ title: 'Transcrição copiada!', className: 'bg-green-100' });
         setTimeout(() => setCopyTranscriptionSuccess(false), 2000);
+    }).catch(err => {
+        console.error('Failed to copy transcription text: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+  
+  const handleCopyUploadedVideoTranscription = () => {
+    if (!generatedUploadedVideoTranscription) return;
+    navigator.clipboard.writeText(generatedUploadedVideoTranscription).then(() => {
+        setCopyUploadedVideoTranscriptionSuccess(true);
+        toast({ title: 'Transcrição copiada!', className: 'bg-green-100' });
+        setTimeout(() => setCopyUploadedVideoTranscriptionSuccess(false), 2000);
     }).catch(err => {
         console.error('Failed to copy transcription text: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
@@ -241,6 +273,77 @@ export default function ViralVideoView({
                 >
                     <Copy className="mr-2 h-4 w-4" />
                     {copyTranscriptionSuccess ? 'Copiado!' : 'Copiar Transcrição'}
+                </Button>
+            </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+            <VideoIcon />
+            Transcrever Vídeo Anexado
+          </CardTitle>
+          <CardDescription>
+            Anexe um ficheiro de vídeo do seu computador para obter a transcrição em português com timestamps.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="video-upload-input" className="flex items-center gap-2"><UploadCloud className="h-4 w-4"/> Anexar ficheiro de vídeo</Label>
+                <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
+                  {uploadedVideoUri ? (
+                    <video src={uploadedVideoUri} controls className="max-h-[250px] w-auto rounded-md" />
+                  ) : (
+                    <div className="space-y-2 py-8 text-muted-foreground">
+                      <VideoIcon className="mx-auto h-10 w-10" />
+                      <p className="text-xs">Formatos suportados: MP4, MOV, WEBM, etc.</p>
+                    </div>
+                  )}
+                   <input id="video-upload-input" type="file" className="hidden" accept="video/*" onChange={handleVideoUpload} />
+                   <Button asChild variant="outline" size="sm" className="mt-4">
+                      <Label htmlFor="video-upload-input" className="cursor-pointer gap-2">
+                          <UploadCloud className="h-4 w-4" /> 
+                          {uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo'}
+                      </Label>
+                  </Button>
+                </div>
+              </div>
+              <AiButton
+                  onClick={handleTranscribeUploadedVideoClick}
+                  loading={loadingUploadedVideoTranscription}
+                  isApiConfigured={isApiConfigured}
+                  disabled={!uploadedVideoUri}
+                  variant="outline"
+              >
+                  <FileText className="mr-2 h-4 w-4" />
+                  {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
+              </AiButton>
+          </div>
+        </CardContent>
+      </Card>
+
+      {generatedUploadedVideoTranscription && (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <FileText />
+                    Transcrição do Vídeo Anexado
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ContentDisplay content={generatedUploadedVideoTranscription} />
+                <Button
+                    onClick={handleCopyUploadedVideoTranscription}
+                    variant="outline"
+                    className={cn(
+                        'mt-4 transition-colors',
+                        copyUploadedVideoTranscriptionSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                    )}
+                >
+                    <Copy className="mr-2 h-4 w-4" />
+                    {copyUploadedVideoTranscriptionSuccess ? 'Copiado!' : 'Copiar Transcrição'}
                 </Button>
             </CardContent>
         </Card>
@@ -484,7 +587,7 @@ export default function ViralVideoView({
                             variant="secondary"
                             className="border border-purple-300 bg-purple-50 text-purple-800 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
                         >
-                            <Video className="mr-2 h-4 w-4" />
+                            <VideoIcon className="mr-2 h-4 w-4" />
                             {loadingVeoForViral ? 'A gerar...' : 'Gerar Prompt para Veo'}
                         </AiButton>
                     </div>
@@ -493,7 +596,7 @@ export default function ViralVideoView({
                         <Card>
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2 font-headline">
-                              <Video />
+                              <VideoIcon />
                               Prompt Gerado para Veo
                             </CardTitle>
                           </CardHeader>

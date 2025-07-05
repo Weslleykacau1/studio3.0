@@ -16,3 +16,4 @@ import '@/ai/flows/analyze-youtube-video.ts';
 import '@/ai/flows/generate-thumbnail-ideas.ts';
 import '@/ai/flows/generate-viral-script.ts';
 import '@/ai/flows/transcribe-youtube-video.ts';
+import '@/ai/flows/transcribe-uploaded-video.ts';
