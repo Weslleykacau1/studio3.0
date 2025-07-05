@@ -24,6 +24,8 @@ interface ViralVideoViewProps {
   isApiConfigured: boolean;
   youtubeUrl: string;
   setYoutubeUrl: (url: string) => void;
+  youtubeAnalysisType: 'identical' | 'inspired';
+  setYoutubeAnalysisType: (type: 'identical' | 'inspired') => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
   onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => void;
@@ -37,7 +39,7 @@ interface ViralVideoViewProps {
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
-    youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
+    youtubeUrl, setYoutubeUrl, youtubeAnalysisType, setYoutubeAnalysisType, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
@@ -108,12 +110,30 @@ export default function ViralVideoView({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="space-y-4">
               <Input 
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={youtubeUrl}
                   onChange={(e) => setYoutubeUrl(e.target.value)} 
               />
+              <div className="space-y-2">
+                <Label>Tipo de Análise</Label>
+                <RadioGroup
+                    value={youtubeAnalysisType}
+                    onValueChange={(value) => setYoutubeAnalysisType(value as 'identical' | 'inspired')}
+                    className="flex gap-4"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="identical" id="type-identical" />
+                        <Label htmlFor="type-identical" className="font-normal">Roteiro Idêntico</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="inspired" id="type-inspired" />
+                        <Label htmlFor="type-inspired" className="font-normal">Roteiro Inspirado</Label>
+                    </div>
+                </RadioGroup>
+              </div>
+
               <AiButton
                   onClick={onAnalyzeVideo}
                   loading={loadingYouTube}
