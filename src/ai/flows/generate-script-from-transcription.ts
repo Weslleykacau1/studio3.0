@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
     name: 'generateScriptFromTranscriptionPrompt',
     input: {schema: GenerateScriptFromTranscriptionInputSchema},
     output: {schema: GenerateScriptFromTranscriptionOutputSchema},
-    prompt: `Você é um roteirista experiente. Sua tarefa é transformar a seguinte transcrição de vídeo em um roteiro de cena estruturado.
+    prompt: `Você é um roteirista experiente. Sua tarefa é transformar a seguinte transcrição de vídeo em um roteiro de cena estruturado. Ao criar a cena, escolha personagens brasileiros e cômicos para interpretar o diálogo.
     
     Analise a transcrição para inferir o cenário, a ação principal e os diálogos. Limpe os timestamps (ex: [00:05]) do diálogo final. Adicione dicas de emoção em inglês (ex: (rindo)) com base no contexto.
     

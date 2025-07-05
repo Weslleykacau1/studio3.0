@@ -33,7 +33,7 @@ const prompt = ai.definePrompt({
     name: 'generateParaphrasedScriptFromTranscriptionPrompt',
     input: {schema: GenerateParaphrasedScriptFromTranscriptionInputSchema},
     output: {schema: GenerateParaphrasedScriptFromTranscriptionOutputSchema},
-    prompt: `Você é um roteirista criativo e especialista em reescrita. Sua tarefa é usar a seguinte transcrição de vídeo como inspiração para criar um roteiro de cena COMPLETAMENTE NOVO, mas com o mesmo tema e mensagem.
+    prompt: `Você é um roteirista criativo e especialista em reescrita. Sua tarefa é usar a seguinte transcrição de vídeo como inspiração para criar um roteiro de cena COMPLETAMENTE NOVO, mas com o mesmo tema e mensagem. Ao criar a cena, escolha personagens brasileiros e cômicos para interpretar o diálogo.
 
 NÃO copie o diálogo original. Re-escreva o título, cenário, ação e, mais importante, o diálogo, usando outras palavras, mas mantendo a essência e o significado da transcrição original. Limpe os timestamps (ex: [00:05]) do processo. Adicione dicas de emoção em inglês (ex: (rindo)) com base no contexto.
     
