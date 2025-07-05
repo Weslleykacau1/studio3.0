@@ -33,16 +33,15 @@ const prompt = ai.definePrompt({
   name: 'analyzeProductImagePrompt',
   input: {schema: AnalyzeProductImageInputSchema},
   output: {schema: AnalyzeProductImageOutputSchema},
-  prompt: `You are an expert marketing copywriter specializing in product descriptions.
+  prompt: `Você é um especialista em análise de produtos. Sua tarefa é examinar a imagem do produto fornecida e extrair uma descrição extremamente detalhada e fiel em Português do Brasil.
 
-You will analyze the provided product image and generate a detailed and engaging description in Brazilian Portuguese.
-Consider the product's features, benefits, target audience, and overall aesthetic.
+**CRÍTICO: A descrição DEVE incluir todas as especificações visíveis no rótulo, embalagem ou no próprio produto. Capture detalhes como nome do modelo, números, ingredientes, instruções, logotipos e qualquer outro texto ou símbolo presente.** O objetivo é criar uma representação fiel do produto para ser usada na geração de uma cena de vídeo.
 
-Use the following image as the primary source of information about the product:
+Use a seguinte imagem como fonte primária de informação sobre o produto:
 
 {{media url=productImageDataUri}}
 
-Your description should be detailed enough to generate a convincing image of the product.`, 
+A sua descrição deve ser detalhada o suficiente para gerar uma imagem convincente e precisa do produto.`, 
 });
 
 const analyzeProductImageFlow = ai.defineFlow(
