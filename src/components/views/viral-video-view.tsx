@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy } from 'lucide-react';
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ViralVideoViewProps {
   onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
@@ -28,6 +30,9 @@ interface ViralVideoViewProps {
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
   onLoadToCreator: (scene: Scene) => void;
+  onGenerateVeoPromptForViral: (scene: Scene) => void;
+  loadingVeoForViral: boolean;
+  generatedVeoPromptForViral: string;
 }
 
 export default function ViralVideoView({ 
@@ -35,7 +40,10 @@ export default function ViralVideoView({
     youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
-    onLoadToCreator
+    onLoadToCreator,
+    onGenerateVeoPromptForViral,
+    loadingVeoForViral,
+    generatedVeoPromptForViral
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -43,6 +51,8 @@ export default function ViralVideoView({
   const [scriptTheme, setScriptTheme] = useState('');
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
+  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
+  const { toast } = useToast();
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -71,13 +81,26 @@ export default function ViralVideoView({
         onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration, videoType);
     }
   };
+  
+  const handleCopyVeo = () => {
+    if (!generatedVeoPromptForViral) return;
+    navigator.clipboard.writeText(generatedVeoPromptForViral).then(() => {
+        setCopyVeoSuccess(true);
+        toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
+        setTimeout(() => setCopyVeoSuccess(false), 2000);
+    }).catch(err => {
+        console.error('Failed to copy Veo prompt: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
 
   return (
     <div className="space-y-8">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Youtube className="text-primary" />
+            <Youtube />
             Analisar Vídeo do YouTube
           </CardTitle>
           <CardDescription>
@@ -108,7 +131,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <ImageIcon className="text-primary" />
+              <ImageIcon />
               Passo 1: Imagem de Referência
             </CardTitle>
             <CardDescription>
@@ -163,7 +186,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Sparkles className="text-primary" />
+              <Sparkles />
               Passo 2: Resultado da Thumbnail
             </CardTitle>
             <CardDescription>
@@ -235,7 +258,7 @@ export default function ViralVideoView({
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Pencil className="text-primary" />
+              <Pencil />
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
@@ -318,8 +341,8 @@ export default function ViralVideoView({
                 </div>
             )}
 
-            {generatedViralScene && !loadingViralScript && (
-                <div className="mt-4">
+            {(generatedViralScene || generatedVeoPromptForViral) && !loadingViralScript && generatedViralScene && (
+                <div className="mt-4 space-y-4">
                     <Card className="bg-secondary/30">
                         <CardHeader>
                             <CardTitle className="text-lg">{generatedViralScene.title}</CardTitle>
@@ -330,13 +353,51 @@ export default function ViralVideoView({
                             <p><strong>Diálogo:</strong> {generatedViralScene.dialogue}</p>
                         </CardContent>
                     </Card>
-                    <Button
-                        onClick={() => onLoadToCreator(generatedViralScene)}
-                        className="mt-4"
-                    >
-                        <UploadCloud className="mr-2 h-4 w-4" />
-                        Carregar para o Criador
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            onClick={() => onLoadToCreator(generatedViralScene)}
+                        >
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                            Carregar para o Criador
+                        </Button>
+                        <AiButton
+                            onClick={() => onGenerateVeoPromptForViral(generatedViralScene)}
+                            loading={loadingVeoForViral}
+                            isApiConfigured={isApiConfigured}
+                            variant="secondary"
+                            className="border border-purple-300 bg-purple-50 text-purple-800 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+                        >
+                            <Video className="mr-2 h-4 w-4" />
+                            {loadingVeoForViral ? 'A gerar...' : 'Gerar Prompt para Veo'}
+                        </AiButton>
+                    </div>
+
+                    {generatedVeoPromptForViral && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 font-headline">
+                              <Video />
+                              Prompt Gerado para Veo
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="prose prose-sm dark:prose-invert mt-4 max-w-none rounded-xl border bg-secondary/20 p-6 leading-relaxed">
+                              <p>{generatedVeoPromptForViral}</p>
+                            </div>
+                            <Button
+                              onClick={handleCopyVeo}
+                              variant="outline"
+                              className={cn(
+                                'mt-4 transition-colors',
+                                copyVeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                              )}
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              {copyVeoSuccess ? 'Copiado!' : 'Copiar Prompt Veo'}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                    )}
                 </div>
             )}
         </CardContent>

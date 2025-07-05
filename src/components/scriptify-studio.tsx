@@ -48,10 +48,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedContent, setGeneratedContent] = useState('');
     const [generatedSeoContent, setGeneratedSeoContent] = useState('');
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
+    const [generatedVeoPromptForViral, setGeneratedVeoPromptForViral] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -255,10 +256,10 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             
             setGeneratedContent(responseText);
             
-            toast({ title: "Prompt gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ title: "Roteiro em Markdown gerado com sucesso!", className: "bg-green-100 text-green-800" });
         } catch (error: any) {
-            setGeneratedContent(`**Falha ao gerar prompt:**\n\n${error.message}`);
-            toast({ variant: 'destructive', title: "Erro na Geração do Prompt", description: error.message });
+            setGeneratedContent(`**Falha ao gerar roteiro:**\n\n${error.message}`);
+            toast({ variant: 'destructive', title: "Erro na Geração do Roteiro", description: error.message });
         } finally {
             setLoading('generatingScript', false);
         }
@@ -313,6 +314,8 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('analyzingYouTube', true);
+        setGeneratedViralScene(null); // Clear previous results
+        setGeneratedVeoPromptForViral(''); // Clear previous Veo prompt
         try {
             const result = await analyzeYouTubeVideo({ youtubeUrl });
             const newScene: Scene = {
@@ -324,10 +327,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
             await saveScene(newScene);
             setScenes(prev => [newScene, ...prev]);
-            setCurrentScene(newScene);
-            setActiveView('creator');
-            setYoutubeUrl('');
-            toast({ title: "Cena criada a partir do vídeo!", description: `Cena "${newScene.title}" carregada no editor.`, className: "bg-green-100 text-green-800" });
+            setGeneratedViralScene(newScene); // Set scene for display in viral tab
+            
+            toast({ title: "Cena criada a partir do vídeo!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`, className: "bg-green-100 text-green-800" });
 
         } catch (error: any) {
             console.error("Failed to analyze YouTube video:", error);
@@ -415,6 +417,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         setLoading('generatingViralScript', true);
         setGeneratedViralScene(null);
+        setGeneratedVeoPromptForViral(''); // Clear previous Veo prompt
         try {
             const result = await generateViralScript({ 
                 videoTitle, 
@@ -445,6 +448,31 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
         } finally {
             setLoading('generatingViralScript', false);
+        }
+    };
+    
+    const handleGenerateVeoPromptForViralScene = async (scene: Scene) => {
+        if (!scene.setting) {
+            return toast({ variant: 'destructive', title: "Cenário em falta", description: "A cena gerada não tem um cenário para criar um prompt Veo." });
+        }
+        
+        setLoading('generatingVeoPromptForViral', true);
+        setGeneratedVeoPromptForViral('');
+        try {
+            const result = await generateVeoPrompt({
+                sceneSetting: scene.setting,
+                sceneAction: scene.action,
+                sceneDialogue: scene.dialogue,
+                sceneCameraAngle: scene.cameraAngle,
+                videoFormat: scene.videoFormat,
+            });
+            
+            setGeneratedVeoPromptForViral(result.veoPrompt);
+            toast({ title: "Prompt para Veo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
+        } finally {
+            setLoading('generatingVeoPromptForViral', false);
         }
     };
 
@@ -704,6 +732,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
                         onLoadToCreator={handleLoadViralSceneToCreator}
+                        onGenerateVeoPromptForViral={handleGenerateVeoPromptForViralScene}
+                        loadingVeoForViral={loadingStates.generatingVeoPromptForViral}
+                        generatedVeoPromptForViral={generatedVeoPromptForViral}
                     />
                 </TabsContent>
             </Tabs>
