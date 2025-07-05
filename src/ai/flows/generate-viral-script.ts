@@ -43,9 +43,11 @@ const prompt = ai.definePrompt({
     output: {schema: GenerateViralScriptOutputSchema},
     prompt: `You are an expert in creating viral video scripts. Your task is to generate a script based on the provided details. The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
 
+**CRITICAL INSTRUCTION: The total length of the resulting script (dialogue and actions) MUST be designed to perfectly fit a video with the exact duration specified: {{{duration}}}. Do not make it longer or shorter. You must pace all elements of the script to meet this time constraint.**
+
 You are creating a script for a {{{videoType}}} video.
 
-If you are creating a "shorts" video, it must be fast-paced, highly engaging, and designed for vertical viewing. The script's total duration MUST precisely match the requested duration: {{{duration}}}. It should follow this formula:
+If you are creating a "shorts" video, it must be fast-paced, highly engaging, and designed for vertical viewing. It should follow this formula:
 **MEGAVIRAL SHORTS FORMULA:**
 1.  **Set up**: A one-liner that contains stakes (easy to understand). First ~15% of the duration.
 2.  **Unexpected action (Hook)**: A quick, impactful moment.
@@ -54,7 +56,7 @@ If you are creating a "shorts" video, it must be fast-paced, highly engaging, an
 5.  **CTA**: A simple call to action at the very end of the dialogue.
 The dialogue should be short and punchy.
 
-If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. The script's total duration MUST precisely match the requested duration: {{{duration}}}. It should follow this formula:
+If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. It should follow this formula:
 **STANDARD YOUTUBE VIDEO FORMULA:**
 1.  **Hook (First 5-10 seconds)**: Grab the viewer's attention.
 2.  **Introduction (10-30 seconds)**: Briefly introduce the topic.
