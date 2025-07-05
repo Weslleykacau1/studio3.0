@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const TranscribeUploadedVideoInputSchema = z.object({
+const TranscribeUploadedVideoInputSchema = z.object({
   videoDataUri: z
     .string()
     .describe(
@@ -20,7 +20,7 @@ export const TranscribeUploadedVideoInputSchema = z.object({
 });
 export type TranscribeUploadedVideoInput = z.infer<typeof TranscribeUploadedVideoInputSchema>;
 
-export const TranscribeUploadedVideoOutputSchema = z.object({
+const TranscribeUploadedVideoOutputSchema = z.object({
   transcription: z.string().describe('The full, word-for-word transcription of the video in Brazilian Portuguese, including timestamps in [MM:SS] format.'),
 });
 export type TranscribeUploadedVideoOutput = z.infer<typeof TranscribeUploadedVideoOutputSchema>;
