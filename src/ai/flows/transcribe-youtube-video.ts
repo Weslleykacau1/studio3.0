@@ -30,7 +30,7 @@ const transcribeVideoPrompt = ai.definePrompt({
     input: { schema: TranscribeYouTubeVideoInputSchema },
     output: { schema: TranscribeYouTubeVideoOutputSchema },
     prompt: `
-      Você é um especialista em transcrição de áudio. Sua tarefa é assistir ao vídeo do YouTube fornecido no URL e transcrever TODO o áudio, palavra por palavra, para o Português do Brasil.
+      Você é um especialista em transcrição de áudio. Sua tarefa é fazer uma leitura e análise completa do vídeo do YouTube fornecido no URL e, a partir disso, transcrever TODO o áudio, palavra por palavra, para o Português do Brasil.
       
       **CRÍTICO: Inclua timestamps no formato [MM:SS] no início de cada linha ou segmento de fala significativo.**
 
