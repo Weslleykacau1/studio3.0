@@ -66,4 +66,5 @@ export type LoadingStates = {
     generatingViralScript: boolean;
     generatingVeoPromptForViral: boolean;
     transcribingUploadedVideo: boolean;
+    generatingScriptFromTranscription: boolean;
 };

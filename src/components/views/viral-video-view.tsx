@@ -38,6 +38,8 @@ interface ViralVideoViewProps {
   onTranscribeUploadedVideo: (videoDataUri: string) => void;
   loadingUploadedVideoTranscription: boolean;
   generatedUploadedVideoTranscription: string;
+  onGenerateScriptFromTranscription: () => void;
+  loadingScriptFromTranscription: boolean;
 }
 
 export default function ViralVideoView({ 
@@ -51,7 +53,9 @@ export default function ViralVideoView({
     generatedVeoPromptForViral,
     onTranscribeUploadedVideo,
     loadingUploadedVideoTranscription,
-    generatedUploadedVideoTranscription
+    generatedUploadedVideoTranscription,
+    onGenerateScriptFromTranscription,
+    loadingScriptFromTranscription
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -256,16 +260,28 @@ export default function ViralVideoView({
                   </Button>
                 </div>
               </div>
-              <AiButton
-                  onClick={handleTranscribeUploadedVideoClick}
-                  loading={loadingUploadedVideoTranscription}
-                  isApiConfigured={isApiConfigured}
-                  disabled={!uploadedVideoUri}
-                  variant="outline"
-              >
-                  <FileText className="mr-2 h-4 w-4" />
-                  {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
-              </AiButton>
+              <div className="flex flex-wrap gap-2">
+                <AiButton
+                    onClick={handleTranscribeUploadedVideoClick}
+                    loading={loadingUploadedVideoTranscription}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!uploadedVideoUri}
+                    variant="outline"
+                >
+                    <FileText className="mr-2 h-4 w-4" />
+                    {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
+                </AiButton>
+                <AiButton
+                    onClick={onGenerateScriptFromTranscription}
+                    loading={loadingScriptFromTranscription}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
+                </AiButton>
+              </div>
           </div>
         </CardContent>
       </Card>

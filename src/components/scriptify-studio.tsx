@@ -21,6 +21,7 @@ import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
+import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -54,7 +55,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingUploadedVideo: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [youtubeConsistencyType, setYoutubeConsistencyType] = useState<'identical' | 'inspired'>('identical');
@@ -357,6 +358,35 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
         } finally {
             setLoading('transcribingUploadedVideo', false);
+        }
+    };
+
+    const handleGenerateScriptFromTranscription = async () => {
+        if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+
+        setLoading('generatingScriptFromTranscription', true);
+        setGeneratedViralScene(null);
+        try {
+            const result = await generateScriptFromTranscription({ transcription: generatedUploadedVideoTranscription });
+            const newScene: Scene = {
+                ...initialSceneState,
+                id: crypto.randomUUID(),
+                ...result,
+                duration: '8 seg', // Default duration as it's not known from transcription alone
+            };
+
+            await saveScene(newScene);
+            setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
+            
+            toast({ title: "Roteiro criado a partir da transcrição!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`, className: "bg-green-100 text-green-800" });
+
+        } catch (error: any) {
+            console.error("Failed to generate script from transcription:", error);
+            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
+        } finally {
+            setLoading('generatingScriptFromTranscription', false);
         }
     };
 
@@ -761,6 +791,8 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
                         loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
                         generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
+                        onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
+                        loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
                     />
                 </TabsContent>
             </Tabs>
