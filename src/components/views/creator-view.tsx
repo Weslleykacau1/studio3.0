@@ -12,8 +12,6 @@ interface CreatorViewProps {
   setCurrentScene: (scene: Scene | ((prev: Scene) => Scene)) => void;
   pastedText: string;
   setPastedText: (text: string) => void;
-  outputFormat: string;
-  setOutputFormat: (format: string) => void;
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
@@ -46,8 +44,6 @@ export default function CreatorView({
   setCurrentScene,
   pastedText,
   setPastedText,
-  outputFormat,
-  setOutputFormat,
   generatedContent,
   setGeneratedContent,
   generatedSeoContent,
@@ -94,8 +90,6 @@ export default function CreatorView({
       />
       
       <ScriptGenerator
-        outputFormat={outputFormat}
-        setOutputFormat={setOutputFormat}
         generatedContent={generatedContent}
         setGeneratedContent={setGeneratedContent}
         generatedSeoContent={generatedSeoContent}

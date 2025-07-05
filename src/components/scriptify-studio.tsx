@@ -54,7 +54,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
-    const [outputFormat, setOutputFormat] = useState('json');
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
     
@@ -264,24 +263,13 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 isPartnership: sceneToGenerate.isPartnership,
                 allowDigitalText: sceneToGenerate.allowDigitalText,
                 onlyPhysicalText: sceneToGenerate.onlyPhysicalText,
-                outputFormat: outputFormat as "json" | "markdown",
             });
             
             updateToast({ title: 'A formatar o resultado final...', description: 'A preparar a visualização do prompt gerado.' });
             await new Promise(res => setTimeout(res, 500));
             
-            if (outputFormat === 'json') {
-                try {
-                    const parsedResponse = JSON.parse(responseText);
-                    const promptContent = parsedResponse.prompt || '';
-                    setGeneratedContent(`\`\`\`text\n${promptContent.trim()}\n\`\`\``);
-                } catch (error) {
-                    console.error("Failed to parse JSON response from API:", error);
-                    throw new Error("A API retornou um prompt com formato JSON inválido.");
-                }
-            } else {
-                setGeneratedContent(responseText);
-            }
+            setGeneratedContent(responseText);
+            
             setActiveView('creator');
             dismissToast();
             toast({ title: "Prompt gerado com sucesso!", className: "bg-green-100 text-green-800" });
@@ -661,8 +649,6 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         setCurrentScene={setCurrentScene}
                         pastedText={pastedText}
                         setPastedText={setPastedText}
-                        outputFormat={outputFormat}
-                        setOutputFormat={setOutputFormat}
                         generatedContent={generatedContent}
                         setGeneratedContent={setGeneratedContent}
                         generatedSeoContent={generatedSeoContent}

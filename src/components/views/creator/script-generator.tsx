@@ -1,7 +1,5 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { AiButton } from '@/components/ai-button';
 import { ContentDisplay } from '@/components/content-display';
@@ -11,8 +9,6 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ScriptGeneratorProps {
-  outputFormat: string;
-  setOutputFormat: (format: string) => void;
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
@@ -28,7 +24,7 @@ interface ScriptGeneratorProps {
 }
 
 export default function ScriptGenerator({
-  outputFormat, setOutputFormat, generatedContent, setGeneratedContent, generatedSeoContent, generatedVeoPrompt, loading, loadingVeo, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateVeoPrompt
+  generatedContent, setGeneratedContent, generatedSeoContent, generatedVeoPrompt, loading, loadingVeo, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateVeoPrompt
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
@@ -101,27 +97,14 @@ export default function ScriptGenerator({
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
             <Bot />
-            3. Gere o Prompt do Roteiro
+            3. Gere o Roteiro Detalhado
           </CardTitle>
-          <CardDescription>Use o influenciador e a cena definidos para gerar um prompt que criará um roteiro de vídeo.</CardDescription>
+          <CardDescription>Use o influenciador e a cena definidos para gerar um roteiro detalhado para um vídeo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <Label className="font-medium">Formato de Saída (Roteiro Detalhado):</Label>
-            <RadioGroup value={outputFormat} onValueChange={setOutputFormat} className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="json" id="json" />
-                <Label htmlFor="json">JSON</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="markdown" id="markdown" />
-                <Label htmlFor="markdown">Markdown</Label>
-              </div>
-            </RadioGroup>
-          </div>
           <div className="flex flex-wrap items-start gap-2">
             <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {loading ? 'A gerar...' : 'Gerar Prompt do Roteiro'}
+              {loading ? 'A gerar...' : 'Gerar Roteiro'}
             </AiButton>
             <AiButton 
               onClick={onGenerateVeoPrompt} 
@@ -142,7 +125,7 @@ export default function ScriptGenerator({
       {generatedContent && (
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="font-headline">Prompt Detalhado Gerado</CardTitle>
+            <CardTitle className="font-headline">Roteiro Detalhado Gerado</CardTitle>
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedContent} />
@@ -155,7 +138,7 @@ export default function ScriptGenerator({
               )}
             >
               <Copy className="mr-2 h-4 w-4" />
-              {copySuccess ? 'Copiado!' : 'Copiar Prompt'}
+              {copySuccess ? 'Copiado!' : 'Copiar Roteiro'}
             </Button>
           </CardContent>
         </Card>

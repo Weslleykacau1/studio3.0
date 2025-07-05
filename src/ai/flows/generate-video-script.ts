@@ -32,16 +32,11 @@ const VideoScriptInputSchema = z.object({
   isPartnership: z.boolean().optional().describe('Whether the video is a partnership/sponsored.'),
   allowDigitalText: z.boolean().optional().describe('Whether digital text overlays are allowed in the scene.'),
   onlyPhysicalText: z.boolean().optional().describe('Whether only physical text (e.g., on signs) is allowed.'),
-  outputFormat: z.enum(['json', 'markdown']).describe('The desired output format: json or markdown.'),
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-const VideoScriptOutputSchema = z.string().describe('The generated video script prompt, in JSON or Markdown format.');
+const VideoScriptOutputSchema = z.string().describe('The generated video script prompt, in Markdown format.');
 export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
-
-const JsonOutputInternalSchema = z.object({
-  prompt: z.string().describe("A detailed prompt for a screenwriter AI to generate a video script, incorporating all the user's specifications. This prompt itself should instruct the AI to produce a JSON object containing the script.")
-});
 
 const MarkdownOutputInternalSchema = z.object({
   markdownPrompt: z.string().describe("A detailed prompt in Markdown format for a screenwriter AI. This prompt should incorporate all the user's specifications and instruct the AI on how to structure the final script.")
@@ -95,15 +90,7 @@ Here are the specifications to include in the prompt you generate:
 
 **Output Instructions for the Prompt You Are Generating:**`;
 
-const jsonPromptInstructions = `Your task is to generate the content for the 'prompt' field. This content should be a comprehensive set of instructions for a screenwriter AI. These instructions must command the AI to generate a video script as a single JSON object with a specific structure. The "script" array must detail the scene **second by second**, based on the total duration provided. If a 'Main Dialogue Idea' is provided, you MUST adapt and pace that dialogue to fit perfectly within the specified duration, ensuring the core message and comedic timing are preserved, and the final scene feels complete. The structure should be: { "title": "...", "synopsis": "...", "script": [ { "second": "1", "visuals": "...", "dialogue": "...", "sfx": "...", "text_overlay": "..." }, { "second": "2", "visuals": "...", "dialogue": "...", "sfx": "...", "text_overlay": "..." }, ... ] }. The instructions you create must incorporate all the specifications provided in the context above. The "dialogue" field in the final script's JSON must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. O diálogo deve ser direto ao ponto, sem necessidade de o influenciador se apresentar. **Crucially, the dialogue should include emotional cues in English (e.g., in parentheses) and emphasize key words or phrases to guide the influencer's performance.** For example: "(surprised) Uau, eu não acredito nisso!". All other fields in the script JSON, including SFX and visuals, should be in English.`;
 const markdownPromptInstructions = `Your task is to generate the content for the 'markdownPrompt' field. This content should be a comprehensive and detailed prompt in **Markdown format** for a screenwriter AI. This prompt must instruct the AI to create a video script using Markdown headings, lists, and bold/italic text for structure, detailing the scene **second by second**. If a 'Main Dialogue Idea' is provided, you MUST adapt and pace that dialogue to fit perfectly within the specified duration, ensuring the core message and comedic timing are preserved, and the final scene feels complete. The prompt must incorporate all the specifications provided in the context above. For each second, detail the visuals, dialogue, and SFX. The dialogue in the final script must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. O diálogo deve ser direto ao ponto, sem necessidade de o influenciador se apresentar. **Crucially, the dialogue should include emotional cues in English (e.g., in parentheses) and emphasize key words or phrases.** For example: "(gasping) Eu não posso acreditar que finalmente consegui!". All other descriptive parts of the script, like visual descriptions, should be in English.`;
-
-const generateJsonPrompt = ai.definePrompt({
-    name: 'generateJsonVideoScriptPrompt',
-    input: {schema: VideoScriptInputSchema},
-    output: {schema: JsonOutputInternalSchema},
-    prompt: `${promptBase}\n\n${jsonPromptInstructions}`
-});
 
 const generateMarkdownPrompt = ai.definePrompt({
     name: 'generateMarkdownVideoScriptPrompt',
@@ -128,19 +115,10 @@ const generateVideoScriptFlow = ai.defineFlow(
       processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
     }
 
-    if (input.outputFormat === 'markdown') {
-        const {output} = await generateMarkdownPrompt(processedInput);
-        if (!output || !output.markdownPrompt) {
-            throw new Error("A geração do prompt em Markdown falhou ao não retornar dados. Tente novamente.");
-        }
-        return output.markdownPrompt;
+    const {output} = await generateMarkdownPrompt(processedInput);
+    if (!output || !output.markdownPrompt) {
+        throw new Error("A geração do prompt em Markdown falhou ao não retornar dados. Tente novamente.");
     }
-    
-    const {output} = await generateJsonPrompt(processedInput);
-    if (!output || !output.prompt) {
-        throw new Error("A geração do prompt em JSON falhou ao não retornar dados. Tente novamente.");
-    }
-    // Convert the structured JSON output back to a string to match the flow's output schema
-    return JSON.stringify(output);
+    return output.markdownPrompt;
   }
 );
