@@ -168,7 +168,7 @@ export default function ViralVideoView({
                 >
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="identical" id="type-identical" />
-                        <Label htmlFor="type-identical" className="font-normal">Estou com sorte</Label>
+                        <Label htmlFor="type-identical" className="font-normal">Vídeo com a mesma fala</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="inspired" id="type-inspired" />
