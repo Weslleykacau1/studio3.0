@@ -110,11 +110,16 @@ export default function ViralVideoView({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-              <Input 
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  value={youtubeUrl}
-                  onChange={(e) => setYoutubeUrl(e.target.value)} 
-              />
+              <div>
+                <Input 
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)} 
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Dica: se for um Short, substitua 'shorts/' por 'watch?v=' no URL para uma melhor análise.
+                </p>
+              </div>
               <div className="space-y-2">
                 <Label>Tipo de Análise</Label>
                 <RadioGroup
