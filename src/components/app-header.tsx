@@ -2,6 +2,7 @@
 import { Badge } from './ui/badge';
 import { KeyRound, ShieldAlert } from 'lucide-react';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { ThemeToggle } from './theme-toggle';
 
 interface AppHeaderProps {
   isApiConfigured: boolean;
@@ -69,6 +70,7 @@ export function AppHeader({ isApiConfigured }: AppHeaderProps) {
             </Tooltip>
           </TooltipProvider>
         )}
+        <ThemeToggle />
       </div>
     </header>
   );
