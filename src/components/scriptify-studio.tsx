@@ -318,6 +318,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         setLoading('analyzingYouTube', true);
         setGeneratedViralScene(null);
+        setGeneratedUploadedVideoTranscription('');
         try {
             const result = await analyzeYouTubeVideo({ youtubeUrl });
             const newScene: Scene = {
@@ -347,6 +348,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         setLoading('transcribingUploadedVideo', true);
         setGeneratedUploadedVideoTranscription('');
+        setGeneratedViralScene(null);
         try {
             const result = await transcribeUploadedVideo({ videoDataUri });
             setGeneratedUploadedVideoTranscription(result.transcription);
@@ -453,6 +455,8 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             const result = await generateQuickScene({
                 influencerPersonality: selectedInfluencerForQuickScene.personality,
                 influencerNiche: selectedInfluencerForQuickScene.niche,
+                influencerAppearance: selectedInfluencerForQuickScene.appearance,
+                negativePrompt: selectedInfluencerForQuickScene.negativePrompt,
                 jokeTheme: jokeTheme,
                 scenarioSuggestion: scenarioSuggestion,
                 imageReferenceDataUri: imageReferenceDataUri,

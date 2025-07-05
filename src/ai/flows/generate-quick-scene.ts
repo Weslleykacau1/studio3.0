@@ -15,6 +15,8 @@ import {z} from 'genkit';
 const GenerateQuickSceneInputSchema = z.object({
   influencerPersonality: z.string().describe("The personality traits of the influencer."),
   influencerNiche: z.string().describe("The influencer's content niche."),
+  influencerAppearance: z.string().optional().describe("A detailed description of the influencer's appearance to maintain consistency."),
+  negativePrompt: z.string().optional().describe("Things to avoid to maintain character consistency."),
   jokeTheme: z.string().describe('The theme for the joke or funny situation.'),
   scenarioSuggestion: z.string().optional().describe("The user's idea for the scene setting."),
   imageReferenceDataUri: z.string().optional().describe("An optional image reference for the scene background, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
@@ -62,6 +64,20 @@ O diálogo DEVE ser em **Português do Brasil**.
 """
 {{{influencerNiche}}}
 """
+
+{{#if influencerAppearance}}
+**Aparência do Influenciador (para manter consistência):**
+"""
+{{{influencerAppearance}}}
+"""
+{{/if}}
+
+{{#if negativePrompt}}
+**Evitar (Prompts Negativos para consistência):**
+"""
+{{{negativePrompt}}}
+"""
+{{/if}}
 
 **Tema:**
 """
