@@ -22,6 +22,7 @@ import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
+import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -55,7 +56,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -389,6 +390,35 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         }
     };
 
+    const handleGenerateParaphrasedScriptFromTranscription = async () => {
+        if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+
+        setLoading('generatingParaphrasedScriptFromTranscription', true);
+        setGeneratedViralScene(null);
+        try {
+            const result = await generateParaphrasedScriptFromTranscription({ transcription: generatedUploadedVideoTranscription });
+            const newScene: Scene = {
+                ...initialSceneState,
+                id: crypto.randomUUID(),
+                ...result,
+                duration: '8 seg', // Default duration
+            };
+
+            await saveScene(newScene);
+            setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
+            
+            toast({ variant: 'success', title: "Roteiro reescrito com sucesso!", description: `A nova cena "${newScene.title}" foi gerada e guardada na sua galeria.` });
+
+        } catch (error: any) {
+            console.error("Failed to generate paraphrased script:", error);
+            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
+        } finally {
+            setLoading('generatingParaphrasedScriptFromTranscription', false);
+        }
+    };
+
     const handleGenerateThumbnailIdeas = async (referenceImageDataUri: string, videoTheme: string) => {
         if (!referenceImageDataUri || !videoTheme) {
             return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue a imagem e preencha o tema do vídeo." });
@@ -680,6 +710,10 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         setActiveView('creator');
     };
 
+    const handleClearTranscription = () => {
+        setGeneratedUploadedVideoTranscription('');
+    };
+
     if (!hasMounted) {
         return <div suppressHydrationWarning></div>;
     }
@@ -790,7 +824,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
                         onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
                         loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
-                        onClearTranscription={() => setGeneratedUploadedVideoTranscription('')}
+                        onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
+                        loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
+                        onClearTranscription={handleClearTranscription}
                     />
                 </TabsContent>
             </Tabs>

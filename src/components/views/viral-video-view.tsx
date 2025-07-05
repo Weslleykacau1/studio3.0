@@ -38,6 +38,8 @@ interface ViralVideoViewProps {
   generatedUploadedVideoTranscription: string;
   onGenerateScriptFromTranscription: () => void;
   loadingScriptFromTranscription: boolean;
+  onGenerateParaphrasedScriptFromTranscription: () => void;
+  loadingParaphrasedScript: boolean;
   onClearTranscription: () => void;
 }
 
@@ -55,6 +57,8 @@ export default function ViralVideoView({
     generatedUploadedVideoTranscription,
     onGenerateScriptFromTranscription,
     loadingScriptFromTranscription,
+    onGenerateParaphrasedScriptFromTranscription,
+    loadingParaphrasedScript,
     onClearTranscription
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
@@ -264,6 +268,16 @@ export default function ViralVideoView({
                 >
                     <Bot className="mr-2 h-4 w-4" />
                     {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
+                </AiButton>
+                <AiButton
+                    onClick={onGenerateParaphrasedScriptFromTranscription}
+                    loading={loadingParaphrasedScript}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                    variant="secondary"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
                 </AiButton>
               </div>
           </div>
