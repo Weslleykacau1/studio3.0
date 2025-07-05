@@ -118,7 +118,7 @@ export default function ViralVideoView({
     
     navigator.clipboard.writeText(textToCopy).then(() => {
         setCopyVeoSuccess(true);
-        toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
+        toast({ variant: 'success', title: 'Prompt Veo copiado!' });
         setTimeout(() => setCopyVeoSuccess(false), 2000);
     }).catch(err => {
         console.error('Failed to copy Veo prompt: ', err);
@@ -130,7 +130,7 @@ export default function ViralVideoView({
     if (!generatedUploadedVideoTranscription) return;
     navigator.clipboard.writeText(generatedUploadedVideoTranscription).then(() => {
         setCopyUploadedVideoTranscriptionSuccess(true);
-        toast({ title: 'Transcrição copiada!', className: 'bg-green-100' });
+        toast({ variant: 'success', title: 'Transcrição copiada!' });
         setTimeout(() => setCopyUploadedVideoTranscriptionSuccess(false), 2000);
     }).catch(err => {
         console.error('Failed to copy transcription text: ', err);
@@ -143,9 +143,9 @@ export default function ViralVideoView({
         const newUrl = youtubeUrl.replace('/shorts/', '/watch?v=');
         setYoutubeUrl(newUrl);
         toast({
+            variant: 'success',
             title: "Link transformado!",
             description: "O URL do Short foi convertido para o formato padrão.",
-            className: "bg-green-100 text-green-800"
         });
     } else {
         toast({

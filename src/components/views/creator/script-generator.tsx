@@ -59,7 +59,7 @@ export default function ScriptGenerator({
     
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopySuccess(true);
-      toast({ title: 'Roteiro copiado para a área de transferência!', className: 'bg-green-100' });
+      toast({ variant: 'success', title: 'Roteiro copiado para a área de transferência!' });
       setTimeout(() => setCopySuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy text: ', err);
@@ -71,7 +71,7 @@ export default function ScriptGenerator({
     if (!generatedSeoContent) return;
     navigator.clipboard.writeText(generatedSeoContent).then(() => {
       setCopySeoSuccess(true);
-      toast({ title: 'Conteúdo SEO copiado!', className: 'bg-green-100' });
+      toast({ variant: 'success', title: 'Conteúdo SEO copiado!' });
       setTimeout(() => setCopySeoSuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy SEO text: ', err);
@@ -91,7 +91,7 @@ export default function ScriptGenerator({
     
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopyVeoSuccess(true);
-      toast({ title: 'Prompt Veo copiado!', className: 'bg-green-100' });
+      toast({ variant: 'success', title: 'Prompt Veo copiado!' });
       setTimeout(() => setCopyVeoSuccess(false), 2000);
     }).catch(err => {
       console.error('Failed to copy Veo prompt: ', err);

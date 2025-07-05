@@ -32,7 +32,7 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        toast({ title: `'${fileName}' exportado!`, className: 'bg-green-100 text-green-800' });
+        toast({ variant: 'success', title: `'${fileName}' exportado!` });
     };
 
   return (

@@ -112,7 +112,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         try {
             const result = await analyzeTextProfile({ pastedText });
             setInfluencer(prev => ({ ...prev, ...result, seed: getInitialInfluencerState().seed }));
-            toast({ title: "Características preenchidas a partir do texto!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Características preenchidas a partir do texto!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {
@@ -129,7 +129,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         try {
             const result = await analyzeInfluencerImage({ photoDataUri });
             setInfluencer(prev => ({ ...prev, ...result, imagePreview: photoDataUri, seed: getInitialInfluencerState().seed }));
-            toast({ title: "Características preenchidas com detalhe!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Características preenchidas com detalhe!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {
@@ -146,7 +146,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 scenarioImageType: currentScene.scenarioImageType,
             });
             setCurrentScene(prev => ({ ...prev, setting: result.settingDescription || '' }));
-            toast({ title: "Cenário preenchido com base na imagem!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Cenário preenchido com base na imagem!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {
@@ -163,7 +163,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 sceneSetting: currentScene.setting,
             });
             setCurrentScene(prev => ({ ...prev, action: result.sceneAction || '' }));
-            toast({ title: "Ação principal gerada com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Ação principal gerada com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração da Ação", description: error.message });
         } finally {
@@ -181,7 +181,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 sceneAction: currentScene.action,
             });
             setCurrentScene(prev => ({ ...prev, title: result.sceneTitle || '' }));
-            toast({ title: "Título da cena gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Título da cena gerado com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração do Título", description: error.message });
         } finally {
@@ -203,7 +203,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 sceneDuration: currentScene.duration,
             });
             setCurrentScene(prev => ({ ...prev, dialogue: result.dialogue || '' }));
-            toast({ title: "Diálogo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Diálogo gerado com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração do Diálogo", description: error.message });
         } finally {
@@ -219,7 +219,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 productImageDataUri: currentScene.productImagePreview,
             });
             setCurrentScene(prev => ({ ...prev, productDescription: result.productDescription || '' }));
-            toast({ title: "Descrição do produto gerada!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Descrição do produto gerada!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {
@@ -259,7 +259,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             
             setGeneratedContent(responseText);
             
-            toast({ title: "Roteiro em Markdown gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Roteiro em Markdown gerado com sucesso!" });
         } catch (error: any) {
             setGeneratedContent(`**Falha ao gerar roteiro:**\n\n${error.message}`);
             toast({ variant: 'destructive', title: "Erro na Geração do Roteiro", description: error.message });
@@ -285,7 +285,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             });
             
             setGeneratedVeoPrompt(result.veoPrompt);
-            toast({ title: "Prompt para Veo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Prompt para Veo gerado com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
         } finally {
@@ -303,7 +303,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 dialogue: currentScene.dialogue,
             });
             setGeneratedSeoContent(responseText);
-            toast({ title: "SEO gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "SEO gerado com sucesso!" });
         } catch (error: any) {
             setGeneratedSeoContent(`**Falha ao gerar SEO:**\n\n${error.message}`);
             toast({ variant: 'destructive', title: "Erro na Geração de SEO", description: error.message });
@@ -332,7 +332,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             setScenes(prev => [newScene, ...prev]);
             setGeneratedViralScene(newScene);
             
-            toast({ title: "Cena criada a partir do vídeo!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`, className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Cena criada a partir do vídeo!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.` });
 
         } catch (error: any) {
             console.error("Failed to analyze YouTube video:", error);
@@ -351,7 +351,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         try {
             const result = await transcribeUploadedVideo({ videoDataUri });
             setGeneratedUploadedVideoTranscription(result.transcription);
-            toast({ title: "Transcrição concluída com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Transcrição concluída com sucesso!" });
         } catch (error: any) {
             console.error("Failed to transcribe uploaded video:", error);
             toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
@@ -379,7 +379,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             setScenes(prev => [newScene, ...prev]);
             setGeneratedViralScene(newScene);
             
-            toast({ title: "Roteiro criado a partir da transcrição!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`, className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Roteiro criado a partir da transcrição!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.` });
 
         } catch (error: any) {
             console.error("Failed to generate script from transcription:", error);
@@ -399,7 +399,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         try {
             const result = await generateThumbnailIdeas({ referenceImageDataUri, videoTheme });
             setGeneratedThumbnailIdeas(result);
-            toast({ title: "Ideias para thumbnail geradas!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Ideias para thumbnail geradas!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
         } finally {
@@ -435,7 +435,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 duration: '8 seg',
             };
             setGeneratedQuickScene(newScene);
-            toast({ title: "Cena rápida gerada com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Cena rápida gerada com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro ao gerar cena", description: error.message });
         } finally {
@@ -458,7 +458,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         // Switch view and close modal
         setActiveView('creator');
         setIsQuickSceneModalOpen(false);
-        toast({ title: "Cena salva e carregada no editor!", className: "bg-blue-100 text-blue-800" });
+        toast({ variant: 'info', title: "Cena salva e carregada no editor!" });
     };
 
     const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => {
@@ -488,9 +488,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             setGeneratedViralScene(newScene);
 
             toast({ 
+                variant: 'success',
                 title: "Roteiro viral gerado!", 
                 description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`,
-                className: "bg-green-100 text-green-800"
             });
 
         } catch (error: any) {
@@ -518,7 +518,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             });
             
             setGeneratedVeoPromptForViral(result.veoPrompt);
-            toast({ title: "Prompt para Veo gerado com sucesso!", className: "bg-green-100 text-green-800" });
+            toast({ variant: 'success', title: "Prompt para Veo gerado com sucesso!" });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
         } finally {
@@ -531,9 +531,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             setCurrentScene(scene);
             setActiveView('creator');
             toast({ 
+                variant: 'info',
                 title: `Cena "${scene.title || 'sem título'}" carregada!`, 
                 description: "A cena está pronta para ser editada ou usada para gerar um roteiro.",
-                className: "bg-blue-100 text-blue-800" 
             });
         }
     };
@@ -582,11 +582,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
             if (influencer.id) {
                 setGalleryInfluencers(prev => prev.map(inf => inf.id === influencerToSave.id ? influencerToSave : inf));
-                toast({ title: "Influenciador atualizado com sucesso!", className: "bg-green-100 text-green-800" });
+                toast({ variant: 'success', title: "Influenciador atualizado com sucesso!" });
             } else {
                 setGalleryInfluencers(prev => [...prev, influencerToSave]);
                 setInfluencer(influencerToSave);
-                toast({ title: "Influenciador adicionado à galeria!", className: "bg-green-100 text-green-800" });
+                toast({ variant: 'success', title: "Influenciador adicionado à galeria!" });
             }
         } catch (error) {
             console.error("Failed to save influencer:", error);
@@ -615,7 +615,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         if (influencerToLoad) {
             setInfluencer(influencerToLoad);
             setActiveView('creator');
-            toast({ title: `"${influencerToLoad.name}" carregado no editor!`, className: "bg-blue-100 text-blue-800" });
+            toast({ variant: 'info', title: `"${influencerToLoad.name}" carregado no editor!` });
         }
     };
 
@@ -633,11 +633,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
             if (currentScene.id) {
                 setScenes(prev => prev.map(s => s.id === sceneToSave.id ? sceneToSave : s));
-                toast({ title: "Cena atualizada com sucesso!", className: "bg-green-100 text-green-800" });
+                toast({ variant: 'success', title: "Cena atualizada com sucesso!" });
             } else {
                 setScenes(prev => [...prev, sceneToSave]);
                 setCurrentScene(sceneToSave);
-                toast({ title: "Cena adicionada com sucesso!", className: "bg-green-100 text-green-800" });
+                toast({ variant: 'success', title: "Cena adicionada com sucesso!" });
             }
         } catch (error) {
             console.error("Failed to save scene:", error);
@@ -666,7 +666,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         if (sceneToLoad) {
             setCurrentScene(sceneToLoad);
             setActiveView('creator');
-            toast({ title: `Cena "${sceneToLoad.title || 'sem título'}" carregada!`, className: "bg-blue-100 text-blue-800" });
+            toast({ variant: 'info', title: `Cena "${sceneToLoad.title || 'sem título'}" carregada!` });
         }
     };
 
