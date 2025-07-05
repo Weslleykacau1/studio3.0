@@ -11,6 +11,7 @@ import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as Pale
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface ViralVideoViewProps {
   onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
@@ -21,7 +22,7 @@ interface ViralVideoViewProps {
   setYoutubeUrl: (url: string) => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
-  onGenerateViralScript: (videoTitle: string, imageDataUri: string) => void;
+  onGenerateViralScript: (videoTitle: string, imageDataUri: string, duration: string) => void;
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
 }
@@ -36,6 +37,7 @@ export default function ViralVideoView({
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
   const [videoTheme, setVideoTheme] = useState('');
   const [scriptTheme, setScriptTheme] = useState('');
+  const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -61,7 +63,7 @@ export default function ViralVideoView({
 
   const handleGenerateViralScriptClick = () => {
     if (scriptTheme && influencerPhotoDataUri) {
-        onGenerateViralScript(scriptTheme, influencerPhotoDataUri);
+        onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration);
     }
   };
 
@@ -236,14 +238,31 @@ export default function ViralVideoView({
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="script-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Roteiro Viral</Label>
-                <Input 
-                    id="script-theme"
-                    value={scriptTheme}
-                    onChange={(e) => setScriptTheme(e.target.value)}
-                    placeholder="Ex: Situação inesperada cozinhando"
-                />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                    <Label htmlFor="script-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Roteiro Viral</Label>
+                    <Input 
+                        id="script-theme"
+                        value={scriptTheme}
+                        onChange={(e) => setScriptTheme(e.target.value)}
+                        placeholder="Ex: Situação inesperada cozinhando"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="script-duration">Duração</Label>
+                    <Select value={viralScriptDuration} onValueChange={setViralScriptDuration}>
+                        <SelectTrigger id="script-duration">
+                            <SelectValue placeholder="Selecione a duração" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="8 seg">8 seg</SelectItem>
+                            <SelectItem value="10 seg">10 seg</SelectItem>
+                            <SelectItem value="20 seg">20 seg</SelectItem>
+                            <SelectItem value="30 seg">30 seg</SelectItem>
+                            <SelectItem value="40 seg">40 seg</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
             <AiButton
                 onClick={handleGenerateViralScriptClick}

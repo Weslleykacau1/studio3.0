@@ -19,6 +19,7 @@ const GenerateViralScriptInputSchema = z.object({
     .describe(
       "The base image for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+    duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
 });
 export type GenerateViralScriptInput = z.infer<typeof GenerateViralScriptInputSchema>;
 
@@ -39,7 +40,7 @@ const prompt = ai.definePrompt({
     name: 'generateViralScriptPrompt',
     input: {schema: GenerateViralScriptInputSchema},
     output: {schema: GenerateViralScriptOutputSchema},
-    prompt: `You are an expert in creating "mega viral" video scripts for platforms like TikTok and YouTube Shorts. Your goal is to create a script for a video that is fast-paced, highly engaging, and has a high potential to go viral. The script should be for a video of around 8 seconds.
+    prompt: `You are an expert in creating "mega viral" video scripts for platforms like TikTok and YouTube Shorts. Your goal is to create a script for a video that is fast-paced, highly engaging, and has a high potential to go viral. The script should be for a video of around {{{duration}}}.
 
 Based on the provided viral video title and the visual inspiration from the image, create a complete scene.
 
