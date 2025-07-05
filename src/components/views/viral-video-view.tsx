@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy, Wand } from 'lucide-react';
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -95,6 +96,23 @@ export default function ViralVideoView({
     });
   };
 
+  const handleTransformUrl = () => {
+    if (youtubeUrl.includes('/shorts/')) {
+        const newUrl = youtubeUrl.replace('/shorts/', '/watch?v=');
+        setYoutubeUrl(newUrl);
+        toast({
+            title: "Link transformado!",
+            description: "O URL do Short foi convertido para o formato padrão.",
+            className: "bg-green-100 text-green-800"
+        });
+    } else {
+        toast({
+            title: "Nenhuma transformação necessária",
+            description: "O link já está no formato correto.",
+        });
+    }
+  };
+
 
   return (
     <div className="space-y-8">
@@ -111,13 +129,26 @@ export default function ViralVideoView({
         <CardContent>
           <div className="space-y-4">
               <div>
-                <Input 
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)} 
-                />
+                <div className="relative">
+                  <Input 
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                      className="pr-12"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute inset-y-0 right-0 h-full px-3"
+                    onClick={handleTransformUrl}
+                    aria-label="Transformar Link do Short"
+                  >
+                    <Wand className="h-4 w-4" />
+                  </Button>
+                </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Dica: se for um Short, substitua 'shorts/' por 'watch?v=' no URL para uma melhor análise.
+                  Dica: se for um Short, clique no botão ✨ para converter o link automaticamente.
                 </p>
               </div>
               <div className="space-y-2">
@@ -286,7 +317,7 @@ export default function ViralVideoView({
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
-              Escreva um tema, escolha as opções e clique para criar um roteiro. A imagem de referência do Passo 1 é opcional. O resultado será guardado na sua galeria.
+              Escreva um tema, escolha as opções e clique para criar um roteiro. A imagem de referência do Passo 1 é opcional para o roteiro. O resultado será guardado na sua galeria.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
