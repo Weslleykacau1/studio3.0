@@ -17,6 +17,7 @@ const GenerateSceneDialogueInputSchema = z.object({
   influencerAccent: z.string().describe('The accent of the influencer in Portuguese.'),
   sceneSetting: z.string().describe('The description of the scene setting.'),
   sceneAction: z.string().describe('The main action occurring in the scene.'),
+  sceneDuration: z.string().describe('The desired duration for the dialogue to fit into.'),
 });
 export type GenerateSceneDialogueInput = z.infer<typeof GenerateSceneDialogueInputSchema>;
 
@@ -34,10 +35,13 @@ const prompt = ai.definePrompt({
     name: 'generateSceneDialoguePrompt',
     input: {schema: GenerateSceneDialogueInputSchema},
     output: {schema: GenerateSceneDialogueOutputSchema},
-    prompt: `Você é um roteirista criativo. Com base na personalidade do influenciador, no cenário e na ação da cena, crie um diálogo curto e envolvente. O influenciador não precisa se apresentar; a fala deve começar diretamente no contexto da cena.
+    prompt: `Você é um roteirista criativo. Sua tarefa é criar um diálogo curto e envolvente.
+
+**CRÍTICO: O diálogo DEVE ser dimensionado para se ajustar perfeitamente a uma duração de vídeo de {{{sceneDuration}}}.** O ritmo e a quantidade de fala devem ser apropriados para este tempo.
 
 O diálogo DEVE ser em **Português do Brasil**, correspondendo ao sotaque do influenciador: {{{influencerAccent}}}.
 **Crucialmente, o diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses) e enfatizar palavras ou frases-chave para guiar a atuação do influenciador.** Por exemplo: "(surpreso) Uau, eu não acredito nisso!".
+O influenciador não precisa se apresentar; a fala deve começar diretamente no contexto da cena.
 
 **Personalidade do Influenciador:**
 """

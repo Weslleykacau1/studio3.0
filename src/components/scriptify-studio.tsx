@@ -196,6 +196,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                 influencerAccent: influencer.accent,
                 sceneSetting: currentScene.setting,
                 sceneAction: currentScene.action,
+                sceneDuration: currentScene.duration,
             });
             setCurrentScene(prev => ({ ...prev, dialogue: result.dialogue || '' }));
             toast({ title: "Diálogo gerado com sucesso!", className: "bg-green-100 text-green-800" });
