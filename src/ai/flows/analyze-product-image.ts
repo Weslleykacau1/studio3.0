@@ -35,17 +35,20 @@ const prompt = ai.definePrompt({
   name: 'analyzeProductImagePrompt',
   input: {schema: AnalyzeProductImageInputSchema},
   output: {schema: AnalyzeProductImageOutputSchema},
-  prompt: `Você é um especialista em análise de produtos. Sua tarefa é examinar a imagem do produto fornecida e extrair o nome, a marca e uma descrição detalhada em Português do Brasil.
+  prompt: `Você é um especialista em análise de produtos com um olhar aguçado para detalhes. Sua tarefa é examinar a imagem do produto fornecida e extrair o nome, a marca e uma descrição extremamente detalhada em Português do Brasil.
 
-**CRÍTICO: A descrição DEVE incluir todas as especificações visíveis no rótulo, embalagem ou no próprio produto. Capture detalhes como nome do modelo, números, ingredientes, instruções, logotipos e qualquer outro texto ou símbolo presente.** Se o nome do produto ou a marca não forem claramente visíveis, deixe os campos correspondentes vazios.
+**CRÍTICO: A descrição DEVE ser completa e fiel. Inclua todas as especificações visíveis:**
+- **Rótulo e Embalagem:** Capture CADA palavra, número, ingrediente, instrução, logotipo e símbolo presente.
+- **Aparência Física:** Descreva a cor exata, o tamanho estimado (se possível inferir), a forma, a textura e os materiais do produto e da embalagem.
+- **Nome e Modelo:** Se houver um nome de modelo ou número de série, inclua-o.
 
-O objetivo é criar uma representação fiel do produto para ser usada na geração de uma cena de vídeo.
+Se o nome do produto ou a marca não forem claramente visíveis, deixe os campos correspondentes vazios. O objetivo é criar uma representação digital perfeita do produto para ser usada na geração de uma cena de vídeo.
 
 O resultado DEVE ser um objeto JSON com as chaves 'productName', 'productBrand', e 'productDescription'.
 
 Use a seguinte imagem como fonte primária de informação sobre o produto:
 
-{{media url=productImageDataUri}}`, 
+{{media url=productImageDataUri}}`,
 });
 
 const analyzeProductImageFlow = ai.defineFlow(
