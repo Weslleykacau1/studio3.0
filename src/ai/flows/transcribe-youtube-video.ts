@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview Transcribes a YouTube video into Brazilian Portuguese text.
+ * @fileOverview Transcribes a YouTube video into Brazilian Portuguese text with timestamps.
  *
  * - transcribeYouTubeVideo - Uses AI to generate a transcription from a video URL.
  * - TranscribeYouTubeVideoInput - Input schema for the flow.
@@ -17,7 +17,7 @@ const TranscribeYouTubeVideoInputSchema = z.object({
 export type TranscribeYouTubeVideoInput = z.infer<typeof TranscribeYouTubeVideoInputSchema>;
 
 const TranscribeYouTubeVideoOutputSchema = z.object({
-  transcription: z.string().describe('The full, word-for-word transcription of the video in Brazilian Portuguese.'),
+  transcription: z.string().describe('The full, word-for-word transcription of the video in Brazilian Portuguese, including timestamps in [MM:SS] format.'),
 });
 export type TranscribeYouTubeVideoOutput = z.infer<typeof TranscribeYouTubeVideoOutputSchema>;
 
@@ -32,9 +32,17 @@ const transcribeVideoPrompt = ai.definePrompt({
     prompt: `
       Você é um especialista em transcrição de áudio. Sua tarefa é assistir ao vídeo do YouTube fornecido no URL e transcrever TODO o áudio, palavra por palavra, para o Português do Brasil.
       
-      Se o áudio original estiver em outro idioma, traduza-o para o Português do Brasil durante a transcrição.
+      **CRÍTICO: Inclua timestamps no formato [MM:SS] no início de cada linha ou segmento de fala significativo.**
+
+      Se o áudio original estiver em outro idioma, traduza-o para o Português do Brasil durante a transcrição, mantendo os timestamps.
       
       A transcrição deve ser o mais fiel e completa possível. Não resuma ou omita partes do diálogo.
+
+      Exemplo de formato de saída:
+      [00:00] Seu Raimundo, do que o senhor mais se arrepende na vida?
+      [00:02] Quando eu era criança, eu devia ter escutado meu pai.
+      [00:04] E o que ele falava?
+      [00:04] Não sei, ué, eu não escutei.
 
       URL do vídeo para transcrever:
       {{{youtubeUrl}}}
