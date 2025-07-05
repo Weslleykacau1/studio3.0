@@ -248,7 +248,7 @@ export default function ViralVideoView({
                   </Button>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-2">
                 <AiButton
                     onClick={handleTranscribeUploadedVideoClick}
                     loading={loadingUploadedVideoTranscription}
@@ -259,26 +259,29 @@ export default function ViralVideoView({
                     <FileText className="mr-2 h-4 w-4" />
                     {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
                 </AiButton>
-                <AiButton
-                    onClick={onGenerateScriptFromTranscription}
-                    loading={loadingScriptFromTranscription}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                    <Bot className="mr-2 h-4 w-4" />
-                    {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
-                </AiButton>
-                <AiButton
-                    onClick={onGenerateParaphrasedScriptFromTranscription}
-                    loading={loadingParaphrasedScript}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                    variant="secondary"
-                >
-                    <Bot className="mr-2 h-4 w-4" />
-                    {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
-                </AiButton>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <AiButton
+                        onClick={onGenerateScriptFromTranscription}
+                        loading={loadingScriptFromTranscription}
+                        isApiConfigured={isApiConfigured}
+                        disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                        <Bot className="mr-2 h-4 w-4" />
+                        {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
+                    </AiButton>
+                    <AiButton
+                        onClick={onGenerateParaphrasedScriptFromTranscription}
+                        loading={loadingParaphrasedScript}
+                        isApiConfigured={isApiConfigured}
+                        disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                        variant="secondary"
+                    >
+                        <Bot className="mr-2 h-4 w-4" />
+                        {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
+                    </AiButton>
+                </div>
               </div>
           </div>
         </CardContent>
