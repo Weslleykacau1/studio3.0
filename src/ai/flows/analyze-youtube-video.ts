@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview Analyzes a YouTube video to create an inspired scene.
+ * @fileOverview Analyzes a YouTube video to create a similar script.
  *
- * - analyzeYouTubeVideo - Uses AI to generate an original scene based on the video's style and content.
+ * - analyzeYouTubeVideo - Uses AI to generate a script based on the video's style and content.
  * - AnalyzeYouTubeVideoInput - Input schema for the flow.
  * - AnalyzeYouTubeVideoOutput - Output schema for the flow.
  */
@@ -17,9 +17,10 @@ const AnalyzeYouTubeVideoInputSchema = z.object({
 export type AnalyzeYouTubeVideoInput = z.infer<typeof AnalyzeYouTubeVideoInputSchema>;
 
 const AnalyzeYouTubeVideoOutputSchema = z.object({
-  title: z.string().describe('A catchy title for the new scene, inspired by the video, in Brazilian Portuguese.'),
-  setting: z.string().describe("A detailed description of the new scene's setting, inspired by the video, in Brazilian Portuguese."),
-  action: z.string().describe('An original main action for the new scene, inspired by the video, in Brazilian Portuguese.'),
+  title: z.string().describe('Um título cativante para a nova cena, semelhante em estilo ao do vídeo, em Português do Brasil.'),
+  setting: z.string().describe("Uma descrição detalhada do cenário da cena, com base no vídeo, em Português do Brasil."),
+  action: z.string().describe('A ação principal da cena, com base no vídeo, em Português do Brasil.'),
+  dialogue: z.string().describe("O diálogo do roteiro, com base no conteúdo do vídeo, em Português do Brasil. Inclua dicas de emoção em inglês, como (surpreso)."),
 });
 export type AnalyzeYouTubeVideoOutput = z.infer<typeof AnalyzeYouTubeVideoOutputSchema>;
 
@@ -31,18 +32,17 @@ const analyzeVideoPrompt = ai.definePrompt({
     name: 'analyzeVideoPrompt',
     input: { schema: AnalyzeYouTubeVideoInputSchema },
     output: { schema: AnalyzeYouTubeVideoOutputSchema },
-    prompt: `You are a creative director and scriptwriter tasked with creating a new video scene inspired by an existing YouTube video. Your goal is to capture the original video's **style, theme, and energy**, but create a **new, original scene without dialogue**.
+    prompt: `Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel.
 
-Your response MUST be in Brazilian Portuguese for all fields.
+Sua resposta DEVE ser em Português do Brasil para todos os campos.
 
-Based on the content of the YouTube video at the URL below, please generate the following for the new scene:
-1.  **title**: A short, catchy title that reflects the new scene, but is in the same "clickbait" style as the original video.
-2.  **setting**: Describe a detailed setting for the new scene that matches the vibe and context of the original video.
-3.  **action**: Describe the main action for the new scene. It should be an original action that fits the influencer's style.
+Com base no conteúdo do vídeo do YouTube no URL abaixo, gere o seguinte para o novo roteiro:
+1.  **title**: Um título cativante, no mesmo estilo "clickbait" do vídeo original.
+2.  **setting**: Uma descrição detalhada do cenário da cena, como visto no vídeo.
+3.  **action**: Uma descrição das principais ações que ocorrem no vídeo.
+4.  **dialogue**: Transcreva ou adapte o diálogo principal do vídeo. O diálogo deve ser em **Português do Brasil**. **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
 
-The new scene should be a fresh take, not a direct copy. Use the video at the URL below as your inspiration for the style and theme.
-
-Video URL for inspiration:
+URL do vídeo para analisar:
 {{{youtubeUrl}}}
 `
 });
