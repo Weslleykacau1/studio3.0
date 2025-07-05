@@ -54,7 +54,7 @@ If you are creating a "shorts" video, it must be fast-paced, highly engaging, an
 5.  **CTA**: A simple call to action at the very end of the dialogue.
 The dialogue should be short and punchy.
 
-If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. The script's duration should be appropriate for the requested duration: {{{duration}}}. It should follow this formula:
+If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. The script's total duration MUST precisely match the requested duration: {{{duration}}}. It should follow this formula:
 **STANDARD YOUTUBE VIDEO FORMULA:**
 1.  **Hook (First 5-10 seconds)**: Grab the viewer's attention.
 2.  **Introduction (10-30 seconds)**: Briefly introduce the topic.
