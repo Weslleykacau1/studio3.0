@@ -29,6 +29,7 @@ const GenerateViralScriptOutputSchema = z.object({
     setting: z.string().describe('A detailed description of the scene setting, inspired by the image and title.'),
     action: z.string().describe('The main, fast-paced, and engaging action occurring in the scene.'),
     dialogue: z.string().describe('A short, punchy dialogue for the scene, in Brazilian Portuguese with English emotional cues. It should be memorable and fit within a few seconds, including a CTA.'),
+    markdownScript: z.string().describe('A formatted script in Markdown, including title, setting, action, and dialogue.'),
 });
 export type GenerateViralScriptOutput = z.infer<typeof GenerateViralScriptOutputSchema>;
 
@@ -41,7 +42,10 @@ const prompt = ai.definePrompt({
     name: 'generateViralScriptPrompt',
     input: {schema: GenerateViralScriptInputSchema},
     output: {schema: GenerateViralScriptOutputSchema},
-    prompt: `You are an expert in creating viral video scripts. Your task is to generate a script based on the provided details. The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
+    prompt: `You are an expert in creating viral video scripts. Your task is to generate a script based on the provided details. The output MUST be a JSON object containing 'title', 'setting', 'action', 'dialogue', and 'markdownScript'.
+    
+The 'markdownScript' field must be a Markdown formatted string containing the full script, with sections for Title, Setting, Action, and Dialogue.
+All text values MUST be in Brazilian Portuguese, except for the emotional cues in the dialogue which must be in English.
 
 **CRITICAL INSTRUCTION: The total length of the resulting script (dialogue and actions) MUST be designed to perfectly fit a video with the exact duration specified: {{{duration}}}. Do not make it longer or shorter. You must pace all elements of the script to meet this time constraint.**
 

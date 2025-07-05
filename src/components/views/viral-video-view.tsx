@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ContentDisplay } from '../content-display';
 
 interface ViralVideoViewProps {
   onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
@@ -365,12 +366,10 @@ export default function ViralVideoView({
                 <div className="mt-4 space-y-4">
                     <Card className="bg-secondary/30">
                         <CardHeader>
-                            <CardTitle className="text-lg">{generatedViralScene.title}</CardTitle>
+                            <CardTitle className="text-lg">Roteiro Viral Gerado</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <p><strong>Cenário:</strong> {generatedViralScene.setting}</p>
-                            <p><strong>Ação:</strong> {generatedViralScene.action}</p>
-                            <p><strong>Diálogo:</strong> {generatedViralScene.dialogue}</p>
+                        <CardContent>
+                           {generatedViralScene.markdownScript && <ContentDisplay content={generatedViralScene.markdownScript} />}
                         </CardContent>
                     </Card>
                     <div className="flex flex-wrap gap-2">

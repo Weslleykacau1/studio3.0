@@ -26,6 +26,7 @@ const GenerateQuickSceneOutputSchema = z.object({
     setting: z.string().describe('A detailed description of the scene setting.'),
     action: z.string().describe('The main action occurring in the scene.'),
     dialogue: z.string().describe('The suggested dialogue for the scene, in Brazilian Portuguese with English emotional cues.'),
+    markdownScript: z.string().describe('A formatted script in Markdown, including title, setting, action, and dialogue.'),
 });
 export type GenerateQuickSceneOutput = z.infer<typeof GenerateQuickSceneOutputSchema>;
 
@@ -40,7 +41,9 @@ const prompt = ai.definePrompt({
     output: {schema: GenerateQuickSceneOutputSchema},
     prompt: `Você é um roteirista de comédia criativo. Com base na personalidade e no nicho do influenciador, e no tema fornecido, crie uma cena curta e engraçada. O diálogo resultante deve ser adequado para um vídeo com duração máxima de 8 segundos. O diálogo deve ser direto, sem que o influenciador precise se apresentar.
 
-A cena DEVE incluir um título, uma descrição do cenário, a ação principal e um diálogo curto.
+A resposta JSON DEVE conter 'title', 'setting', 'action', 'dialogue', e 'markdownScript'.
+O campo 'markdownScript' deve ser uma string formatada em Markdown contendo o roteiro completo, com seções para Título, Cenário, Ação e Diálogo.
+
 {{#if imageReferenceDataUri}}
 Use a seguinte imagem como INSPIRAÇÃO VISUAL PRIMÁRIA para o cenário: {{media url=imageReferenceDataUri}}
 {{else if scenarioSuggestion}}

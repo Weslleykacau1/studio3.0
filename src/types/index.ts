@@ -33,6 +33,7 @@ export interface Scene {
     scenarioImageType: string;
     allowDigitalText: boolean;
     onlyPhysicalText: boolean;
+    markdownScript?: string;
 }
 
 export interface ThumbnailIdeas {

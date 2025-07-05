@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Bot, Save, Sparkles, UploadCloud, X } from 'lucide-react';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import Image from 'next/image';
+import { ContentDisplay } from './content-display';
 
 interface QuickSceneModalProps {
   isOpen: boolean;
@@ -113,15 +114,13 @@ export function QuickSceneModal({
           </AiButton>
         </div>
 
-        {generatedScene && (
+        {generatedScene && generatedScene.markdownScript && (
           <Card className="bg-secondary/30">
             <CardHeader>
-              <CardTitle className="text-lg">{generatedScene.title}</CardTitle>
+              <CardTitle className="text-lg">Cena Gerada</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p><strong>Cenário:</strong> {generatedScene.setting}</p>
-              <p><strong>Ação:</strong> {generatedScene.action}</p>
-              <p><strong>Diálogo:</strong> {generatedScene.dialogue}</p>
+            <CardContent>
+                <ContentDisplay content={generatedScene.markdownScript} />
             </CardContent>
           </Card>
         )}
