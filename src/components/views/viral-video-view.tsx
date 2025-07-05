@@ -35,6 +35,7 @@ export default function ViralVideoView({
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
   const [videoTheme, setVideoTheme] = useState('');
+  const [scriptTheme, setScriptTheme] = useState('');
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -59,8 +60,8 @@ export default function ViralVideoView({
   };
 
   const handleGenerateViralScriptClick = () => {
-    if (generatedIdeas && influencerPhotoDataUri) {
-        onGenerateViralScript(generatedIdeas.title, influencerPhotoDataUri);
+    if (scriptTheme && influencerPhotoDataUri) {
+        onGenerateViralScript(scriptTheme, influencerPhotoDataUri);
     }
   };
 
@@ -231,22 +232,31 @@ export default function ViralVideoView({
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
-              Com base nas ideias geradas, clique no botão para criar um roteiro curto e viral. O resultado será guardado na sua galeria.
+              Com base na imagem de referência e num novo tema, clique no botão para criar um roteiro curto e viral. O resultado será guardado na sua galeria.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="script-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Roteiro Viral</Label>
+                <Input 
+                    id="script-theme"
+                    value={scriptTheme}
+                    onChange={(e) => setScriptTheme(e.target.value)}
+                    placeholder="Ex: Situação inesperada cozinhando"
+                />
+            </div>
             <AiButton
                 onClick={handleGenerateViralScriptClick}
                 loading={loadingViralScript}
                 isApiConfigured={isApiConfigured}
-                disabled={!generatedIdeas}
+                disabled={!influencerPhotoDataUri || !scriptTheme.trim()}
                 className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
             >
                 <Bot className="mr-2 h-5 w-5" />
                 Gerar Roteiro Mega Viral
             </AiButton>
             <p className="text-center text-xs text-muted-foreground">
-                {generatedIdeas ? "Isto irá gerar uma nova cena e guardá-la na sua galeria." : "Primeiro, gere as ideias para a thumbnail no Passo 1."}
+                É preciso uma imagem de referência no Passo 1 e um tema para o roteiro acima.
             </p>
 
             {loadingViralScript && (
