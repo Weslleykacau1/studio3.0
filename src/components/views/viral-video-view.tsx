@@ -24,8 +24,6 @@ interface ViralVideoViewProps {
   isApiConfigured: boolean;
   youtubeUrl: string;
   setYoutubeUrl: (url: string) => void;
-  youtubeConsistencyType: 'identical' | 'inspired';
-  setYoutubeConsistencyType: (type: 'identical' | 'inspired') => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
   onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => void;
@@ -44,7 +42,7 @@ interface ViralVideoViewProps {
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
-    youtubeUrl, setYoutubeUrl, youtubeConsistencyType, setYoutubeConsistencyType, onAnalyzeVideo, loadingYouTube,
+    youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
@@ -195,24 +193,7 @@ export default function ViralVideoView({
                   Dica: se for um Short, clique no botão ✨ para converter o link automaticamente.
                 </p>
               </div>
-              <div className="space-y-2">
-                <Label>Tipo de consistência do vídeo</Label>
-                <RadioGroup
-                    value={youtubeConsistencyType}
-                    onValueChange={(value) => setYoutubeConsistencyType(value as 'identical' | 'inspired')}
-                    className="flex gap-4"
-                >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="identical" id="type-identical" />
-                        <Label htmlFor="type-identical" className="font-normal">Vídeo com a mesma fala</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="inspired" id="type-inspired" />
-                        <Label htmlFor="type-inspired" className="font-normal">Roteiro Inspirado</Label>
-                    </div>
-                </RadioGroup>
-              </div>
-
+              
               <div className="flex flex-wrap items-center gap-2">
                 <AiButton
                     onClick={onAnalyzeVideo}

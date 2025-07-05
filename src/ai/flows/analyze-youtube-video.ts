@@ -13,7 +13,6 @@ import {z} from 'genkit';
 
 const AnalyzeYouTubeVideoInputSchema = z.object({
   youtubeUrl: z.string().url().describe('The URL of the YouTube video to analyze.'),
-  consistencyType: z.enum(['identical', 'inspired']).describe('The type of consistency to apply: identical adaptation or creative inspiration.'),
 });
 export type AnalyzeYouTubeVideoInput = z.infer<typeof AnalyzeYouTubeVideoInputSchema>;
 
@@ -31,14 +30,9 @@ export async function analyzeYouTubeVideo(input: AnalyzeYouTubeVideoInput): Prom
   return analyzeYouTubeVideoFlow(input);
 }
 
-const PromptInputSchema = z.object({
-  youtubeUrl: z.string().url(),
-  isIdentical: z.boolean(),
-});
-
 const analyzeVideoPrompt = ai.definePrompt({
     name: 'analyzeVideoPrompt',
-    input: { schema: PromptInputSchema },
+    input: { schema: AnalyzeYouTubeVideoInputSchema },
     output: { schema: AnalyzeYouTubeVideoOutputSchema },
     prompt: `
 A sua resposta DEVE ser um objeto JSON contendo 'title', 'setting', 'action', 'dialogue', 'markdownScript', e 'duration'.
@@ -47,15 +41,9 @@ O campo 'markdownScript' deve ser uma string formatada em Markdown contendo o ro
 Todos os campos de texto devem ser em Português do Brasil.
 O diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses).
 
-{{#if isIdentical}}
-Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Sua tarefa é **transcrever o áudio do vídeo PALAVRA POR PALAVRA** e usar essa transcrição como base para o diálogo do roteiro. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel. **Seja fiel na criação do roteiro.**
-Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel baseada no visual do vídeo; uma descrição das ações principais observadas; e um roteiro de diálogo baseado na **transcrição LITERAL e COMPLETA do áudio do vídeo, sem resumos ou alterações**. O roteiro gerado deve ser dimensionado para se ajustar à duração original do vídeo.
-Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação, com base na entoação ouvida no vídeo.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
-{{else}}
 Você é um diretor criativo e roteirista. Seu objetivo é assistir ao vídeo do YouTube e se INSPIRAR em seu estilo, tema e energia para criar uma cena COMPLETAMENTE NOVA e original. Não copie o conteúdo ou o diálogo. A cena deve ter uma duração apropriada inspirada no vídeo original.
 Gere: um título original inspirado no estilo; um novo cenário inspirado no vídeo; uma ação original e envolvente; e um diálogo curto e original.
 Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação.** Exemplo: "(animado) Vamos tentar algo totalmente diferente!".
-{{/if}}
 
 URL do vídeo para analisar:
 {{{youtubeUrl}}}
@@ -69,10 +57,7 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
     outputSchema: AnalyzeYouTubeVideoOutputSchema,
   },
   async (input) => {
-    const { output } = await analyzeVideoPrompt({
-        youtubeUrl: input.youtubeUrl,
-        isIdentical: input.consistencyType === 'identical',
-    });
+    const { output } = await analyzeVideoPrompt(input);
 
     if (!output) {
       throw new Error("A análise do vídeo não produziu um resultado. A URL pode estar inacessível ou o conteúdo não pôde ser analisado.");
