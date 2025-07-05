@@ -12,6 +12,7 @@ import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 interface ViralVideoViewProps {
   onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
@@ -22,7 +23,7 @@ interface ViralVideoViewProps {
   setYoutubeUrl: (url: string) => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
-  onGenerateViralScript: (videoTitle: string, imageDataUri: string, duration: string) => void;
+  onGenerateViralScript: (videoTitle: string, imageDataUri: string, duration: string, videoType: 'shorts' | 'watch') => void;
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
 }
@@ -38,6 +39,7 @@ export default function ViralVideoView({
   const [videoTheme, setVideoTheme] = useState('');
   const [scriptTheme, setScriptTheme] = useState('');
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
+  const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -63,7 +65,7 @@ export default function ViralVideoView({
 
   const handleGenerateViralScriptClick = () => {
     if (scriptTheme && influencerPhotoDataUri) {
-        onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration);
+        onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration, videoType);
     }
   };
 
@@ -238,16 +240,16 @@ export default function ViralVideoView({
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+            <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="script-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Roteiro Viral</Label>
+                <Input 
+                    id="script-theme"
+                    value={scriptTheme}
+                    onChange={(e) => setScriptTheme(e.target.value)}
+                    placeholder="Ex: Situação inesperada cozinhando"
+                />
+            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="script-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Roteiro Viral</Label>
-                    <Input 
-                        id="script-theme"
-                        value={scriptTheme}
-                        onChange={(e) => setScriptTheme(e.target.value)}
-                        placeholder="Ex: Situação inesperada cozinhando"
-                    />
-                </div>
                 <div className="space-y-2">
                     <Label htmlFor="script-duration">Duração</Label>
                     <Select value={viralScriptDuration} onValueChange={setViralScriptDuration}>
@@ -262,6 +264,23 @@ export default function ViralVideoView({
                             <SelectItem value="40 seg">40 seg</SelectItem>
                         </SelectContent>
                     </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label>Tipo de Vídeo</Label>
+                    <RadioGroup
+                        value={videoType}
+                        onValueChange={(value) => setVideoType(value as 'shorts' | 'watch')}
+                        className="flex h-10 items-center gap-4"
+                    >
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="shorts" id="type-shorts" />
+                        <Label htmlFor="type-shorts" className="font-normal">Shorts</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="watch" id="type-watch" />
+                        <Label htmlFor="type-watch" className="font-normal">Watch</Label>
+                        </div>
+                    </RadioGroup>
                 </div>
             </div>
             <AiButton

@@ -19,7 +19,8 @@ const GenerateViralScriptInputSchema = z.object({
     .describe(
       "The base image for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-    duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
+  duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
+  videoType: z.enum(['shorts', 'watch']).describe("The type of video: 'shorts' for vertical, fast-paced videos, or 'watch' for standard horizontal videos."),
 });
 export type GenerateViralScriptInput = z.infer<typeof GenerateViralScriptInputSchema>;
 
@@ -40,23 +41,28 @@ const prompt = ai.definePrompt({
     name: 'generateViralScriptPrompt',
     input: {schema: GenerateViralScriptInputSchema},
     output: {schema: GenerateViralScriptOutputSchema},
-    prompt: `You are an expert in creating "mega viral" video scripts for platforms like TikTok and YouTube Shorts. Your goal is to create a script for a video that is fast-paced, highly engaging, and has a high potential to go viral. The script's total duration MUST precisely match the requested duration: {{{duration}}}.
+    prompt: `You are an expert in creating viral video scripts. Your task is to generate a script based on the provided details. The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
 
-Based on the provided viral video title and the visual inspiration from the image, create a complete scene.
+You are creating a script for a {{{videoType}}} video.
 
-The output MUST be in Brazilian Portuguese for all fields, except for the emotional cues in the dialogue which must be in English.
-
+If you are creating a "shorts" video, it must be fast-paced, highly engaging, and designed for vertical viewing. The script's total duration MUST precisely match the requested duration: {{{duration}}}. It should follow this formula:
 **MEGAVIRAL SHORTS FORMULA:**
-Your generated scene must follow this structure, and the actions and dialogue you create must be paced to fit perfectly within the {{{duration}}}:
-1.  **Set up**: A one-liner that contains stakes (easy to understand). This should take up the first ~15% of the video's duration.
-2.  **Unexpected action (Hook)**: The hook of the video, happening immediately after the setup. This should be a quick, impactful moment.
-3.  **Explanation of action / escalation**: What happens next, building suspense or humor. This should be the main body of the video, taking up ~60% of the duration.
-4.  **Climax / Twist / Punchline**: The surprising, funny, or satisfying payoff at the end. This should happen in the last ~20% of the video's duration.
+1.  **Set up**: A one-liner that contains stakes (easy to understand). First ~15% of the duration.
+2.  **Unexpected action (Hook)**: A quick, impactful moment.
+3.  **Explanation of action / escalation**: The main body of the video. ~60% of the duration.
+4.  **Climax / Twist / Punchline**: The payoff at the end. Last ~20% of the duration.
 5.  **CTA**: A simple call to action at the very end of the dialogue.
+The dialogue should be short and punchy.
 
-When you write the 'action' and 'dialogue', make sure they are detailed enough to fill the {{{duration}}} with engaging content. For example, for a 10-second video, the action should describe what happens over those 10 seconds, not just a single event. The dialogue must also be timed to fit within the video's length.
+If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. The script's duration should be appropriate for the requested duration: {{{duration}}}. It should follow this formula:
+**STANDARD YOUTUBE VIDEO FORMULA:**
+1.  **Hook (First 5-10 seconds)**: Grab the viewer's attention.
+2.  **Introduction (10-30 seconds)**: Briefly introduce the topic.
+3.  **Main Content**: The body of the video, paced for the duration.
+4.  **Conclusion & CTA (Last 15-30 seconds)**: Summarize and provide a clear call to action.
+The dialogue can be more detailed.
 
-Combine the setup, hook, escalation, and punchline into the 'action' and 'dialogue' fields. The dialogue should be extremely short, punchy, and memorable, starting directly without introductions. Include emotional cues in English, like (surprised) or (excited). Include the CTA at the end of the dialogue.
+Please generate the script according to the format specified (shorts or watch) and the details below.
 
 **Video Title:**
 """

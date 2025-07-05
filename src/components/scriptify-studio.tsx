@@ -439,14 +439,14 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         toast({ title: "Cena salva e carregada no editor!", className: "bg-blue-100 text-blue-800" });
     };
 
-    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string, duration: string) => {
+    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string, duration: string, videoType: 'shorts' | 'watch') => {
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
         if (!videoTitle || !imageDataUri) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso gerar ideias de thumbnail primeiro." });
 
         setLoading('generatingViralScript', true);
         setGeneratedViralScene(null);
         try {
-            const result = await generateViralScript({ videoTitle, imageDataUri, duration });
+            const result = await generateViralScript({ videoTitle, imageDataUri, duration, videoType });
 
             const newScene: Scene = {
                 ...initialSceneState,
