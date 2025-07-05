@@ -48,7 +48,7 @@ export default function SceneEditor({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-          <Film className="text-primary" />
+          <Film />
           2. Crie ou Edite uma Cena
         </CardTitle>
       </CardHeader>

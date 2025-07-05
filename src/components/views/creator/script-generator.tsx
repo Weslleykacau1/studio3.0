@@ -100,7 +100,7 @@ export default function ScriptGenerator({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Bot className="text-primary" />
+            <Bot />
             3. Gere o Prompt do Roteiro
           </CardTitle>
           <CardDescription>Use o influenciador e a cena definidos para gerar um prompt que criará um roteiro de vídeo.</CardDescription>
@@ -165,7 +165,7 @@ export default function ScriptGenerator({
         <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-headline">
-              <Video className="text-purple-600" />
+              <Video />
               Prompt Gerado para Veo
             </CardTitle>
             <CardDescription>Este prompt conciso pode ser usado em plataformas de vídeo generativo como o Veo.</CardDescription>
@@ -193,7 +193,7 @@ export default function ScriptGenerator({
         <Card className="mt-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Bot className="text-primary" />
+              <Bot />
               SEO Gerado para Diálogo
             </CardTitle>
             <CardDescription>

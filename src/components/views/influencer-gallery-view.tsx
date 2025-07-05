@@ -41,7 +41,7 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
         <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-                    <Palette className="text-primary" />
+                    <Palette />
                     Galeria de Influenciadores
                 </CardTitle>
                 <CardDescription className="mt-1">

@@ -42,7 +42,7 @@ export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew }:
         <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-                    <LayoutGrid className="text-primary"/>
+                    <LayoutGrid />
                     Galeria de Cenas
                 </CardTitle>
                 <CardDescription className="mt-1">

@@ -48,7 +48,7 @@ export default function InfluencerEditor({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-          <User className="text-primary" />
+          <User />
           1. Defina o seu Influenciador
         </CardTitle>
       </CardHeader>

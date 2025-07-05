@@ -72,7 +72,7 @@ export default function ViralVideoView({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Youtube className="text-red-500" />
+            <Youtube />
             Analisar Vídeo do YouTube
           </CardTitle>
           <CardDescription>
@@ -103,7 +103,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <ImageIcon className="text-primary" />
+              <ImageIcon />
               Passo 1: Gerar Ideias para Thumbnail
             </CardTitle>
             <CardDescription>
@@ -158,7 +158,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Sparkles className="text-primary" />
+              <Sparkles />
               Passo 2: Resultado da Thumbnail
             </CardTitle>
             <CardDescription>
@@ -230,7 +230,7 @@ export default function ViralVideoView({
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Pencil className="text-primary" />
+              <Pencil />
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
