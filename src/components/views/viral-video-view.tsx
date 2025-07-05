@@ -24,8 +24,8 @@ interface ViralVideoViewProps {
   isApiConfigured: boolean;
   youtubeUrl: string;
   setYoutubeUrl: (url: string) => void;
-  youtubeAnalysisType: 'identical' | 'inspired';
-  setYoutubeAnalysisType: (type: 'identical' | 'inspired') => void;
+  youtubeConsistencyType: 'identical' | 'inspired';
+  setYoutubeConsistencyType: (type: 'identical' | 'inspired') => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
   onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => void;
@@ -39,7 +39,7 @@ interface ViralVideoViewProps {
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
-    youtubeUrl, setYoutubeUrl, youtubeAnalysisType, setYoutubeAnalysisType, onAnalyzeVideo, loadingYouTube,
+    youtubeUrl, setYoutubeUrl, youtubeConsistencyType, setYoutubeConsistencyType, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
@@ -160,10 +160,10 @@ export default function ViralVideoView({
                 </p>
               </div>
               <div className="space-y-2">
-                <Label>Tipo de Análise</Label>
+                <Label>Tipo de consistência do vídeo</Label>
                 <RadioGroup
-                    value={youtubeAnalysisType}
-                    onValueChange={(value) => setYoutubeAnalysisType(value as 'identical' | 'inspired')}
+                    value={youtubeConsistencyType}
+                    onValueChange={(value) => setYoutubeConsistencyType(value as 'identical' | 'inspired')}
                     className="flex gap-4"
                 >
                     <div className="flex items-center space-x-2">

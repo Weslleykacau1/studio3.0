@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const AnalyzeYouTubeVideoInputSchema = z.object({
   youtubeUrl: z.string().url().describe('The URL of the YouTube video to analyze.'),
-  analysisType: z.enum(['identical', 'inspired']).describe('The type of analysis to perform: identical adaptation or creative inspiration.'),
+  consistencyType: z.enum(['identical', 'inspired']).describe('The type of consistency to apply: identical adaptation or creative inspiration.'),
 });
 export type AnalyzeYouTubeVideoInput = z.infer<typeof AnalyzeYouTubeVideoInputSchema>;
 
@@ -71,7 +71,7 @@ const analyzeYouTubeVideoFlow = ai.defineFlow(
   async (input) => {
     const { output } = await analyzeVideoPrompt({
         youtubeUrl: input.youtubeUrl,
-        isIdentical: input.analysisType === 'identical',
+        isIdentical: input.consistencyType === 'identical',
     });
 
     if (!output) {

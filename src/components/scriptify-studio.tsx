@@ -55,7 +55,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
-    const [youtubeAnalysisType, setYoutubeAnalysisType] = useState<'identical' | 'inspired'>('identical');
+    const [youtubeConsistencyType, setYoutubeConsistencyType] = useState<'identical' | 'inspired'>('identical');
     const { toast } = useToast();
     const [hasMounted, setHasMounted] = useState(false);
     
@@ -318,7 +318,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         setGeneratedViralScene(null); // Clear previous results
         setGeneratedVeoPromptForViral(''); // Clear previous Veo prompt
         try {
-            const result = await analyzeYouTubeVideo({ youtubeUrl, analysisType: youtubeAnalysisType });
+            const result = await analyzeYouTubeVideo({ youtubeUrl, consistencyType: youtubeConsistencyType });
             const newScene: Scene = {
                 ...initialSceneState,
                 id: crypto.randomUUID(),
@@ -727,8 +727,8 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         isApiConfigured={isApiConfigured}
                         youtubeUrl={youtubeUrl}
                         setYoutubeUrl={setYoutubeUrl}
-                        youtubeAnalysisType={youtubeAnalysisType}
-                        setYoutubeAnalysisType={setYoutubeAnalysisType}
+                        youtubeConsistencyType={youtubeConsistencyType}
+                        setYoutubeConsistencyType={setYoutubeConsistencyType}
                         onAnalyzeVideo={handleAnalyzeYouTubeVideo}
                         loadingYouTube={loadingStates.analyzingYouTube}
                         onGenerateViralScript={handleGenerateViralScript}
