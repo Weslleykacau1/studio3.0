@@ -35,9 +35,6 @@ interface ViralVideoViewProps {
   onGenerateVeoPromptForViral: (scene: Scene) => void;
   loadingVeoForViral: boolean;
   generatedVeoPromptForViral: string;
-  onTranscribeVideo: () => void;
-  loadingTranscription: boolean;
-  generatedTranscription: string;
   onTranscribeUploadedVideo: (videoDataUri: string) => void;
   loadingUploadedVideoTranscription: boolean;
   generatedUploadedVideoTranscription: string;
@@ -52,9 +49,6 @@ export default function ViralVideoView({
     onGenerateVeoPromptForViral,
     loadingVeoForViral,
     generatedVeoPromptForViral,
-    onTranscribeVideo,
-    loadingTranscription,
-    generatedTranscription,
     onTranscribeUploadedVideo,
     loadingUploadedVideoTranscription,
     generatedUploadedVideoTranscription
@@ -66,7 +60,6 @@ export default function ViralVideoView({
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
   const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
-  const [copyTranscriptionSuccess, setCopyTranscriptionSuccess] = useState(false);
   const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
   const { toast } = useToast();
@@ -131,18 +124,6 @@ export default function ViralVideoView({
     });
   };
 
-  const handleCopyTranscription = () => {
-    if (!generatedTranscription) return;
-    navigator.clipboard.writeText(generatedTranscription).then(() => {
-        setCopyTranscriptionSuccess(true);
-        toast({ title: 'Transcrição copiada!', className: 'bg-green-100' });
-        setTimeout(() => setCopyTranscriptionSuccess(false), 2000);
-    }).catch(err => {
-        console.error('Failed to copy transcription text: ', err);
-        toast({ variant: 'destructive', title: 'Erro ao copiar' });
-    });
-  };
-  
   const handleCopyUploadedVideoTranscription = () => {
     if (!generatedUploadedVideoTranscription) return;
     navigator.clipboard.writeText(generatedUploadedVideoTranscription).then(() => {
@@ -238,46 +219,11 @@ export default function ViralVideoView({
                 >
                     {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
                 </AiButton>
-                <AiButton
-                    onClick={onTranscribeVideo}
-                    loading={loadingTranscription}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!youtubeUrl.trim()}
-                    variant="outline"
-                >
-                    <FileText className="mr-2 h-4 w-4" />
-                    {loadingTranscription ? 'A transcrever...' : 'Transcreva em português a partir do link'}
-                </AiButton>
               </div>
           </div>
         </CardContent>
       </Card>
       
-      {generatedTranscription && (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <FileText />
-                    Transcrição do Vídeo
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ContentDisplay content={generatedTranscription} />
-                <Button
-                    onClick={handleCopyTranscription}
-                    variant="outline"
-                    className={cn(
-                        'mt-4 transition-colors',
-                        copyTranscriptionSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
-                    )}
-                >
-                    <Copy className="mr-2 h-4 w-4" />
-                    {copyTranscriptionSuccess ? 'Copiado!' : 'Copiar Transcrição'}
-                </Button>
-            </CardContent>
-        </Card>
-      )}
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
