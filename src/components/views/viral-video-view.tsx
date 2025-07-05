@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -126,7 +124,7 @@ export default function ViralVideoView({
                 >
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="identical" id="type-identical" />
-                        <Label htmlFor="type-identical" className="font-normal">Roteiro Idêntico</Label>
+                        <Label htmlFor="type-identical" className="font-normal">Estou com sorte</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="inspired" id="type-inspired" />
