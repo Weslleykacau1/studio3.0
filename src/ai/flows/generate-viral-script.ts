@@ -49,11 +49,11 @@ You are creating a script for a {{{videoType}}} video.
 
 If you are creating a "shorts" video, it must be fast-paced, highly engaging, and designed for vertical viewing. It should follow this formula:
 **MEGAVIRAL SHORTS FORMULA:**
-1.  **Set up**: A one-liner that contains stakes (easy to understand). First ~15% of the duration.
-2.  **Unexpected action (Hook)**: A quick, impactful moment.
-3.  **Explanation of action / escalation**: The main body of the video. ~60% of the duration.
-4.  **Climax / Twist / Punchline**: The payoff at the end. Last ~20% of the duration.
-5.  **CTA**: A simple call to action at the very end of the dialogue.
+Set up - The one liner that contains stakes (easy to understand.)
+Unexpected action (Hook)
+Explanation of action / escalation
+Climax / Twist / Punchline
+CTA
 The dialogue should be short and punchy.
 
 If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. It should follow this formula:

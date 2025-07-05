@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -76,7 +77,7 @@ export default function ViralVideoView({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Youtube />
+            <Youtube className="text-primary" />
             Analisar Vídeo do YouTube
           </CardTitle>
           <CardDescription>
@@ -107,7 +108,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <ImageIcon />
+              <ImageIcon className="text-primary" />
               Passo 1: Imagem de Referência
             </CardTitle>
             <CardDescription>
@@ -162,7 +163,7 @@ export default function ViralVideoView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Sparkles />
+              <Sparkles className="text-primary" />
               Passo 2: Resultado da Thumbnail
             </CardTitle>
             <CardDescription>
@@ -234,11 +235,11 @@ export default function ViralVideoView({
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-              <Pencil />
+              <Pencil className="text-primary" />
               Passo 3: Gerar Roteiro Viral
             </CardTitle>
             <CardDescription>
-              Escreva um tema, escolha as opções e clique no botão para criar um roteiro. O resultado será guardado na sua galeria.
+              Escreva um tema, escolha as opções e clique para criar um roteiro. A imagem de referência do Passo 1 é opcional. O resultado será guardado na sua galeria.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -295,9 +296,18 @@ export default function ViralVideoView({
                 <Bot className="mr-2 h-5 w-5" />
                 Gerar Roteiro Mega Viral
             </AiButton>
-            <p className="text-center text-xs text-muted-foreground">
-                Basta um tema para gerar. Uma imagem de referência no Passo 1 é opcional.
-            </p>
+
+            <div className="!mt-6 rounded-lg border bg-blue-50 p-4 text-xs text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+              <p className="font-bold">O que é a "Fórmula Mega Viral"?</p>
+              <p className="mt-1">Ao gerar um roteiro de "Shorts", a IA é instruída a seguir uma estrutura com alto potencial de viralização, dividida nestas partes:</p>
+              <ul className="mt-2 list-inside list-disc space-y-1">
+                <li><strong>Set up:</strong> Uma frase inicial que cria o contexto.</li>
+                <li><strong>Hook:</strong> Uma ação inesperada que prende a atenção.</li>
+                <li><strong>Escalation:</strong> O desenvolvimento da ação.</li>
+                <li><strong>Climax/Punchline:</strong> O ponto alto ou a piada final.</li>
+                <li><strong>CTA:</strong> Uma chamada para ação (ex: "Siga para mais!").</li>
+              </ul>
+            </div>
 
             {loadingViralScript && (
                 <div className="space-y-4 pt-4">
