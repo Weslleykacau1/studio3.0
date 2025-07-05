@@ -20,6 +20,7 @@ import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
+import { transcribeYouTubeVideo } from '@/ai/flows/transcribe-youtube-video';
 import { getAllInfluencers, saveInfluencer, deleteInfluencerDB, getAllScenes, saveScene, deleteSceneDB } from '@/lib/idb';
 
 import { AppHeader } from './app-header';
@@ -51,8 +52,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [generatedVeoPromptForViral, setGeneratedVeoPromptForViral] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
+    const [generatedTranscription, setGeneratedTranscription] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingVeoPromptForViral: false, transcribingYouTube: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const [youtubeConsistencyType, setYoutubeConsistencyType] = useState<'identical' | 'inspired'>('identical');
@@ -315,20 +317,21 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('analyzingYouTube', true);
-        setGeneratedViralScene(null); // Clear previous results
-        setGeneratedVeoPromptForViral(''); // Clear previous Veo prompt
+        setGeneratedViralScene(null);
+        setGeneratedVeoPromptForViral('');
+        setGeneratedTranscription('');
         try {
             const result = await analyzeYouTubeVideo({ youtubeUrl, consistencyType: youtubeConsistencyType });
             const newScene: Scene = {
                 ...initialSceneState,
                 id: crypto.randomUUID(),
                 ...result,
-                duration: result.duration || '8 seg', // Use result's duration or fallback
+                duration: result.duration || '8 seg',
             };
 
             await saveScene(newScene);
             setScenes(prev => [newScene, ...prev]);
-            setGeneratedViralScene(newScene); // Set scene for display in viral tab
+            setGeneratedViralScene(newScene);
             
             toast({ title: "Cena criada a partir do vídeo!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`, className: "bg-green-100 text-green-800" });
 
@@ -337,6 +340,26 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
             toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
         } finally {
             setLoading('analyzingYouTube', false);
+        }
+    };
+
+    const handleTranscribeYouTubeVideo = async () => {
+        if (!youtubeUrl.trim()) return toast({ variant: 'destructive', title: "URL em falta", description: "Por favor, cole um URL do YouTube." });
+        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+
+        setLoading('transcribingYouTube', true);
+        setGeneratedTranscription('');
+        setGeneratedViralScene(null);
+        setGeneratedVeoPromptForViral('');
+        try {
+            const result = await transcribeYouTubeVideo({ youtubeUrl });
+            setGeneratedTranscription(result.transcription);
+            toast({ title: "Transcrição concluída com sucesso!", className: "bg-green-100 text-green-800" });
+        } catch (error: any) {
+            console.error("Failed to transcribe YouTube video:", error);
+            toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
+        } finally {
+            setLoading('transcribingYouTube', false);
         }
     };
 
@@ -738,6 +761,9 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
                         onGenerateVeoPromptForViral={handleGenerateVeoPromptForViralScene}
                         loadingVeoForViral={loadingStates.generatingVeoPromptForViral}
                         generatedVeoPromptForViral={generatedVeoPromptForViral}
+                        onTranscribeVideo={handleTranscribeYouTubeVideo}
+                        loadingTranscription={loadingStates.transcribingYouTube}
+                        generatedTranscription={generatedTranscription}
                     />
                 </TabsContent>
             </Tabs>

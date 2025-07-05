@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy, Wand } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video, Copy, Wand, FileText } from 'lucide-react';
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -35,6 +35,9 @@ interface ViralVideoViewProps {
   onGenerateVeoPromptForViral: (scene: Scene) => void;
   loadingVeoForViral: boolean;
   generatedVeoPromptForViral: string;
+  onTranscribeVideo: () => void;
+  loadingTranscription: boolean;
+  generatedTranscription: string;
 }
 
 export default function ViralVideoView({ 
@@ -45,7 +48,10 @@ export default function ViralVideoView({
     onLoadToCreator,
     onGenerateVeoPromptForViral,
     loadingVeoForViral,
-    generatedVeoPromptForViral
+    generatedVeoPromptForViral,
+    onTranscribeVideo,
+    loadingTranscription,
+    generatedTranscription
 }: ViralVideoViewProps) {
   const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
   const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
@@ -54,6 +60,7 @@ export default function ViralVideoView({
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
   const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
+  const [copyTranscriptionSuccess, setCopyTranscriptionSuccess] = useState(false);
   const { toast } = useToast();
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,6 +107,18 @@ export default function ViralVideoView({
         setTimeout(() => setCopyVeoSuccess(false), 2000);
     }).catch(err => {
         console.error('Failed to copy Veo prompt: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
+  const handleCopyTranscription = () => {
+    if (!generatedTranscription) return;
+    navigator.clipboard.writeText(generatedTranscription).then(() => {
+        setCopyTranscriptionSuccess(true);
+        toast({ title: 'Transcrição copiada!', className: 'bg-green-100' });
+        setTimeout(() => setCopyTranscriptionSuccess(false), 2000);
+    }).catch(err => {
+        console.error('Failed to copy transcription text: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
@@ -177,19 +196,56 @@ export default function ViralVideoView({
                 </RadioGroup>
               </div>
 
-              <AiButton
-                  onClick={onAnalyzeVideo}
-                  loading={loadingYouTube}
-                  isApiConfigured={isApiConfigured}
-                  disabled={!youtubeUrl.trim()}
-                  className="bg-red-500 text-white hover:bg-red-600"
-              >
-                  {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
-              </AiButton>
+              <div className="flex flex-wrap items-center gap-2">
+                <AiButton
+                    onClick={onAnalyzeVideo}
+                    loading={loadingYouTube}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!youtubeUrl.trim()}
+                    className="bg-red-500 text-white hover:bg-red-600"
+                >
+                    {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
+                </AiButton>
+                <AiButton
+                    onClick={onTranscribeVideo}
+                    loading={loadingTranscription}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!youtubeUrl.trim()}
+                    variant="outline"
+                >
+                    <FileText className="mr-2 h-4 w-4" />
+                    {loadingTranscription ? 'A transcrever...' : 'Transcreva em português a partir do link'}
+                </AiButton>
+              </div>
           </div>
         </CardContent>
       </Card>
       
+      {generatedTranscription && (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <FileText />
+                    Transcrição do Vídeo
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ContentDisplay content={generatedTranscription} />
+                <Button
+                    onClick={handleCopyTranscription}
+                    variant="outline"
+                    className={cn(
+                        'mt-4 transition-colors',
+                        copyTranscriptionSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                    )}
+                >
+                    <Copy className="mr-2 h-4 w-4" />
+                    {copyTranscriptionSuccess ? 'Copiado!' : 'Copiar Transcrição'}
+                </Button>
+            </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Card>
           <CardHeader>
