@@ -13,6 +13,11 @@ import {z} from 'genkit';
 
 const GenerateParaphrasedScriptFromTranscriptionInputSchema = z.object({
   transcription: z.string().describe('The full text transcription of a video to be used as inspiration.'),
+  imageDataUri: z
+    .string()
+    .describe(
+      "An optional image for visual inspiration for the scene, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ).optional(),
 });
 export type GenerateParaphrasedScriptFromTranscriptionInput = z.infer<typeof GenerateParaphrasedScriptFromTranscriptionInputSchema>;
 
@@ -37,6 +42,10 @@ const prompt = ai.definePrompt({
 
 **CRÍTICO: O diálogo e a ação resultantes devem ser dimensionados para se ajustarem a um vídeo com duração máxima de 8 segundos.**
 
+{{#if imageDataUri}}
+Use a imagem fornecida como a principal inspiração visual para o cenário da cena. Descreva o cenário com base nesta imagem.
+{{/if}}
+
 NÃO copie o diálogo original. Re-escreva o título, cenário, ação e, mais importante, o diálogo, usando outras palavras, mas mantendo a essência e o significado da transcrição original. Limpe os timestamps (ex: [00:05]) do processo. Adicione dicas de emoção em inglês (ex: (rindo)) com base no contexto.
     
 O resultado DEVE ser um objeto JSON contendo 'title', 'setting', 'action', 'dialogue', e 'markdownScript'.
@@ -47,6 +56,11 @@ Todo o texto deve estar em Português do Brasil, exceto as dicas de emoção.
 """
 {{{transcription}}}
 """
+{{#if imageDataUri}}
+
+**Inspiração Visual:**
+{{media url=imageDataUri}}
+{{/if}}
     `,
 });
 

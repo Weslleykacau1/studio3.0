@@ -33,9 +33,9 @@ interface ViralVideoViewProps {
   onTranscribeUploadedVideo: (videoDataUri: string) => void;
   loadingUploadedVideoTranscription: boolean;
   generatedUploadedVideoTranscription: string;
-  onGenerateScriptFromTranscription: () => void;
+  onGenerateScriptFromTranscription: (imageDataUri?: string) => void;
   loadingScriptFromTranscription: boolean;
-  onGenerateParaphrasedScriptFromTranscription: () => void;
+  onGenerateParaphrasedScriptFromTranscription: (imageDataUri?: string) => void;
   loadingParaphrasedScript: boolean;
   onClearTranscription: () => void;
 }
@@ -64,6 +64,8 @@ export default function ViralVideoView({
   const [copyViralScriptSuccess, setCopyViralScriptSuccess] = useState(false);
   const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
+  const [transcriptionScenePhotoPreview, setTranscriptionScenePhotoPreview] = useState<string | null>(null);
+  const [transcriptionScenePhotoDataUri, setTranscriptionScenePhotoDataUri] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,10 +75,19 @@ export default function ViralVideoView({
     });
   };
   
+  const handleTranscriptionScenePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleImageUploadUtil(e, ({ preview, base64, type }) => {
+      setTranscriptionScenePhotoPreview(preview);
+      setTranscriptionScenePhotoDataUri(`data:${type};base64,${base64}`);
+    });
+  };
+
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview }) => {
       setUploadedVideoUri(preview);
       onClearTranscription();
+      setTranscriptionScenePhotoPreview(null);
+      setTranscriptionScenePhotoDataUri(null);
     });
   };
 
@@ -221,62 +232,82 @@ export default function ViralVideoView({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="video-upload-input" className="flex items-center gap-2"><UploadCloud className="h-4 w-4"/> Anexar ficheiro de vídeo</Label>
-                <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
-                  {uploadedVideoUri ? (
-                    <video src={uploadedVideoUri} controls className="max-h-[250px] w-auto rounded-md" />
-                  ) : (
-                    <div className="space-y-2 py-8 text-muted-foreground">
-                      <VideoIcon className="mx-auto h-10 w-10" />
-                      <p className="text-xs">Formatos suportados: MP4, MOV, WEBM, etc.</p>
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div className="space-y-2">
+                    <Label htmlFor="video-upload-input" className="flex items-center gap-2 font-medium"><VideoIcon className="h-4 w-4"/> Anexar ficheiro de vídeo</Label>
+                    <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
+                      {uploadedVideoUri ? (
+                        <video src={uploadedVideoUri} controls className="max-h-[250px] w-auto rounded-md" />
+                      ) : (
+                        <div className="space-y-2 py-8 text-muted-foreground">
+                          <VideoIcon className="mx-auto h-10 w-10" />
+                          <p className="text-xs">Formatos suportados: MP4, MOV, WEBM, etc.</p>
+                        </div>
+                      )}
+                       <input id="video-upload-input" type="file" className="hidden" accept="video/*" onChange={handleVideoUpload} />
+                       <Button asChild variant="outline" size="sm" className="mt-4">
+                          <Label htmlFor="video-upload-input" className="cursor-pointer gap-2">
+                              <UploadCloud className="h-4 w-4" /> 
+                              {uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo'}
+                          </Label>
+                      </Button>
                     </div>
-                  )}
-                   <input id="video-upload-input" type="file" className="hidden" accept="video/*" onChange={handleVideoUpload} />
-                   <Button asChild variant="outline" size="sm" className="mt-4">
-                      <Label htmlFor="video-upload-input" className="cursor-pointer gap-2">
-                          <UploadCloud className="h-4 w-4" /> 
-                          {uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo'}
-                      </Label>
-                  </Button>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <AiButton
-                    onClick={handleTranscribeUploadedVideoClick}
-                    loading={loadingUploadedVideoTranscription}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!uploadedVideoUri}
-                    variant="outline"
-                >
-                    <FileText className="mr-2 h-4 w-4" />
-                    {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
-                </AiButton>
+                <div className="space-y-2">
+                    <Label htmlFor="transcription-scene-photo-upload" className="flex items-center gap-2 font-medium"><ImageIcon className="h-4 w-4" /> Anexar imagem de cena (Opcional)</Label>
+                    <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
+                      {transcriptionScenePhotoPreview ? (
+                        <Image src={transcriptionScenePhotoPreview} alt="Prévia da cena" width={200} height={200} className="max-h-[250px] w-auto rounded-md object-contain" />
+                      ) : (
+                        <div className="space-y-2 py-8 text-muted-foreground">
+                          <ImageIcon className="mx-auto h-10 w-10" />
+                          <p className="text-xs">Isto irá definir o cenário visual do roteiro gerado.</p>
+                        </div>
+                      )}
+                       <input id="transcription-scene-photo-upload" type="file" className="hidden" accept="image/*" onChange={handleTranscriptionScenePhotoUpload} />
+                       <Button asChild variant="outline" size="sm" className="mt-4">
+                          <Label htmlFor="transcription-scene-photo-upload" className="cursor-pointer gap-2">
+                              <UploadCloud className="h-4 w-4" /> 
+                              {transcriptionScenePhotoPreview ? 'Trocar' : 'Escolher Imagem'}
+                          </Label>
+                      </Button>
+                    </div>
+                </div>
+            </div>
+          <div className="mt-6 space-y-2">
+            <AiButton
+                onClick={handleTranscribeUploadedVideoClick}
+                loading={loadingUploadedVideoTranscription}
+                isApiConfigured={isApiConfigured}
+                disabled={!uploadedVideoUri}
+                variant="outline"
+            >
+                <FileText className="mr-2 h-4 w-4" />
+                {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
+            </AiButton>
 
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <AiButton
-                        onClick={onGenerateScriptFromTranscription}
-                        loading={loadingScriptFromTranscription}
-                        isApiConfigured={isApiConfigured}
-                        disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                        <Bot className="mr-2 h-4 w-4" />
-                        {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
-                    </AiButton>
-                    <AiButton
-                        onClick={onGenerateParaphrasedScriptFromTranscription}
-                        loading={loadingParaphrasedScript}
-                        isApiConfigured={isApiConfigured}
-                        disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                        variant="secondary"
-                    >
-                        <Bot className="mr-2 h-4 w-4" />
-                        {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
-                    </AiButton>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <AiButton
+                    onClick={() => onGenerateScriptFromTranscription(transcriptionScenePhotoDataUri ?? undefined)}
+                    loading={loadingScriptFromTranscription}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
+                </AiButton>
+                <AiButton
+                    onClick={() => onGenerateParaphrasedScriptFromTranscription(transcriptionScenePhotoDataUri ?? undefined)}
+                    loading={loadingParaphrasedScript}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
+                    variant="secondary"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
+                </AiButton>
+            </div>
           </div>
         </CardContent>
       </Card>

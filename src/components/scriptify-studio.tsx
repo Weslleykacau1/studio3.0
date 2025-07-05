@@ -366,14 +366,17 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         }
     };
 
-    const handleGenerateScriptFromTranscription = async () => {
+    const handleGenerateScriptFromTranscription = async (imageDataUri?: string) => {
         if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('generatingScriptFromTranscription', true);
         setGeneratedViralScene(null);
         try {
-            const result = await generateScriptFromTranscription({ transcription: generatedUploadedVideoTranscription });
+            const result = await generateScriptFromTranscription({ 
+                transcription: generatedUploadedVideoTranscription,
+                imageDataUri: imageDataUri
+            });
             const newScene: Scene = {
                 ...initialSceneState,
                 id: crypto.randomUUID(),
@@ -395,14 +398,17 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         }
     };
 
-    const handleGenerateParaphrasedScriptFromTranscription = async () => {
+    const handleGenerateParaphrasedScriptFromTranscription = async (imageDataUri?: string) => {
         if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
         if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('generatingParaphrasedScriptFromTranscription', true);
         setGeneratedViralScene(null);
         try {
-            const result = await generateParaphrasedScriptFromTranscription({ transcription: generatedUploadedVideoTranscription });
+            const result = await generateParaphrasedScriptFromTranscription({ 
+                transcription: generatedUploadedVideoTranscription,
+                imageDataUri: imageDataUri,
+            });
             const newScene: Scene = {
                 ...initialSceneState,
                 id: crypto.randomUUID(),

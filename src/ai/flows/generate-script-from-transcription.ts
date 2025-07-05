@@ -13,6 +13,11 @@ import {z} from 'genkit';
 
 const GenerateScriptFromTranscriptionInputSchema = z.object({
   transcription: z.string().describe('The full text transcription of a video, which may include timestamps.'),
+  imageDataUri: z
+    .string()
+    .describe(
+      "An optional image for visual inspiration for the scene, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ).optional(),
 });
 export type GenerateScriptFromTranscriptionInput = z.infer<typeof GenerateScriptFromTranscriptionInputSchema>;
 
@@ -35,7 +40,11 @@ const prompt = ai.definePrompt({
     output: {schema: GenerateScriptFromTranscriptionOutputSchema},
     prompt: `Você é um roteirista experiente. Sua tarefa é transformar a seguinte transcrição de vídeo em um roteiro de cena estruturado. Ao criar a cena, escolha personagens brasileiros e cômicos para interpretar o diálogo.
     
-    Analise a transcrição para inferir o cenário, a ação principal e os diálogos. Limpe os timestamps (ex: [00:05]) do diálogo final. Adicione dicas de emoção em inglês (ex: (rindo)) com base no contexto.
+    {{#if imageDataUri}}
+    Use a imagem fornecida como a principal inspiração visual para o cenário da cena. Descreva o cenário com base nesta imagem.
+    {{/if}}
+
+    Analise a transcrição para inferir a ação principal e os diálogos. Limpe os timestamps (ex: [00:05]) do diálogo final. Adicione dicas de emoção em inglês (ex: (rindo)) com base no contexto.
     
     O resultado DEVE ser um objeto JSON contendo 'title', 'setting', 'action', 'dialogue', e 'markdownScript'.
     O campo 'markdownScript' deve ser uma string formatada em Markdown contendo o roteiro completo.
@@ -45,6 +54,11 @@ const prompt = ai.definePrompt({
     """
     {{{transcription}}}
     """
+    {{#if imageDataUri}}
+
+    **Inspiração Visual:**
+    {{media url=imageDataUri}}
+    {{/if}}
     `,
 });
 
