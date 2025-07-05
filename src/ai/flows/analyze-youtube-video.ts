@@ -48,7 +48,7 @@ Todos os campos de texto devem ser em Português do Brasil.
 O diálogo deve incluir dicas de emoção em inglês (por exemplo, entre parênteses).
 
 {{#if isIdentical}}
-Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Sua tarefa principal é **transcrever o áudio do vídeo** e usar essa transcrição como base para o diálogo do roteiro. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel.
+Você é um roteirista especialista em adaptar vídeos do YouTube para roteiros. Sua tarefa principal é **transcrever o áudio do vídeo** e usar essa transcrição como base para o diálogo do roteiro. Seu objetivo é capturar o estilo, tema, energia e conteúdo do vídeo para produzir uma adaptação fiel. **Seja fiel na criação do roteiro.**
 Gere: um título "clickbait" fiel ao original; uma descrição de cenário fiel baseada no visual do vídeo; uma descrição das ações principais observadas; e um roteiro de diálogo baseado na **transcrição direta do áudio do vídeo**. O roteiro gerado deve ser dimensionado para se ajustar à duração original do vídeo.
 Para o diálogo, **Crucialmente, inclua dicas de emoção em inglês (por exemplo, entre parênteses) e enfatize palavras ou frases-chave para guiar a atuação, com base na entoação ouvida no vídeo.** Exemplo: "(surpreso) Uau, eu não acredito nisso!".
 {{else}}
