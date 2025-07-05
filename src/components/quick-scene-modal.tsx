@@ -66,10 +66,10 @@ export function QuickSceneModal({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="joke-theme">Piada</Label>
+            <Label htmlFor="joke-theme">Tema</Label>
             <Input 
               id="joke-theme" 
-              placeholder="Digite o tema da piada ou situação cômica" 
+              placeholder="Digite o tema para a situação cômica" 
               value={jokeTheme}
               onChange={(e) => setJokeTheme(e.target.value)}
             />
