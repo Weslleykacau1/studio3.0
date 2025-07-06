@@ -167,6 +167,27 @@ export default function ViralVideoView({
     }
   };
 
+  const handleDownloadVideo = () => {
+    if (!youtubeUrl.trim()) return;
+    try {
+        const url = new URL(youtubeUrl);
+        // This pattern redirects to a third-party downloader service.
+        const downloadUrl = `https://www.ssyoutube.com${url.pathname}${url.search}`;
+        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+        toast({
+            variant: 'info',
+            title: "A redirecionar para o serviço de download",
+            description: "O seu vídeo irá abrir num novo separador para ser baixado.",
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: "URL Inválido",
+            description: "Por favor, insira um URL válido do YouTube.",
+        });
+    }
+  };
+
 
   return (
     <div className="space-y-8">
@@ -214,8 +235,17 @@ export default function ViralVideoView({
                     disabled={!youtubeUrl.trim()}
                     className="bg-red-500 text-white hover:bg-red-600"
                 >
+                    <Youtube className="mr-2 h-4 w-4" />
                     {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
                 </AiButton>
+                <Button
+                    variant="outline"
+                    onClick={handleDownloadVideo}
+                    disabled={!youtubeUrl.trim()}
+                >
+                    <Download className="mr-2 h-4 w-4" />
+                    Baixar Vídeo
+                </Button>
               </div>
           </div>
         </CardContent>
