@@ -168,26 +168,13 @@ export default function ViralVideoView({
   };
 
   const handleDownloadVideo = () => {
-    if (!youtubeUrl.trim()) return;
-    try {
-        // Validate URL format before using it
-        new URL(youtubeUrl);
-        
-        // This pattern redirects to a third-party downloader service.
-        const downloadUrl = `https://savefrom.in.net/${youtubeUrl}`;
-        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
-        toast({
-            variant: 'info',
-            title: "A redirecionar para o serviço de download",
-            description: "O seu vídeo irá abrir num novo separador para ser baixado.",
-        });
-    } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: "URL Inválido",
-            description: "Por favor, insira um URL válido do YouTube.",
-        });
-    }
+    const downloadUrl = 'https://savefrom.in.net/';
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+    toast({
+        variant: 'info',
+        title: "A redirecionar para o serviço de download",
+        description: "A página de download abrirá num novo separador.",
+    });
   };
 
 
@@ -243,7 +230,6 @@ export default function ViralVideoView({
                 <Button
                     variant="outline"
                     onClick={handleDownloadVideo}
-                    disabled={!youtubeUrl.trim()}
                 >
                     <Download className="mr-2 h-4 w-4" />
                     Baixar Vídeo
