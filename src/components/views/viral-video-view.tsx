@@ -174,7 +174,7 @@ export default function ViralVideoView({
         new URL(youtubeUrl);
         
         // This pattern redirects to a third-party downloader service.
-        const downloadUrl = `https://savefrom.net/${youtubeUrl}`;
+        const downloadUrl = `https://savefrom.in.net/${youtubeUrl}`;
         window.open(downloadUrl, '_blank', 'noopener,noreferrer');
         toast({
             variant: 'info',
