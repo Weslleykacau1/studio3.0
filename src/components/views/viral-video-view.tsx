@@ -170,9 +170,11 @@ export default function ViralVideoView({
   const handleDownloadVideo = () => {
     if (!youtubeUrl.trim()) return;
     try {
-        const url = new URL(youtubeUrl);
+        // Validate URL format before using it
+        new URL(youtubeUrl);
+        
         // This pattern redirects to a third-party downloader service.
-        const downloadUrl = `https://www.ssyoutube.com${url.pathname}${url.search}`;
+        const downloadUrl = `https://savefrom.net/${youtubeUrl}`;
         window.open(downloadUrl, '_blank', 'noopener,noreferrer');
         toast({
             variant: 'info',
