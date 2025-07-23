@@ -1,12 +1,11 @@
 
 'use server';
 
-import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
 import { and, desc, eq } from 'drizzle-orm';
 import * as schema from './db/schema';
 import type { Influencer, Scene } from '@/types';
 import { nanoid } from 'nanoid';
+import { db } from './db/index';
 
 // This is a placeholder for session management. In a real app,
 // you'd use a library like 'next-auth' or 'lucia-auth'.
@@ -17,14 +16,6 @@ const getUserId = () => {
     // the authenticated user's ID from a session.
     return 'placeholder_user_id';
 };
-
-
-const client = createClient({
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN!,
-});
-
-export const db = drizzle(client, { schema, logger: true });
 
 // == Influencer Functions ==
 
