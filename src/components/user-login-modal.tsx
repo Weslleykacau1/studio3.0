@@ -2,7 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,12 +26,12 @@ export function UserLoginModal({ isOpen, onClose }: UserLoginModalProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      toast({ variant: 'destructive', title: 'Erro de Login', description: error.message });
-    } else {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast({ variant: 'success', title: 'Login bem-sucedido!', description: 'Bem-vindo de volta.' });
       onClose();
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Erro de Login', description: error.message });
     }
     setLoading(false);
   };
@@ -38,18 +39,13 @@ export function UserLoginModal({ isOpen, onClose }: UserLoginModalProps) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-    if (error) {
-      toast({ variant: 'destructive', title: 'Erro de Registo', description: error.message });
-    } else {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCredential.user);
       toast({ variant: 'success', title: 'Registo bem-sucedido!', description: 'Por favor, verifique o seu email para confirmar a sua conta.' });
       onClose();
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Erro de Registo', description: error.message });
     }
     setLoading(false);
   };

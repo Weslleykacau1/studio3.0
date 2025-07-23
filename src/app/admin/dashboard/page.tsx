@@ -68,7 +68,7 @@ export default function AdminDashboardPage() {
   }, []);
 
   const handleLogout = () => {
-    // Since we are not using Supabase auth for the admin panel, just redirect
+    // Since we are not using database auth for the admin panel, just redirect
     router.push('/admin/login');
   };
 

@@ -1,5 +1,5 @@
 
-import type { User } from '@supabase/supabase-js';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 export interface Influencer {
     id: string | null;
@@ -15,7 +15,7 @@ export interface Influencer {
     accent: string;
     seed: number;
     imagePreview?: string;
-    created_at?: string;
+    created_at?: any; // Can be Timestamp from Firebase
     user_id?: string;
 }
 
@@ -39,7 +39,7 @@ export interface Scene {
     allowDigitalText: boolean;
     onlyPhysicalText: boolean;
     markdownScript?: string;
-    created_at?: string;
+    created_at?: any; // Can be Timestamp from Firebase
     user_id?: string;
 }
 
@@ -99,4 +99,4 @@ export type ThumbnailStyle =
     | 'elemental-face'
     | 'poster';
 
-export type { User };
+export type User = FirebaseUser;

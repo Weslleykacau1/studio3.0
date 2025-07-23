@@ -5,7 +5,6 @@
 import { useState, useEffect } from 'react';
 
 import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle } from '@/types';
-import type { User as UserType } from '@supabase/supabase-js';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -26,8 +25,8 @@ import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { fetchInfluencers, addInfluencer, deleteInfluencer, fetchScenes, addScene, deleteScene } from '@/lib/db';
-import { supabase } from '@/lib/supabase';
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { auth } from '@/lib/firebase';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
@@ -70,7 +69,7 @@ export default function ScriptifyStudio() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isUserLoginModalOpen, setIsUserLoginModalOpen] = useState(false);
     const [isApiConfigured, setIsApiConfigured] = useState(false);
-    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+    const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
     
     // Carregar dados quando o utilizador muda
     const loadUserData = async (userId: string) => {
@@ -93,45 +92,31 @@ export default function ScriptifyStudio() {
         };
         checkApiKey();
 
-        // Gerir o estado de autenticação do Supabase
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event: AuthChangeEvent, session: Session | null) => {
-                const user = session?.user ?? null;
-                setCurrentUser(user);
-                
-                if (user) {
-                    setIsUserLoginModalOpen(false); // Fecha o modal se o utilizador estiver logado
-                    loadUserData(user.id);
-                } else {
-                    // Se não houver utilizador, limpa os dados da galeria
-                    setGalleryInfluencers([]);
-                    setScenes([]);
-                    setIsUserLoginModalOpen(true); // Abre o modal de login se o utilizador não estiver logado
+        // Gerir o estado de autenticação do Firebase
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            setCurrentUser(user);
+            if (user) {
+                setIsUserLoginModalOpen(false); // Fecha o modal se o utilizador estiver logado
+                loadUserData(user.uid);
+            } else {
+                 // Se não houver utilizador, limpa os dados da galeria
+                setGalleryInfluencers([]);
+                setScenes([]);
+                if (hasMounted) { // Apenas abre o modal após a montagem inicial
+                    setIsUserLoginModalOpen(true);
                 }
             }
-        );
+        });
+        
+        // Verifica a sessão inicial implicitamente com o onAuthStateChanged
+        // que é executado na carga.
 
-        // Verifica a sessão inicial
-        const getInitialSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                setIsUserLoginModalOpen(true);
-            } else {
-                setCurrentUser(session.user);
-                loadUserData(session.user.id);
-            }
-        };
-
-        getInitialSession();
-
-        return () => {
-            authListener.subscription.unsubscribe();
-        };
-    }, [toast]);
+        return () => unsubscribe();
+    }, [toast, hasMounted]);
     
     
     const handleApiKeySave = (apiKey: string) => {
-        // Obsoleto com Supabase, mas mantido para referência
+        // Obsoleto com Firebase, mas mantido para referência
     };
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
