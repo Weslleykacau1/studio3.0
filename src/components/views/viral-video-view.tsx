@@ -218,11 +218,12 @@ export default function ViralVideoView({
         <CardContent>
           <div className="space-y-4">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Input 
                       placeholder="https://www.youtube.com/watch?v=..."
                       value={youtubeUrl}
                       onChange={(e) => setYoutubeUrl(e.target.value)}
+                      className="flex-grow"
                   />
                   <Button
                     type="button"
@@ -231,9 +232,14 @@ export default function ViralVideoView({
                   >
                    Converter Link
                   </Button>
+                  <Button asChild variant="secondary">
+                    <a href="https://savefrom.in.net/youtube-video-downloader" target="_blank" rel="noopener noreferrer">
+                        <Download className="mr-2 h-4 w-4"/> Descarregar Vídeo
+                    </a>
+                  </Button>
                 </div>
                  <p className="mt-2 text-xs text-muted-foreground">
-                  Dica: se for um Short, clique no botão para converter o link automaticamente. Para fazer o download, use um serviço externo como 'yt5s.io'.
+                  Dica: se for um Short, clique no botão para converter o link automaticamente antes de descarregar.
                 </p>
               </div>
           </div>
