@@ -49,7 +49,7 @@ export interface ThumbnailIdeas {
     generatedImage2DataUri: string;
 }
 
-export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo' | 'veoTutorial';
+export type ActiveView = 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralVideo';
 
 export type LoadingStates = {
     savingInfluencer: boolean;

@@ -32,8 +32,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
-import VeoTutorialView from './views/veo-tutorial-view';
-
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
@@ -700,7 +698,7 @@ export default function ScriptifyStudio() {
             <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-primary/10">
+                <TabsList className="grid w-full grid-cols-4 bg-primary/10">
                     <TabsTrigger value="creator"><Film className="mr-2 h-4 w-4 hidden sm:inline-block" />Criador</TabsTrigger>
                     <TabsTrigger value="influencerGallery">
                         <Palette className="mr-2 h-4 w-4 hidden sm:inline-block" />
@@ -713,7 +711,6 @@ export default function ScriptifyStudio() {
                         <span className='hidden sm:inline'>Galeria de Cenas</span>
                     </TabsTrigger>
                     <TabsTrigger value="viralVideo"><Zap className="mr-2 h-4 w-4 hidden sm:inline-block" />Vídeo Viral</TabsTrigger>
-                    <TabsTrigger value="veoTutorial"><BookOpen className="mr-2 h-4 w-4 hidden sm:inline-block" />Tutorial Veo</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="creator" className="mt-6">
@@ -789,9 +786,6 @@ export default function ScriptifyStudio() {
                         loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
                         onClearTranscription={handleClearTranscription}
                     />
-                </TabsContent>
-                 <TabsContent value="veoTutorial" className="mt-6">
-                    <VeoTutorialView />
                 </TabsContent>
             </Tabs>
         </div>
