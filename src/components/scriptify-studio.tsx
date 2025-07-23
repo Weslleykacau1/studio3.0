@@ -4,7 +4,8 @@
 
 import { useState, useEffect } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, User as UserType } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle } from '@/types';
+import type { User as UserType } from '@supabase/supabase-js';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -611,7 +612,11 @@ export default function ScriptifyStudio() {
         });
 
         if (missingFields.length > 0) {
-            // ... (error toast as before)
+            toast({
+                variant: 'destructive',
+                title: 'Campos em Falta',
+                description: `Por favor, preencha os seguintes campos: ${missingFields.join(', ')}.`
+            });
             return;
         }
 

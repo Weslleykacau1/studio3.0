@@ -30,23 +30,29 @@ export async function fetchInfluencers(): Promise<Influencer[]> {
   return data || [];
 }
 
-export async function addInfluencer(influencer: Omit<Influencer, 'id'>): Promise<Influencer> {
-  const userId = await getUserId();
-  const influencerWithUser = { ...influencer, user_id: userId };
+export async function addInfluencer(influencer: Omit<Influencer, 'id' | 'created_at'> & { id?: string | null }): Promise<Influencer> {
+    const userId = await getUserId();
+    
+    // Prepare data for upsert, removing the id if it's null
+    const { id, ...influencerData } = influencer;
+    const dataToUpsert: any = { ...influencerData, user_id: userId };
+    if (id) {
+        dataToUpsert.id = id;
+    }
 
-  // If the influencer has an ID, it's an update (upsert). Otherwise, it's an insert.
-  const { data, error } = await supabase
-    .from('influencers')
-    .upsert(influencerWithUser, { onConflict: 'id' })
-    .select()
-    .single();
+    const { data, error } = await supabase
+        .from('influencers')
+        .upsert(dataToUpsert)
+        .select()
+        .single();
 
-  if (error) {
-    console.error('Erro ao adicionar/atualizar influenciador:', error);
-    throw error;
-  }
-  return data;
+    if (error) {
+        console.error('Erro ao adicionar/atualizar influenciador:', error);
+        throw error;
+    }
+    return data;
 }
+
 
 export async function deleteInfluencer(id: string): Promise<void> {
   const { error } = await supabase
@@ -75,21 +81,26 @@ export async function fetchScenes(): Promise<Scene[]> {
   return data || [];
 }
 
-export async function addScene(scene: Omit<Scene, 'id'>): Promise<Scene> {
-  const userId = await getUserId();
-  const sceneWithUser = { ...scene, user_id: userId };
+export async function addScene(scene: Omit<Scene, 'id' | 'created_at'> & { id?: string | null }): Promise<Scene> {
+    const userId = await getUserId();
 
-  const { data, error } = await supabase
-    .from('scenes')
-    .upsert(sceneWithUser, { onConflict: 'id' })
-    .select()
-    .single();
+    const { id, ...sceneData } = scene;
+    const dataToUpsert: any = { ...sceneData, user_id: userId };
+    if (id) {
+        dataToUpsert.id = id;
+    }
 
-  if (error) {
-    console.error('Erro ao adicionar/atualizar cena:', error);
-    throw error;
-  }
-  return data;
+    const { data, error } = await supabase
+        .from('scenes')
+        .upsert(dataToUpsert)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Erro ao adicionar/atualizar cena:', error);
+        throw error;
+    }
+    return data;
 }
 
 export async function deleteScene(id: string): Promise<void> {

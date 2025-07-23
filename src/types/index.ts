@@ -1,3 +1,6 @@
+
+import type { User } from '@supabase/supabase-js';
+
 export interface Influencer {
     id: string | null;
     name: string;
@@ -12,6 +15,8 @@ export interface Influencer {
     accent: string;
     seed: number;
     imagePreview?: string;
+    created_at?: string;
+    user_id?: string;
 }
 
 export interface Scene {
@@ -34,6 +39,8 @@ export interface Scene {
     allowDigitalText: boolean;
     onlyPhysicalText: boolean;
     markdownScript?: string;
+    created_at?: string;
+    user_id?: string;
 }
 
 export interface ThumbnailIdeas {
@@ -91,3 +98,5 @@ export type ThumbnailStyle =
     | 'explosion-background'
     | 'elemental-face'
     | 'poster';
+
+export type { User };
