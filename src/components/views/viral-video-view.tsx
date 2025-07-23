@@ -193,26 +193,23 @@ export default function ViralVideoView({
         <CardContent>
           <div className="space-y-4">
               <div>
-                <div className="relative">
+                <div className="flex items-center gap-2">
                   <Input 
                       placeholder="https://www.youtube.com/watch?v=..."
                       value={youtubeUrl}
                       onChange={(e) => setYoutubeUrl(e.target.value)}
-                      className="pr-12"
                   />
                   <Button
                     type="button"
                     variant="ghost"
-                    size="icon"
-                    className="absolute inset-y-0 right-0 h-full px-3"
                     onClick={handleTransformUrl}
-                    aria-label="Transformar Link do Short"
+                    aria-label="Converter link Short para Watch"
                   >
-                    <Wand className="h-4 w-4" />
+                    Converter Link
                   </Button>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Dica: se for um Short, clique no botão ✨ para converter o link automaticamente.
+                  Dica: se for um Short, clique no botão para converter o link automaticamente.
                 </p>
               </div>
               
