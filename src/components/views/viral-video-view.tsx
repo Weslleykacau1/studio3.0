@@ -187,7 +187,7 @@ export default function ViralVideoView({
             Analisar Vídeo do YouTube
           </CardTitle>
           <CardDescription>
-            Cole um URL de um vídeo do YouTube para a IA se inspirar no estilo e criar uma nova cena automaticamente.
+            Cole um URL do YouTube, converta o link (se for um Short) e use o botão de download para baixar o vídeo. Depois, anexe o ficheiro na secção 'Transcrever Vídeo' abaixo.
           </CardDescription>
         </CardHeader>
         <CardContent>
