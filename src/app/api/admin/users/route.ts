@@ -1,9 +1,11 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/index';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: '.env' });
 
 // Simple in-memory check for admin privileges.
 // In a real app, this should be a proper session check.
