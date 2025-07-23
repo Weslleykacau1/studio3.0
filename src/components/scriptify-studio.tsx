@@ -118,8 +118,6 @@ export default function ScriptifyStudio() {
         document.cookie = `${COOKIE_KEY_API_KEY}=${apiKey};path=/;max-age=31536000;samesite=strict`;
         setIsApiConfigured(true);
         setIsLoginModalOpen(false);
-        // This is a bit of a hack to make sure genkit re-initializes with the new key
-        window.location.reload();
     };
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {

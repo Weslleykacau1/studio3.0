@@ -8,12 +8,12 @@ function getApiKey() {
         return cookie.split('=')[1];
       }
     }
-    return process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    return process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 }
 
 export const ai = genkit({
   plugins: [googleAI({
-      apiKey: getApiKey(),
+      apiKey: getApiKey, // Pass the function itself, not the result
   })],
   model: 'googleai/gemini-2.0-flash',
 });
