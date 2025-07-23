@@ -59,9 +59,8 @@ export default function CreatorView({
         setInfluencer={setInfluencer}
         pastedText={pastedText}
         setPastedText={setPastedText}
-        imagePreview={influencer.imagePreview || ''}
         loadingStates={loadingStates}
-        isLoggedIn={isApiConfigured}
+        isApiConfigured={isApiConfigured}
         handlers={{
           analyzeAndFillFromText: handlers.analyzeAndFillFromText,
           analyzeInfluencerImageAndFill: handlers.analyzeInfluencerImageAndFill,
@@ -75,7 +74,7 @@ export default function CreatorView({
         currentScene={currentScene}
         setCurrentScene={setCurrentScene}
         loadingStates={loadingStates}
-        isLoggedIn={isApiConfigured}
+        isApiConfigured={isApiConfigured}
         handlers={{
           analyzeScenarioImageAndFill: handlers.analyzeScenarioImageAndFill,
           analyzeAndDescribeProduct: handlers.analyzeAndDescribeProduct,

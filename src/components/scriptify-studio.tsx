@@ -3,7 +3,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
 import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
@@ -23,8 +22,6 @@ import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
-import { fetchInfluencers, addInfluencer, deleteInfluencer, fetchScenes, addScene, deleteScene } from '@/lib/db';
-
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -34,12 +31,16 @@ import ViralVideoView from './views/viral-video-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
 import { LoginModal } from './login-modal';
-import { UserLoginModal } from './user-login-modal';
 import VeoTutorialView from './views/veo-tutorial-view';
+import { nanoid } from 'nanoid';
 
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
+
+const COOKIE_KEY_INFLUENCERS = 'scriptify_influencers';
+const COOKIE_KEY_SCENES = 'scriptify_scenes';
+const COOKIE_KEY_API_KEY = 'gemini_api_key';
 
 export default function ScriptifyStudio() {
     const [activeView, setActiveView] = useState<ActiveView>('creator');
@@ -65,38 +66,60 @@ export default function ScriptifyStudio() {
     const [selectedInfluencerForQuickScene, setSelectedInfluencerForQuickScene] = useState<Influencer | null>(null);
     const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [isUserLoginModalOpen, setIsUserLoginModalOpen] = useState(false);
     const [isApiConfigured, setIsApiConfigured] = useState(false);
     
-    // Carregar dados quando o componente é montado
-    const loadUserData = async () => {
-        try {
-            const [influencers, scenes] = await Promise.all([fetchInfluencers(), fetchScenes()]);
-            setGalleryInfluencers(influencers);
-            setScenes(scenes);
-        } catch (error) {
-            console.error("Failed to load user data:", error);
-            toast({ variant: 'destructive', title: "Erro ao carregar dados", description: "Não foi possível carregar os seus dados." });
-        }
-    };
-
+    // Load data from cookies when component mounts on the client
     useEffect(() => {
         setHasMounted(true);
 
-        const checkApiKey = () => {
-            // This check can be adapted or removed depending on how API keys are managed now
-             const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-             setIsApiConfigured(!!(envKey && envKey.trim() !== '' && envKey !== 'YOUR_API_KEY_HERE'));
-        };
-        checkApiKey();
-        
-        loadUserData();
+        try {
+            const influencersCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_INFLUENCERS}=`));
+            if (influencersCookie) {
+                const decoded = decodeURIComponent(influencersCookie.split('=')[1]);
+                setGalleryInfluencers(JSON.parse(decoded));
+            }
+        } catch (e) {
+            console.error("Failed to parse influencers from cookies:", e);
+        }
 
-    }, [toast]);
+        try {
+            const scenesCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_SCENES}=`));
+            if (scenesCookie) {
+                 const decoded = decodeURIComponent(scenesCookie.split('=')[1]);
+                setScenes(JSON.parse(decoded));
+            }
+        } catch (e) {
+             console.error("Failed to parse scenes from cookies:", e);
+        }
+
+        const apiKeyCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_API_KEY}=`));
+        if (apiKeyCookie) {
+            const key = apiKeyCookie.split('=')[1];
+            if (key && key.trim() !== '') {
+                setIsApiConfigured(true);
+            }
+        }
+
+    }, []);
     
-    
+    // Save data to cookies whenever it changes
+    useEffect(() => {
+        if (hasMounted) {
+            document.cookie = `${COOKIE_KEY_INFLUENCERS}=${encodeURIComponent(JSON.stringify(galleryInfluencers))};path=/;max-age=31536000;samesite=strict`;
+        }
+    }, [galleryInfluencers, hasMounted]);
+
+    useEffect(() => {
+        if (hasMounted) {
+            document.cookie = `${COOKIE_KEY_SCENES}=${encodeURIComponent(JSON.stringify(scenes))};path=/;max-age=31536000;samesite=strict`;
+        }
+    }, [scenes, hasMounted]);
+
+
     const handleApiKeySave = (apiKey: string) => {
-        // This flow might need to change as we're no longer using firebase client-side auth
+        document.cookie = `${COOKIE_KEY_API_KEY}=${apiKey};path=/;max-age=31536000;samesite=strict`;
+        setIsApiConfigured(true);
+        setIsLoginModalOpen(false);
     };
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
@@ -121,6 +144,7 @@ export default function ScriptifyStudio() {
 
     // AI Handlers
     const analyzeAndFillFromText = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!pastedText.trim()) return toast({ variant: 'destructive', title: "Texto em falta", description: "Cole algum texto para analisar." });
         setLoading('analyzingFromText', true);
         try {
@@ -135,6 +159,7 @@ export default function ScriptifyStudio() {
     };
     
     const analyzeInfluencerImageAndFill = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!influencer.imagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem para analisar." });
         
         const photoDataUri = influencer.imagePreview;
@@ -152,6 +177,7 @@ export default function ScriptifyStudio() {
     };
 
     const analyzeScenarioImageAndFill = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!currentScene.scenarioImagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem de cenário." });
         setLoading('analyzingScenario', true);
         try {
@@ -169,6 +195,7 @@ export default function ScriptifyStudio() {
     };
     
     const generateSceneActionHandler = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "Escreva uma descrição do cenário para gerar uma ação." });
         
         setLoading('generatingAction', true);
@@ -186,6 +213,7 @@ export default function ScriptifyStudio() {
     };
     
     const generateSceneTitleHandler = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um título." });
         
         setLoading('generatingTitle', true);
@@ -204,6 +232,7 @@ export default function ScriptifyStudio() {
     };
 
     const generateSceneDialogueHandler = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue um influenciador primeiro." });
         if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um diálogo." });
         
@@ -226,6 +255,7 @@ export default function ScriptifyStudio() {
     };
 
     const analyzeAndDescribeProduct = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!currentScene.productImagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem de produto." });
         setLoading('analyzingProduct', true);
         try {
@@ -247,6 +277,7 @@ export default function ScriptifyStudio() {
     };
 
     const generateSceneContent = async (sceneToGenerate: Scene) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
         if (!sceneToGenerate.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
         
@@ -288,6 +319,7 @@ export default function ScriptifyStudio() {
     };
     
     const generateVeoPromptHandler = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
         if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
         
@@ -313,6 +345,7 @@ export default function ScriptifyStudio() {
     };
 
     const generateDialogueSeo = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!currentScene.dialogue) return toast({ variant: 'destructive', title: "Diálogo em falta", description: "Escreva um diálogo na cena para gerar o SEO." });
         
         setLoading('generatingSeo', true);
@@ -337,8 +370,8 @@ export default function ScriptifyStudio() {
     };
 
     const handleTranscribeUploadedVideo = async (videoDataUri: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!videoDataUri) return toast({ variant: 'destructive', title: "Ficheiro em falta", description: "Por favor, anexe um ficheiro de vídeo." });
-        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('transcribingUploadedVideo', true);
         setGeneratedUploadedVideoTranscription('');
@@ -356,8 +389,8 @@ export default function ScriptifyStudio() {
     };
 
     const handleGenerateScriptFromTranscription = async (imageDataUri?: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
-        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('generatingScriptFromTranscription', true);
         setGeneratedViralScene(null);
@@ -369,12 +402,12 @@ export default function ScriptifyStudio() {
             const newScene: Scene = {
                 ...initialSceneState,
                 ...result,
+                id: nanoid(),
                 duration: '8 seg', // Default duration as it's not known from transcription alone
             };
 
-            const savedScene = await addScene(newScene);
-            setScenes(prev => [savedScene, ...prev]);
-            setGeneratedViralScene(savedScene);
+            setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
             
             toast({ variant: 'success', title: "Roteiro criado a partir da transcrição!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.` });
 
@@ -387,8 +420,8 @@ export default function ScriptifyStudio() {
     };
 
     const handleGenerateParaphrasedScriptFromTranscription = async (imageDataUri?: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
-        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
 
         setLoading('generatingParaphrasedScriptFromTranscription', true);
         setGeneratedViralScene(null);
@@ -400,12 +433,12 @@ export default function ScriptifyStudio() {
             const newScene: Scene = {
                 ...initialSceneState,
                 ...result,
+                id: nanoid(),
                 duration: '8 seg', // Default duration
             };
 
-            const savedScene = await addScene(newScene);
-            setScenes(prev => [savedScene, ...prev]);
-            setGeneratedViralScene(savedScene);
+            setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
             
             toast({ variant: 'success', title: "Roteiro reescrito com sucesso!", description: `A nova cena "${newScene.title}" foi gerada e guardada na sua galeria.` });
 
@@ -418,6 +451,7 @@ export default function ScriptifyStudio() {
     };
 
     const handleGenerateThumbnailIdeas = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!mainImageDataUri || !videoTheme) {
             return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue la imagem principal e preencha o tema do vídeo." });
         }
@@ -447,6 +481,7 @@ export default function ScriptifyStudio() {
 
     const handleGenerateQuickScene = async (jokeTheme: string, scenarioSuggestion?: string, imageReferenceDataUri?: string) => {
         if (!selectedInfluencerForQuickScene) return;
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         setLoading('generatingQuickScene', true);
         setGeneratedQuickScene(null);
         try {
@@ -475,24 +510,20 @@ export default function ScriptifyStudio() {
 
     const handleSaveAndLoadQuickScene = async () => {
         if (!generatedQuickScene || !selectedInfluencerForQuickScene) return;
-
-        // Save the scene
-        const sceneToSave = { ...generatedQuickScene };
-        const savedScene = await addScene(sceneToSave);
-        setScenes(prev => [...prev, savedScene]);
-
-        // Load influencer and scene into editors
-        setInfluencer(selectedInfluencerForQuickScene);
-        setCurrentScene(savedScene);
         
-        // Switch view and close modal
+        const sceneToSave = { ...generatedQuickScene, id: nanoid() };
+        setScenes(prev => [sceneToSave, ...prev]);
+
+        setInfluencer(selectedInfluencerForQuickScene);
+        setCurrentScene(sceneToSave);
+        
         setActiveView('creator');
         setIsQuickSceneModalOpen(false);
         toast({ variant: 'info', title: "Cena salva e carregada no editor!" });
     };
 
     const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => {
-        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!videoTitle.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
 
         setLoading('generatingViralScript', true);
@@ -508,12 +539,12 @@ export default function ScriptifyStudio() {
             const newScene: Scene = {
                 ...initialSceneState,
                 ...result,
+                id: nanoid(),
                 duration: duration,
             };
 
-            const savedScene = await addScene(newScene);
-            setScenes(prev => [savedScene, ...prev]);
-            setGeneratedViralScene(savedScene);
+            setScenes(prev => [newScene, ...prev]);
+            setGeneratedViralScene(newScene);
 
             toast({ 
                 variant: 'success',
@@ -541,8 +572,8 @@ export default function ScriptifyStudio() {
         }
     };
     
-    // DB Handlers
-    const saveOrUpdateInfluencer = async () => {
+    // DB Handlers (now local state handlers)
+    const saveOrUpdateInfluencer = () => {
         const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
         
         const missingFields = requiredFields.filter(field => {
@@ -560,34 +591,26 @@ export default function ScriptifyStudio() {
         }
 
         setLoading('savingInfluencer', true);
-        try {
-            const savedInfluencer = await addInfluencer(influencer);
-            
-            if (influencer.id) {
-                setGalleryInfluencers(prev => prev.map(inf => inf.id === savedInfluencer.id ? savedInfluencer : inf));
-                toast({ variant: 'success', title: "Influenciador atualizado!" });
-            } else {
-                setGalleryInfluencers(prev => [savedInfluencer, ...prev]);
-                setInfluencer(savedInfluencer);
-                toast({ variant: 'success', title: "Influenciador adicionado à galeria!" });
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Guardar", description: error.message });
-        } finally {
-            setLoading('savingInfluencer', false);
+        
+        if (influencer.id) {
+            const updatedInfluencer = { ...influencer, created_at: new Date().toISOString() };
+            setGalleryInfluencers(prev => prev.map(inf => inf.id === updatedInfluencer.id ? updatedInfluencer : inf));
+            toast({ variant: 'success', title: "Influenciador atualizado!" });
+        } else {
+            const newInfluencer = { ...influencer, id: nanoid(), created_at: new Date().toISOString() };
+            setGalleryInfluencers(prev => [newInfluencer, ...prev]);
+            setInfluencer(newInfluencer);
+            toast({ variant: 'success', title: "Influenciador adicionado à galeria!" });
         }
+        
+        setLoading('savingInfluencer', false);
     };
     
-    const deleteInfluencerHandler = async (idToDelete: string) => {
-        try {
-            await deleteInfluencer(idToDelete);
-            setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
-            toast({ title: "Influenciador excluído!" });
-            if (influencer.id === idToDelete) {
-                setInfluencer(getInitialInfluencerState());
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Excluir", description: error.message });
+    const deleteInfluencerHandler = (idToDelete: string) => {
+        setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
+        toast({ title: "Influenciador excluído!" });
+        if (influencer.id === idToDelete) {
+            setInfluencer(getInitialInfluencerState());
         }
     };
     
@@ -600,38 +623,29 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleAddUpdateScene = async () => {
+    const handleAddUpdateScene = () => {
         if (!currentScene.setting && !currentScene.title) return toast({ variant: 'destructive', title: "Dados em falta", description: "Preencha pelo menos um título ou um cenário." });
 
         setLoading('savingScene', true);
-        try {
-            const savedScene = await addScene(currentScene);
-
-            if (currentScene.id) {
-                setScenes(prev => prev.map(s => s.id === savedScene.id ? savedScene : s));
-                toast({ variant: 'success', title: "Cena atualizada!" });
-            } else {
-                setScenes(prev => [savedScene, ...prev]);
-                setCurrentScene(savedScene);
-                toast({ variant: 'success', title: "Cena adicionada!" });
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Guardar", description: error.message });
-        } finally {
-            setLoading('savingScene', false);
+        
+        if (currentScene.id) {
+            const updatedScene = { ...currentScene, created_at: new Date().toISOString() };
+            setScenes(prev => prev.map(s => s.id === updatedScene.id ? updatedScene : s));
+            toast({ variant: 'success', title: "Cena atualizada!" });
+        } else {
+            const newScene = { ...currentScene, id: nanoid(), created_at: new Date().toISOString() };
+            setScenes(prev => [newScene, ...prev]);
+            setCurrentScene(newScene);
+            toast({ variant: 'success', title: "Cena adicionada!" });
         }
+        setLoading('savingScene', false);
     };
 
-    const deleteSceneHandler = async (idToDelete: string) => {
-        try {
-            await deleteScene(idToDelete);
-            setScenes(prev => prev.filter(s => s.id !== idToDelete));
-            toast({ title: "Cena excluída!" });
-            if (currentScene.id === idToDelete) {
-                setCurrentScene(initialSceneState);
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao Excluir", description: error.message });
+    const deleteSceneHandler = (idToDelete: string) => {
+        setScenes(prev => prev.filter(s => s.id !== idToDelete));
+        toast({ title: "Cena excluída!" });
+        if (currentScene.id === idToDelete) {
+            setCurrentScene(initialSceneState);
         }
     };
 
@@ -659,16 +673,12 @@ export default function ScriptifyStudio() {
     };
 
     if (!hasMounted) {
-        return <div suppressHydrationWarning></div>;
+        return <div className="flex h-screen items-center justify-center">A carregar...</div>;
     }
 
 
     return (
         <div suppressHydrationWarning>
-             <UserLoginModal
-                isOpen={isUserLoginModalOpen}
-                onClose={() => setIsUserLoginModalOpen(false)}
-             />
              <LoginModal
                 isOpen={isLoginModalOpen}
                 onClose={() => setIsLoginModalOpen(false)}
