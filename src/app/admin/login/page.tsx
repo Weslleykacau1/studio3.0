@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
 
-const ADMIN_EMAIL = 'weslley.kacau';
+const ADMIN_EMAIL = 'weslley.kacau@gmail.com';
 const ADMIN_PASSWORD = 'Extra1382@';
 
 export default function AdminLoginPage() {
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="weslley.kacau"
+                placeholder="weslley.kacau@gmail.com"
                 required
                 disabled={loading}
               />
