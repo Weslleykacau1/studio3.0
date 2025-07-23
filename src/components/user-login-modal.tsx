@@ -2,8 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import { auth } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,28 +24,17 @@ export function UserLoginModal({ isOpen, onClose }: UserLoginModalProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast({ variant: 'success', title: 'Login bem-sucedido!', description: 'Bem-vindo de volta.' });
-      onClose();
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Erro de Login', description: error.message });
-    }
+    toast({ variant: 'destructive', title: 'Funcionalidade Desativada', description: 'O login foi desativado na migração para o Turso. As funcionalidades da base de dados usarão um ID de utilizador provisório.' });
     setLoading(false);
+    onClose();
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await sendEmailVerification(userCredential.user);
-      toast({ variant: 'success', title: 'Registo bem-sucedido!', description: 'Por favor, verifique o seu email para confirmar a sua conta.' });
-      onClose();
-    } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Erro de Registo', description: error.message });
-    }
+    toast({ variant: 'destructive', title: 'Funcionalidade Desativada', description: 'O registo foi desativado na migração para o Turso. As funcionalidades da base de dados usarão um ID de utilizador provisório.' });
     setLoading(false);
+    onClose();
   };
 
   return (
@@ -56,7 +43,7 @@ export function UserLoginModal({ isOpen, onClose }: UserLoginModalProps) {
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">Aceda à Sua Conta</DialogTitle>
           <DialogDescription>
-            Inicie sessão ou crie uma conta para guardar os seus influenciadores e cenas.
+             Funcionalidade de login/registo temporariamente indisponível.
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="login" className="w-full">

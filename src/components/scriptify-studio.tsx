@@ -18,15 +18,12 @@ import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
-import { analyzeYouTubeVideo } from '@/ai/flows/analyze-youtube-video';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { fetchInfluencers, addInfluencer, deleteInfluencer, fetchScenes, addScene, deleteScene } from '@/lib/db';
-import { auth } from '@/lib/firebase';
-import type { User as FirebaseUser } from 'firebase/auth';
 
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
@@ -35,9 +32,10 @@ import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import ViralVideoView from './views/viral-video-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
+import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
 import { LoginModal } from './login-modal';
 import { UserLoginModal } from './user-login-modal';
+import VeoTutorialView from './views/veo-tutorial-view';
 
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
@@ -69,10 +67,9 @@ export default function ScriptifyStudio() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isUserLoginModalOpen, setIsUserLoginModalOpen] = useState(false);
     const [isApiConfigured, setIsApiConfigured] = useState(false);
-    const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
     
-    // Carregar dados quando o utilizador muda
-    const loadUserData = async (userId: string) => {
+    // Carregar dados quando o componente é montado
+    const loadUserData = async () => {
         try {
             const [influencers, scenes] = await Promise.all([fetchInfluencers(), fetchScenes()]);
             setGalleryInfluencers(influencers);
@@ -87,36 +84,19 @@ export default function ScriptifyStudio() {
         setHasMounted(true);
 
         const checkApiKey = () => {
-            const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-            setIsApiConfigured(!!(envKey && envKey.trim() !== '' && envKey !== 'YOUR_API_KEY_HERE'));
+            // This check can be adapted or removed depending on how API keys are managed now
+             const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+             setIsApiConfigured(!!(envKey && envKey.trim() !== '' && envKey !== 'YOUR_API_KEY_HERE'));
         };
         checkApiKey();
-
-        // Gerir o estado de autenticação do Firebase
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            if (user) {
-                setIsUserLoginModalOpen(false); // Fecha o modal se o utilizador estiver logado
-                loadUserData(user.uid);
-            } else {
-                 // Se não houver utilizador, limpa os dados da galeria
-                setGalleryInfluencers([]);
-                setScenes([]);
-                if (hasMounted) { // Apenas abre o modal após a montagem inicial
-                    setIsUserLoginModalOpen(true);
-                }
-            }
-        });
         
-        // Verifica a sessão inicial implicitamente com o onAuthStateChanged
-        // que é executado na carga.
+        loadUserData();
 
-        return () => unsubscribe();
-    }, [toast, hasMounted]);
+    }, [toast]);
     
     
     const handleApiKeySave = (apiKey: string) => {
-        // Obsoleto com Firebase, mas mantido para referência
+        // This flow might need to change as we're no longer using firebase client-side auth
     };
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
@@ -352,32 +332,8 @@ export default function ScriptifyStudio() {
     };
 
     const handleAnalyzeYouTubeVideo = async () => {
-        if (!youtubeUrl.trim()) return toast({ variant: 'destructive', title: "URL em falta", description: "Por favor, cole um URL do YouTube." });
-        if (!isApiConfigured) return toast({ variant: 'destructive', title: "Chave API necessária", description: "É necessária uma chave API para usar esta função." });
-
-        setLoading('analyzingYouTube', true);
-        setGeneratedViralScene(null);
-        setGeneratedUploadedVideoTranscription('');
-        try {
-            const result = await analyzeYouTubeVideo({ youtubeUrl });
-            const newScene: Scene = {
-                ...initialSceneState,
-                ...result,
-                duration: result.duration || '8 seg',
-            };
-
-            const savedScene = await addScene(newScene);
-            setScenes(prev => [savedScene, ...prev]);
-            setGeneratedViralScene(savedScene);
-            
-            toast({ variant: 'success', title: "Cena criada a partir do vídeo!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.` });
-
-        } catch (error: any) {
-            console.error("Failed to analyze YouTube video:", error);
-            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-        } finally {
-            setLoading('analyzingYouTube', false);
-        }
+        // This functionality is temporarily disabled as it relies on a more complex backend setup
+        toast({ variant: 'destructive', title: "Funcionalidade Indisponível", description: "A análise de vídeos do YouTube está temporariamente desativada." });
     };
 
     const handleTranscribeUploadedVideo = async (videoDataUri: string) => {
@@ -587,8 +543,6 @@ export default function ScriptifyStudio() {
     
     // DB Handlers
     const saveOrUpdateInfluencer = async () => {
-        if (!currentUser) return toast({ variant: 'destructive', title: 'Login necessário' });
-
         const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
         
         const missingFields = requiredFields.filter(field => {
@@ -613,7 +567,7 @@ export default function ScriptifyStudio() {
                 setGalleryInfluencers(prev => prev.map(inf => inf.id === savedInfluencer.id ? savedInfluencer : inf));
                 toast({ variant: 'success', title: "Influenciador atualizado!" });
             } else {
-                setGalleryInfluencers(prev => [...prev, savedInfluencer]);
+                setGalleryInfluencers(prev => [savedInfluencer, ...prev]);
                 setInfluencer(savedInfluencer);
                 toast({ variant: 'success', title: "Influenciador adicionado à galeria!" });
             }
@@ -625,7 +579,6 @@ export default function ScriptifyStudio() {
     };
     
     const deleteInfluencerHandler = async (idToDelete: string) => {
-        if (!currentUser) return;
         try {
             await deleteInfluencer(idToDelete);
             setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
@@ -648,7 +601,6 @@ export default function ScriptifyStudio() {
     };
 
     const handleAddUpdateScene = async () => {
-        if (!currentUser) return toast({ variant: 'destructive', title: 'Login necessário' });
         if (!currentScene.setting && !currentScene.title) return toast({ variant: 'destructive', title: "Dados em falta", description: "Preencha pelo menos um título ou um cenário." });
 
         setLoading('savingScene', true);
@@ -659,7 +611,7 @@ export default function ScriptifyStudio() {
                 setScenes(prev => prev.map(s => s.id === savedScene.id ? savedScene : s));
                 toast({ variant: 'success', title: "Cena atualizada!" });
             } else {
-                setScenes(prev => [...prev, savedScene]);
+                setScenes(prev => [savedScene, ...prev]);
                 setCurrentScene(savedScene);
                 toast({ variant: 'success', title: "Cena adicionada!" });
             }
@@ -671,7 +623,6 @@ export default function ScriptifyStudio() {
     };
 
     const deleteSceneHandler = async (idToDelete: string) => {
-        if (!currentUser) return;
         try {
             await deleteScene(idToDelete);
             setScenes(prev => prev.filter(s => s.id !== idToDelete));

@@ -1,6 +1,4 @@
 
-import type { User as FirebaseUser } from 'firebase/auth';
-
 export interface Influencer {
     id: string | null;
     name: string;
@@ -15,7 +13,7 @@ export interface Influencer {
     accent: string;
     seed: number;
     imagePreview?: string;
-    created_at?: any; // Can be Timestamp from Firebase
+    created_at?: string; 
     user_id?: string;
 }
 
@@ -39,7 +37,7 @@ export interface Scene {
     allowDigitalText: boolean;
     onlyPhysicalText: boolean;
     markdownScript?: string;
-    created_at?: any; // Can be Timestamp from Firebase
+    created_at?: string;
     user_id?: string;
 }
 
@@ -98,5 +96,3 @@ export type ThumbnailStyle =
     | 'explosion-background'
     | 'elemental-face'
     | 'poster';
-
-export type User = FirebaseUser;
