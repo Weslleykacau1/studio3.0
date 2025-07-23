@@ -29,7 +29,7 @@ async function verifyAdmin(req: NextRequest): Promise<{ isAdmin: boolean; error?
     }
     
     // Verifique se o utilizador tem o email de administrador
-    if (user.email !== 'admin@scriptify.com') {
+    if (user.email !== 'weslley.kacau') {
         return { isAdmin: false, error: NextResponse.json({ error: 'Acesso negado. Requer privilégios de administrador.' }, { status: 403 }) };
     }
 

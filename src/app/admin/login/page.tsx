@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
     } else {
         const { data: { user } } = await supabase.auth.getUser();
         // Verificação extra para garantir que apenas o admin entra
-        if (user && user.email === 'admin@scriptify.com') {
+        if (user && user.email === 'weslley.kacau') {
             toast({
                 variant: 'success',
                 title: 'Login bem-sucedido!',
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@scriptify.com"
+                placeholder="weslley.kacau"
                 required
                 disabled={loading}
               />

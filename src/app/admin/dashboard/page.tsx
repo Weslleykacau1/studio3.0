@@ -36,7 +36,17 @@ export default function AdminDashboardPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Sessão não encontrada.');
+      }
+      
+      const response = await fetch('/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        }
+      });
+
       if (!response.ok) {
         throw new Error('Falha ao carregar utilizadores.');
       }
@@ -64,9 +74,17 @@ export default function AdminDashboardPage() {
 
   const handleDeleteUser = async (userId: string) => {
     try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Sessão não encontrada.');
+        }
+
         const response = await fetch('/api/admin/users', {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
             body: JSON.stringify({ id: userId }),
         });
 
@@ -135,7 +153,7 @@ export default function AdminDashboardPage() {
                         <TableCell className="font-medium">{user.email}</TableCell>
                         <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
-                           {user.email === 'admin@scriptify.com' ? (
+                           {user.email === 'weslley.kacau' ? (
                                 <span className="text-xs text-muted-foreground italic">Não pode ser apagado</span>
                            ) : (
                             <AlertDialog>

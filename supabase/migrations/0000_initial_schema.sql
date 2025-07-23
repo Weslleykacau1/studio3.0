@@ -1,5 +1,5 @@
--- Create the influencers table
-CREATE TABLE public.influencers (
+-- Tabela de Influenciadores
+CREATE TABLE influencers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
@@ -14,12 +14,11 @@ CREATE TABLE public.influencers (
     accent TEXT,
     seed BIGINT,
     image_preview TEXT,
-    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create the scenes table
-CREATE TABLE public.scenes (
+-- Tabela de Cenas
+CREATE TABLE scenes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     title TEXT,
@@ -34,52 +33,57 @@ CREATE TABLE public.scenes (
     product_description TEXT,
     product_image_preview TEXT,
     product_image_type TEXT,
-    is_partnership BOOLEAN DEFAULT false,
+    is_partnership BOOLEAN DEFAULT FALSE,
     scenario_image_preview TEXT,
     scenario_image_type TEXT,
-    allow_digital_text BOOLEAN DEFAULT false,
-    only_physical_text BOOLEAN DEFAULT false,
+    allow_digital_text BOOLEAN DEFAULT FALSE,
+    only_physical_text BOOLEAN DEFAULT FALSE,
     markdown_script TEXT,
-    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS) for the tables
-ALTER TABLE public.influencers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.scenes ENABLE ROW LEVEL SECURITY;
+-- Ativar Row Level Security (RLS) para as tabelas
+ALTER TABLE influencers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scenes ENABLE ROW LEVEL SECURITY;
 
--- Create policies for influencers table
-CREATE POLICY "Users can view their own influencers."
-    ON public.influencers FOR SELECT
-    USING (auth.uid() = user_id);
+-- Políticas para a tabela de INFLUENCERS
+-- 1. Utilizadores podem ver os seus próprios influenciadores
+CREATE POLICY "Allow users to view their own influencers"
+ON influencers FOR SELECT
+USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own influencers."
-    ON public.influencers FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
+-- 2. Utilizadores podem inserir os seus próprios influenciadores
+CREATE POLICY "Allow users to insert their own influencers"
+ON influencers FOR INSERT
+WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own influencers."
-    ON public.influencers FOR UPDATE
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+-- 3. Utilizadores podem atualizar os seus próprios influenciadores
+CREATE POLICY "Allow users to update their own influencers"
+ON influencers FOR UPDATE
+USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete their own influencers."
-    ON public.influencers FOR DELETE
-    USING (auth.uid() = user_id);
+-- 4. Utilizadores podem apagar os seus próprios influenciadores
+CREATE POLICY "Allow users to delete their own influencers"
+ON influencers FOR DELETE
+USING (auth.uid() = user_id);
 
--- Create policies for scenes table
-CREATE POLICY "Users can view their own scenes."
-    ON public.scenes FOR SELECT
-    USING (auth.uid() = user_id);
+-- Políticas para a tabela de CENAS
+-- 1. Utilizadores podem ver as suas próprias cenas
+CREATE POLICY "Allow users to view their own scenes"
+ON scenes FOR SELECT
+USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own scenes."
-    ON public.scenes FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
+-- 2. Utilizadores podem inserir as suas próprias cenas
+CREATE POLICY "Allow users to insert their own scenes"
+ON scenes FOR INSERT
+WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own scenes."
-    ON public.scenes FOR UPDATE
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+-- 3. Utilizadores podem atualizar as suas próprias cenas
+CREATE POLICY "Allow users to update their own scenes"
+ON scenes FOR UPDATE
+USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete their own scenes."
-    ON public.scenes FOR DELETE
-    USING (auth.uid() = user_id);
+-- 4. Utilizadores podem apagar as suas próprias cenas
+CREATE POLICY "Allow users to delete their own scenes"
+ON scenes FOR DELETE
+USING (auth.uid() = user_id);

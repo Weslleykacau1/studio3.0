@@ -22,7 +22,7 @@ export default function AdminLayout({
       const { data: { session } } = await supabase.auth.getSession();
       
       // Se não houver sessão ou o email não for de admin, redireciona para o login
-      if (!session || session.user.email !== 'admin@scriptify.com') {
+      if (!session || session.user.email !== 'weslley.kacau') {
         router.push('/admin/login');
       } else {
         setLoading(false);
@@ -33,7 +33,7 @@ export default function AdminLayout({
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        if (event === 'SIGNED_OUT' || !session || session.user.email !== 'admin@scriptify.com') {
+        if (event === 'SIGNED_OUT' || !session || session.user.email !== 'weslley.kacau') {
           router.push('/admin/login');
         }
       }
