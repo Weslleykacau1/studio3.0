@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from './ui/badge';
 import { KeyRound, ShieldAlert } from 'lucide-react';
@@ -53,7 +54,7 @@ export function AppHeader({ isApiConfigured }: AppHeaderProps) {
         {isApiConfigured ? (
           <Badge variant="outline" className="border-green-600 bg-green-50 text-green-700 py-1.5 px-3">
             <KeyRound className="mr-2 h-4 w-4" />
-            API Configurada
+            API Gemini OK
           </Badge>
         ) : (
           <TooltipProvider>
@@ -61,11 +62,11 @@ export function AppHeader({ isApiConfigured }: AppHeaderProps) {
               <TooltipTrigger asChild>
                 <Badge variant="destructive" className="py-1.5 px-3">
                   <ShieldAlert className="mr-2 h-4 w-4" />
-                  API não configurada
+                  API Gemini não configurada
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Configure sua GEMINI_API_KEY no arquivo .env.local</p>
+                <p>Configure sua NEXT_PUBLIC_GEMINI_API_KEY no arquivo .env</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

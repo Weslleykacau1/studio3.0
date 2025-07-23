@@ -1,7 +1,8 @@
+
+'use client'
 import ScriptifyStudio from "@/components/scriptify-studio";
 
 export default function Home() {
-  const isApiConfigured = !!process.env.GEMINI_API_KEY;
 
   return (
     <main
@@ -9,7 +10,7 @@ export default function Home() {
       suppressHydrationWarning
     >
       <div className="container mx-auto flex-grow" suppressHydrationWarning>
-        <ScriptifyStudio isApiConfigured={isApiConfigured} />
+        <ScriptifyStudio />
       </div>
       <footer className="py-4 text-center text-sm text-muted-foreground">
         By Weslley Athila
