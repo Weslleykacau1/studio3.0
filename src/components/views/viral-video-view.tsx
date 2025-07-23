@@ -214,16 +214,6 @@ export default function ViralVideoView({
               </div>
               
               <div className="flex flex-wrap items-center gap-2">
-                <AiButton
-                    onClick={onAnalyzeVideo}
-                    loading={loadingYouTube}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!youtubeUrl.trim()}
-                    className="bg-red-500 text-white hover:bg-red-600"
-                >
-                    <Youtube className="mr-2 h-4 w-4" />
-                    {loadingYouTube ? 'Analisando...' : 'Analisar e Criar Cena'}
-                </AiButton>
                 <Button
                     variant="outline"
                     onClick={handleDownloadVideo}
