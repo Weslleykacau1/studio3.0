@@ -22,6 +22,7 @@ const GenerateThumbnailIdeasInputSchema = z.object({
         "The background image for the thumbnail, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ).optional(),
   videoTheme: z.string().describe('The theme or topic of the video.'),
+  thumbnailStyle: z.string().describe('The selected visual style for the thumbnail.').optional(),
 });
 export type GenerateThumbnailIdeasInput = z.infer<typeof GenerateThumbnailIdeasInputSchema>;
 
@@ -50,18 +51,23 @@ const textIdeasPrompt = ai.definePrompt({
   name: 'generateThumbnailTextIdeasPrompt',
   input: {schema: GenerateThumbnailIdeasInputSchema},
   output: {schema: TextIdeasSchema},
-  prompt: `You are a specialist in creating thumbnails for viral videos with a high-energy, high-contrast style. Analyze the provided reference image(s) and video theme to generate ideas for a highly clickable thumbnail.
+  prompt: `You are a specialist in creating thumbnails for viral videos. Analyze the provided reference image(s), video theme, and selected style to generate ideas for a highly clickable thumbnail.
 
 The output must be in **Brazilian Portuguese**.
 
-Based on the image(s) and theme, generate:
-1.  **title**: A highly engaging, "clickbait" title that creates curiosity, related to the reference image(s) and video theme.
-2.  **overlayText**: A very short (max 5 words) and impactful text to be placed directly on the thumbnail. This should complement the title and image.
-3.  **styleDescription**: Describe a high-impact visual style. It should include: bold, sans-serif fonts (like 'Komika Axis'), vibrant and high-contrast colors (yellows, blues, reds), attention-grabbing elements like circles or arrows, and exaggerated facial expressions.
-4.  **emoji**: Suggest a single, powerful emoji to use in the title or thumbnail.
+Based on the image(s), theme, and style, generate:
+1.  **title**: A highly engaging, "clickbait" title that creates curiosity.
+2.  **overlayText**: A very short (max 5 words) and impactful text to be placed on the thumbnail.
+3.  **styleDescription**: A description of the visual style. If a specific style is provided, use it as the primary guide. Otherwise, suggest a high-impact style with bold fonts, vibrant colors, and attention-grabbing elements.
+4.  **emoji**: Suggest a single, powerful emoji.
 
 **Video Theme:**
 {{{videoTheme}}}
+
+{{#if thumbnailStyle}}
+**Selected Style:**
+{{{thumbnailStyle}}}
+{{/if}}
 
 {{#if backgroundImageDataUri}}
 The main subject is in this image:
@@ -88,8 +94,8 @@ const generateThumbnailIdeasFlow = ai.defineFlow(
       throw new Error('Falha ao gerar as ideias de texto para a thumbnail.');
     }
 
-    const imageGenPromptText1 = `Generate a viral YouTube thumbnail with a high-energy, high-contrast style. The image must be in cinematic quality, 8k, photorealistic, and highly detailed. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". The generated image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the subject's face. The image must prominently feature the text "${textIdeas.overlayText}" using a bold, impactful, and easy-to-read font (like 'Komika Axis').`;
-    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail with a high-energy, high-contrast style. The image must be in cinematic quality, 8k, photorealistic, and highly detailed. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". Make this version more dramatic or use a different angle, maintaining the high-energy, high-contrast style. The image must prominently feature the text "${textIdeas.overlayText}" using a bold, impactful, and easy-to-read font (like 'Komika Axis'), perhaps with a different color or placement.`;
+    const imageGenPromptText1 = `Generate a viral YouTube thumbnail. The image must be in cinematic quality, 8k, photorealistic, and highly detailed. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". The generated image should be visually striking, with high contrast, vibrant colors, and an exaggerated expression on the subject's face. The image must prominently feature the text "${textIdeas.overlayText}" using a bold, impactful, and easy-to-read font. The visual style MUST follow this description: "${textIdeas.styleDescription}".`;
+    const imageGenPromptText2 = `Generate a second, different version of a viral YouTube thumbnail. The image must be in cinematic quality, 8k, photorealistic, and highly detailed. The image must be in a 16:9 landscape aspect ratio. The video is about: "${input.videoTheme}". Make this version more dramatic or use a different angle, but it MUST follow the same visual style. The image must prominently feature the text "${textIdeas.overlayText}" using a bold, impactful, and easy-to-read font, perhaps with a different color or placement. The visual style MUST follow this description: "${textIdeas.styleDescription}".`;
     
     const imagePrompts: any[] = [{text: imageGenPromptText1}];
     if(input.backgroundImageDataUri) {

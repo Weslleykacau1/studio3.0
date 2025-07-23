@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -450,7 +450,7 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateThumbnailIdeas = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string) => {
+    const handleGenerateThumbnailIdeas = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => {
         if (!mainImageDataUri || !videoTheme) {
             return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue a imagem principal e preencha o tema do vídeo." });
         }
@@ -458,7 +458,7 @@ export default function ScriptifyStudio() {
         setLoading('generatingThumbnail', true);
         setGeneratedThumbnailIdeas(null);
         try {
-            const result = await generateThumbnailIdeas({ mainImageDataUri, backgroundImageDataUri, videoTheme });
+            const result = await generateThumbnailIdeas({ mainImageDataUri, backgroundImageDataUri, videoTheme, thumbnailStyle });
             setGeneratedThumbnailIdeas(result);
             toast({ variant: 'success', title: "Ideias para thumbnail geradas!" });
         } catch (error: any) {
@@ -744,10 +744,7 @@ export default function ScriptifyStudio() {
                 isApiConfigured={isApiConfigured}
             />
 
-            <AppHeader
-                isApiConfigured={isApiConfigured}
-                onSettingsClick={() => setIsLoginModalOpen(true)}
-            />
+            <AppHeader isApiConfigured={isApiConfigured} />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 bg-primary/10">

@@ -68,3 +68,13 @@ export type LoadingStates = {
     generatingScriptFromTranscription: boolean;
     generatingParaphrasedScriptFromTranscription: boolean;
 };
+
+export type ThumbnailStyle = 
+    | 'default'
+    | 'mr-beast'
+    | 'clickbait'
+    | 'cyberpunk'
+    | 'silhouette'
+    | 'poster'
+    | 'dramatic'
+    | 'surreal';

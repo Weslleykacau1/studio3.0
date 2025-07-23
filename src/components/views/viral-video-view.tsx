@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine } from 'lucide-react';
-import type { ThumbnailIdeas, Scene } from '@/types';
+import type { ThumbnailIdeas, Scene, ThumbnailStyle } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ContentDisplay } from '../content-display';
 
 interface ViralVideoViewProps {
-  onGenerate: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string) => void;
+  onGenerate: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => void;
   generatedIdeas: ThumbnailIdeas | null;
   loading: boolean;
   isApiConfigured: boolean;
@@ -39,6 +39,17 @@ interface ViralVideoViewProps {
   loadingParaphrasedScript: boolean;
   onClearTranscription: () => void;
 }
+
+const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
+    { value: 'default', label: 'Estilo Padrão da IA', description: 'Deixe a IA decidir o melhor estilo com base no conteúdo.' },
+    { value: 'mr-beast', label: 'Fundo Pop Colorido + Texto Impactante', description: 'Estilo MrBeast: Cores vibrantes, texto grande e chamativo, expressões exageradas.' },
+    { value: 'clickbait', label: 'Setas Vermelhas + Círculo de Destaque', description: 'Clássico Clickbait: Elementos gráficos para chamar a atenção para um ponto específico.' },
+    { value: 'cyberpunk', label: 'Iluminação Neon', description: 'Cyberpunk / Tech Vibe: Tons escuros com luzes neon brilhantes (rosa, azul, roxo).' },
+    { value: 'silhouette', label: 'Silhueta Misteriosa com “Quem é?”', description: 'Cria suspense com uma silhueta contra uma luz de fundo e um texto interrogativo.' },
+    { value: 'poster', label: 'Estilo Cartaz de Filme / Série', description: 'Composição cinematográfica, com tipografia de póster e um visual dramático.' },
+    { value: 'dramatic', label: 'Close no Rosto com Detalhe Dramático', description: 'Foco extremo numa emoção, destacando um detalhe como uma lágrima, reflexo ou suor.' },
+    { value: 'surreal', label: 'Personagem Flutuando ou Fora da Realidade', description: 'Cria uma imagem surreal e onírica que desafia a lógica para gerar curiosidade.' },
+];
 
 export default function ViralVideoView({ 
     onGenerate, generatedIdeas, loading, isApiConfigured, 
@@ -63,6 +74,7 @@ export default function ViralVideoView({
   const [scriptTheme, setScriptTheme] = useState('');
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
+  const [thumbnailStyle, setThumbnailStyle] = useState<ThumbnailStyle>('default');
   const [copyViralScriptSuccess, setCopyViralScriptSuccess] = useState(false);
   const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
@@ -102,7 +114,8 @@ export default function ViralVideoView({
 
   const handleGenerateClick = () => {
     if (mainImageDataUri && videoTheme) {
-      onGenerate(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme);
+      const selectedStyleDescription = thumbnailStyleOptions.find(opt => opt.value === thumbnailStyle)?.description || '';
+      onGenerate(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme, selectedStyleDescription as ThumbnailStyle);
     }
   };
 
@@ -186,7 +199,7 @@ export default function ViralVideoView({
             Analisar Vídeo do YouTube
           </CardTitle>
           <CardDescription>
-            Cole um URL do YouTube, converta o link (se for um Short) e use o botão de download para baixar o vídeo. Depois, anexe o ficheiro na secção 'Transcrever Vídeo' abaixo.
+            Cole um URL do YouTube para a IA se inspirar no estilo e criar uma nova cena automaticamente.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -200,11 +213,18 @@ export default function ViralVideoView({
                   />
                   <Button
                     type="button"
-                    variant="ghost"
                     onClick={handleTransformUrl}
                     aria-label="Converter link Short para Watch"
                   >
-                    Converter Link
+                   <Wand className="mr-2 h-4 w-4" /> Converter Link
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={onAnalyzeVideo}
+                    disabled={!youtubeUrl.trim() || loadingYouTube}
+                  >
+                    <Bot className="mr-2 h-4 w-4" /> Analisar e Criar Cena
                   </Button>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
@@ -365,13 +385,13 @@ export default function ViralVideoView({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="background-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem de Fundo (Opcional)</Label>
+              <Label htmlFor="background-image-upload" className="flex items-center gap-2"><Combine className="h-4 w-4"/> Imagem de Fundo (Opcional)</Label>
               <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
                 {backgroundImagePreview ? (
                   <Image src={backgroundImagePreview} alt="Prévia da imagem de fundo" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
                 ) : (
                   <div className="space-y-2 py-8 text-muted-foreground">
-                    <ImageIcon className="mx-auto h-10 w-10" />
+                    <Combine className="mx-auto h-10 w-10" />
                     <p className="text-xs">Carregue uma imagem para o cenário de fundo</p>
                   </div>
                 )}
@@ -396,6 +416,23 @@ export default function ViralVideoView({
                 />
             </div>
             
+            <div className="space-y-2">
+                <Label htmlFor="thumbnail-style" className="flex items-center gap-2"><PaletteIcon className="h-4 w-4"/> Estilo da Thumbnail</Label>
+                 <Select value={thumbnailStyle} onValueChange={(v) => setThumbnailStyle(v as ThumbnailStyle)}>
+                    <SelectTrigger id="thumbnail-style">
+                        <SelectValue placeholder="Selecione um estilo..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {thumbnailStyleOptions.map(option => (
+                             <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                 <p className="mt-1 text-xs text-muted-foreground">
+                    {thumbnailStyleOptions.find(opt => opt.value === thumbnailStyle)?.description}
+                </p>
+            </div>
+
             <AiButton
               onClick={handleGenerateClick}
               loading={loading}
