@@ -69,12 +69,25 @@ export type LoadingStates = {
     generatingParaphrasedScriptFromTranscription: boolean;
 };
 
-export type ThumbnailStyle = 
+export type ThumbnailStyle =
     | 'default'
+    | 'shocked-expression'
+    | 'half-human-half-ai'
+    | 'three-emotions'
+    | 'floating-character'
+    | 'dramatic-close-up'
+    | 'mysterious-object'
+    | 'versus-screen'
     | 'mr-beast'
+    | 'detective-noir'
+    | 'hacker-style'
+    | 'extreme-zoom'
     | 'clickbait'
+    | 'before-after'
+    | 'action-freeze-frame'
     | 'cyberpunk'
     | 'silhouette'
-    | 'poster'
-    | 'dramatic'
-    | 'surreal';
+    | 'censored-text'
+    | 'explosion-background'
+    | 'elemental-face'
+    | 'poster';

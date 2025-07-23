@@ -42,13 +42,26 @@ interface ViralVideoViewProps {
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
     { value: 'default', label: 'Estilo Padrão da IA', description: 'Deixe a IA decidir o melhor estilo com base no conteúdo.' },
+    { value: 'shocked-expression', label: 'Expressão Chocada + Fundo Caótico', description: 'Uma expressão facial de surpresa ou choque em primeiro plano, com um fundo visualmente desordenado ou em movimento para criar urgência.' },
+    { value: 'half-human-half-ai', label: 'Metade Humano / Metade IA ou Vilão', description: 'Um rosto dividido ao meio, mostrando um lado humano normal e o outro com características de IA (circuitos, olhos brilhantes) ou de um antagonista.' },
+    { value: 'three-emotions', label: 'Três Emoções do Mesmo Rosto', description: 'Uma montagem do mesmo rosto mostrando três emoções distintas (ex: alegria, raiva, tristeza), sugerindo uma montanha-russa emocional.' },
+    { value: 'floating-character', label: 'Personagem Flutuando ou Fora da Realidade', description: 'Cria uma imagem surreal e onírica que desafia a lógica para gerar curiosidade.' },
+    { value: 'dramatic-close-up', label: 'Close no Rosto com Detalhe Dramático', description: 'Foco extremo numa emoção, destacando um detalhe como uma lágrima, reflexo nos olhos ou uma gota de suor.' },
+    { value: 'mysterious-object', label: 'Segurando um Objeto Misterioso ou Dossiê', description: 'O personagem segura um objeto brilhante, uma caixa fechada ou um ficheiro com a palavra "SECRETO", gerando curiosidade sobre o seu conteúdo.' },
+    { value: 'versus-screen', label: 'Versus (Agente vs Inimigo / Empresa / Objeto)', description: 'Dois personagens ou elementos em oposição, separados por um "VS" estilizado, como num ecrã de seleção de videojogo.' },
     { value: 'mr-beast', label: 'Fundo Pop Colorido + Texto Impactante', description: 'Estilo MrBeast: Cores vibrantes, texto grande e chamativo, expressões exageradas.' },
-    { value: 'clickbait', label: 'Setas Vermelhas + Círculo de Destaque', description: 'Clássico Clickbait: Elementos gráficos para chamar a atenção para um ponto específico.' },
-    { value: 'cyberpunk', label: 'Iluminação Neon', description: 'Cyberpunk / Tech Vibe: Tons escuros com luzes neon brilhantes (rosa, azul, roxo).' },
-    { value: 'silhouette', label: 'Silhueta Misteriosa com “Quem é?”', description: 'Cria suspense com uma silhueta contra uma luz de fundo e um texto interrogativo.' },
-    { value: 'poster', label: 'Estilo Cartaz de Filme / Série', description: 'Composição cinematográfica, com tipografia de póster e um visual dramático.' },
-    { value: 'dramatic', label: 'Close no Rosto com Detalhe Dramático', description: 'Foco extremo numa emoção, destacando um detalhe como uma lágrima, reflexo ou suor.' },
-    { value: 'surreal', label: 'Personagem Flutuando ou Fora da Realidade', description: 'Cria uma imagem surreal e onírica que desafia a lógica para gerar curiosidade.' },
+    { value: 'detective-noir', label: 'Detetive no Escuro com Lupa / Pistas', description: 'Ambiente escuro (noir), onde um personagem usa uma lupa para examinar uma pista num quadro de investigação com fotos e fios.' },
+    { value: 'hacker-style', label: 'Estilo Hacker (Capuz + Código Refletido nos Óculos)', description: 'Personagem encapuzado, com código de programação verde ou binário a refletir nos óculos escuros.' },
+    { value: 'extreme-zoom', label: 'Zoom Extremo nos Olhos / Expressão Facial', description: 'Um close-up extremo nos olhos do personagem, mostrando um reflexo ou uma emoção intensa.' },
+    { value: 'clickbait', label: 'Setas Vermelhas + Círculo de Destaque', description: 'Clássico Clickbait: Elementos gráficos como setas e círculos para chamar a atenção para um ponto específico da imagem.' },
+    { value: 'before-after', label: 'Antes e Depois (divisão de tela com contraste)', description: 'Ecrã dividido mostrando uma transformação dramática, com um lado "antes" e um lado "depois" em forte contraste.' },
+    { value: 'action-freeze-frame', label: 'Mini Cena de Ação Congelada (tipo filme)', description: 'Uma imagem que parece uma cena de ação de um filme congelada no tempo, com movimento implícito (ex: saltos, objetos a voar).' },
+    { value: 'cyberpunk', label: 'Iluminação Neon (Cyberpunk / Tech Vibe)', description: 'Cyberpunk / Tech Vibe: Tons escuros com luzes de néon brilhantes (rosa, azul, roxo) e um ambiente futurista.' },
+    { value: 'silhouette', label: 'Silhueta Misteriosa com “Quem é?”', description: 'Cria suspense com uma silhueta contra uma fonte de luz (ex: uma porta aberta, um pôr-do-sol) e um texto interrogativo.' },
+    { value: 'censored-text', label: 'Texto Gigante Coberto por Emojis / Censurado', description: 'Uma frase de isco em texto grande, onde uma palavra-chave é coberta por emojis ou uma tarja preta de censura.' },
+    { value: 'explosion-background', label: 'Explosão no Fundo com Personagem Central Calmo', description: 'Uma grande explosão ou caos a acontecer no fundo, enquanto o personagem no centro da imagem permanece calmo e indiferente.' },
+    { value: 'elemental-face', label: 'Rosto em Chamas / Gelo (efeitos extremos)', description: 'O rosto do personagem é coberto por efeitos elementares como fogo, gelo, eletricidade ou a desintegrar-se, criando um visual impactante.' },
+    { value: 'poster', label: 'Thumbnail Estilo Cartaz de Filme / Série', description: 'Composição cinematográfica, com tipografia de póster e um visual dramático, como um cartaz de cinema.' },
 ];
 
 export default function ViralVideoView({ 
@@ -198,8 +211,8 @@ export default function ViralVideoView({
             <Youtube />
             Analisar Vídeo do YouTube
           </CardTitle>
-          <CardDescription>
-            Cole um URL do YouTube para a IA se inspirar no estilo e criar uma nova cena automaticamente.
+           <CardDescription>
+            Cole um URL do YouTube, use o conversor de link (se for um Short) e descarregue o vídeo para o usar na secção de transcrição abaixo.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -216,19 +229,11 @@ export default function ViralVideoView({
                     onClick={handleTransformUrl}
                     aria-label="Converter link Short para Watch"
                   >
-                   <Wand className="mr-2 h-4 w-4" /> Converter Link
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={onAnalyzeVideo}
-                    disabled={!youtubeUrl.trim() || loadingYouTube}
-                  >
-                    <Bot className="mr-2 h-4 w-4" /> Analisar e Criar Cena
+                   Converter Link
                   </Button>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Dica: se for um Short, clique no botão para converter o link automaticamente.
+                 <p className="mt-2 text-xs text-muted-foreground">
+                  Dica: se for um Short, clique no botão para converter o link automaticamente. Para fazer o download, use um serviço externo como 'yt5s.io'.
                 </p>
               </div>
           </div>
