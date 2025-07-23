@@ -4,12 +4,14 @@ import { Badge } from './ui/badge';
 import { KeyRound, ShieldAlert } from 'lucide-react';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { ThemeToggle } from './theme-toggle';
+import { Button } from './ui/button';
 
 interface AppHeaderProps {
   isApiConfigured: boolean;
+  onOpenLoginModal: () => void;
 }
 
-export function AppHeader({ isApiConfigured }: AppHeaderProps) {
+export function AppHeader({ isApiConfigured, onOpenLoginModal }: AppHeaderProps) {
   return (
     <header className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
       <div className="flex items-center gap-4">
@@ -60,13 +62,13 @@ export function AppHeader({ isApiConfigured }: AppHeaderProps) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge variant="destructive" className="py-1.5 px-3">
+                 <Button variant="destructive" onClick={onOpenLoginModal} className="py-1.5 px-3 h-auto">
                   <ShieldAlert className="mr-2 h-4 w-4" />
                   API Gemini não configurada
-                </Badge>
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Configure sua NEXT_PUBLIC_GEMINI_API_KEY no arquivo .env</p>
+                <p>Clique para configurar a sua chave API do Gemini.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
