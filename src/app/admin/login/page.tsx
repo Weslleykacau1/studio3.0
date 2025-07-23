@@ -3,13 +3,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield } from 'lucide-react';
+
+const ADMIN_EMAIL = 'weslley.kacau';
+const ADMIN_PASSWORD = 'Extra1382@';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -22,36 +24,23 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Login',
-        description: error.message,
-      });
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        toast({
+            variant: 'success',
+            title: 'Login bem-sucedido!',
+            description: 'A redirecionar para a dashboard...',
+        });
+        // We can use sessionStorage to create a very simple "is logged in" flag
+        // for this browser session. This is not secure for production apps
+        // but fits the request to avoid database authentication for the panel.
+        sessionStorage.setItem('admin_logged_in', 'true');
+        router.push('/admin/dashboard');
     } else {
-        const { data: { user } } = await supabase.auth.getUser();
-        // Verificação extra para garantir que apenas o admin entra
-        if (user && user.email === 'weslley.kacau') {
-            toast({
-                variant: 'success',
-                title: 'Login bem-sucedido!',
-                description: 'A redirecionar para a dashboard...',
-            });
-            router.push('/admin/dashboard');
-        } else {
-            // Se outro utilizador tentar fazer login, desloga-o e mostra um erro
-            await supabase.auth.signOut();
-             toast({
-                variant: 'destructive',
-                title: 'Acesso Negado',
-                description: 'Esta área é apenas para administradores.',
-            });
-        }
+         toast({
+            variant: 'destructive',
+            title: 'Acesso Negado',
+            description: 'As credenciais estão incorretas.',
+        });
     }
     setLoading(false);
   };
@@ -71,10 +60,10 @@ export default function AdminLoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Utilizador</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="weslley.kacau"

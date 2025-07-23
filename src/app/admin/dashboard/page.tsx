@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,13 +18,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Trash2, Users } from 'lucide-react';
+import { Loader2, Trash2, Users } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 interface User {
   id: string;
   email: string | undefined;
   created_at: string;
+  // This is the hardcoded admin user that cannot be deleted
+  is_admin?: boolean;
 }
 
 export default function AdminDashboardPage() {
@@ -36,22 +37,21 @@ export default function AdminDashboardPage() {
 
   const fetchUsers = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Sessão não encontrada.');
-      }
-      
-      const response = await fetch('/api/admin/users', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        }
-      });
+      const response = await fetch('/api/admin/users');
 
       if (!response.ok) {
-        throw new Error('Falha ao carregar utilizadores.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao carregar utilizadores.');
       }
       const data = await response.json();
-      setUsers(data);
+      
+      // Add a flag for the admin user to prevent deletion in the UI
+      const processedUsers = data.map((user: User) => ({
+        ...user,
+        is_admin: user.email === 'weslley.kacau@gmail.com',
+      }));
+
+      setUsers(processedUsers);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -67,23 +67,17 @@ export default function AdminDashboardPage() {
     fetchUsers();
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    // Since we are not using Supabase auth for the admin panel, just redirect
     router.push('/admin/login');
   };
 
   const handleDeleteUser = async (userId: string) => {
     try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          throw new Error('Sessão não encontrada.');
-        }
-
         const response = await fetch('/api/admin/users', {
             method: 'DELETE',
             headers: { 
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({ id: userId }),
         });
@@ -108,7 +102,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-secondary/30">
       <header className="flex items-center justify-between border-b bg-background p-4">
@@ -116,7 +109,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <Button variant="ghost" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+            Sair
           </Button>
         </div>
       </header>
@@ -153,7 +146,7 @@ export default function AdminDashboardPage() {
                         <TableCell className="font-medium">{user.email}</TableCell>
                         <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
-                           {user.email === 'weslley.kacau' ? (
+                           {user.is_admin ? (
                                 <span className="text-xs text-muted-foreground italic">Não pode ser apagado</span>
                            ) : (
                             <AlertDialog>

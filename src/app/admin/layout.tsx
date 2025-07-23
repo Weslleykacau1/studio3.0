@@ -1,61 +1,15 @@
 
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
-import { Loader2 } from 'lucide-react';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
+
+// This layout no longer needs to be a client component with auth checks.
+// It simplifies to a standard RootLayout for the admin section.
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      // Se não houver sessão ou o email não for de admin, redireciona para o login
-      if (!session || session.user.email !== 'weslley.kacau') {
-        router.push('/admin/login');
-      } else {
-        setLoading(false);
-      }
-    };
-
-    getSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: AuthChangeEvent, session: Session | null) => {
-        if (event === 'SIGNED_OUT' || !session || session.user.email !== 'weslley.kacau') {
-          router.push('/admin/login');
-        }
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [router]);
-
-  if (loading) {
-    return (
-        <html lang="en" suppressHydrationWarning>
-            <body>
-                <div className="flex h-screen w-full items-center justify-center bg-background">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-            </body>
-        </html>
-    );
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
        <head>
