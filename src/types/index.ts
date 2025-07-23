@@ -13,8 +13,7 @@ export interface Influencer {
     accent: string;
     seed: number;
     imagePreview?: string;
-    created_at?: string; 
-    user_id?: string;
+    created_at?: string;
 }
 
 export interface Scene {
@@ -38,7 +37,6 @@ export interface Scene {
     onlyPhysicalText: boolean;
     markdownScript?: string;
     created_at?: string;
-    user_id?: string;
 }
 
 export interface ThumbnailIdeas {

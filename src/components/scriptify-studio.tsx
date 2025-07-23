@@ -29,9 +29,8 @@ import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import ViralVideoView from './views/viral-video-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
+import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
 import { LoginModal } from './login-modal';
-import VeoTutorialView from './views/veo-tutorial-view';
 import { nanoid } from 'nanoid';
 
 
