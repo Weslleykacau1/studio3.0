@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine } from 'lucide-react';
 import type { ThumbnailIdeas, Scene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ContentDisplay } from '../content-display';
 
 interface ViralVideoViewProps {
-  onGenerate: (referenceImageDataUri: string, videoTheme: string) => void;
+  onGenerate: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string) => void;
   generatedIdeas: ThumbnailIdeas | null;
   loading: boolean;
   isApiConfigured: boolean;
@@ -55,8 +55,10 @@ export default function ViralVideoView({
     loadingParaphrasedScript,
     onClearTranscription
 }: ViralVideoViewProps) {
-  const [influencerPhotoPreview, setInfluencerPhotoPreview] = useState<string | null>(null);
-  const [influencerPhotoDataUri, setInfluencerPhotoDataUri] = useState<string | null>(null);
+  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
+  const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
+  const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
+  const [backgroundImageDataUri, setBackgroundImageDataUri] = useState<string | null>(null);
   const [videoTheme, setVideoTheme] = useState('');
   const [scriptTheme, setScriptTheme] = useState('');
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
@@ -68,10 +70,17 @@ export default function ViralVideoView({
   const [transcriptionScenePhotoDataUri, setTranscriptionScenePhotoDataUri] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleInfluencerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
-      setInfluencerPhotoPreview(preview);
-      setInfluencerPhotoDataUri(`data:${type};base64,${base64}`);
+      setMainImagePreview(preview);
+      setMainImageDataUri(`data:${type};base64,${base64}`);
+    });
+  };
+
+  const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleImageUploadUtil(e, ({ preview, base64, type }) => {
+      setBackgroundImagePreview(preview);
+      setBackgroundImageDataUri(`data:${type};base64,${base64}`);
     });
   };
   
@@ -92,8 +101,8 @@ export default function ViralVideoView({
   };
 
   const handleGenerateClick = () => {
-    if (influencerPhotoDataUri && videoTheme) {
-      onGenerate(influencerPhotoDataUri, videoTheme);
+    if (mainImageDataUri && videoTheme) {
+      onGenerate(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme);
     }
   };
 
@@ -108,7 +117,7 @@ export default function ViralVideoView({
 
   const handleGenerateViralScriptClick = () => {
     if (scriptTheme) {
-        onGenerateViralScript(scriptTheme, influencerPhotoDataUri, viralScriptDuration, videoType);
+        onGenerateViralScript(scriptTheme, mainImageDataUri, viralScriptDuration, videoType);
     }
   };
 
@@ -167,16 +176,6 @@ export default function ViralVideoView({
     }
   };
 
-  const handleDownloadVideo = () => {
-    const downloadUrl = 'https://savefrom.in.net/';
-    window.open(downloadUrl, '_blank', 'noopener,noreferrer');
-    toast({
-        variant: 'info',
-        title: "A redirecionar para o serviço de download",
-        description: "A página de download abrirá num novo separador.",
-    });
-  };
-
 
   return (
     <div className="space-y-8">
@@ -211,16 +210,6 @@ export default function ViralVideoView({
                 <p className="mt-2 text-xs text-muted-foreground">
                   Dica: se for um Short, clique no botão para converter o link automaticamente.
                 </p>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                    variant="outline"
-                    onClick={handleDownloadVideo}
-                >
-                    <Download className="mr-2 h-4 w-4" />
-                    Baixar Vídeo
-                </Button>
               </div>
           </div>
         </CardContent>
@@ -350,30 +339,52 @@ export default function ViralVideoView({
               Passo 1: Imagem de Referência
             </CardTitle>
             <CardDescription>
-              Anexe uma imagem de referência e digite um tema para gerar ideias de thumbnail, ou apenas use a imagem como inspiração para o roteiro viral.
+              Anexe imagens de referência e digite um tema para gerar ideias de thumbnail, ou apenas use a imagem como inspiração para o roteiro viral.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
              <div className="space-y-2">
-              <Label htmlFor="reference-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem de Referência</Label>
+              <Label htmlFor="main-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem Principal</Label>
               <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
-                {influencerPhotoPreview ? (
-                  <Image src={influencerPhotoPreview} alt="Prévia da referência" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
+                {mainImagePreview ? (
+                  <Image src={mainImagePreview} alt="Prévia da imagem principal" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
                 ) : (
                   <div className="space-y-2 py-8 text-muted-foreground">
                     <ImageIcon className="mx-auto h-10 w-10" />
-                    <p className="text-xs">Carregue uma imagem de referência (opcional para roteiro)</p>
+                    <p className="text-xs">Carregue a imagem do personagem ou objeto principal</p>
                   </div>
                 )}
-                 <input id="reference-image-upload" type="file" className="hidden" accept="image/*" onChange={handleInfluencerPhotoUpload} />
+                 <input id="main-image-upload" type="file" className="hidden" accept="image/*" onChange={handleMainImageUpload} />
                  <Button asChild variant="outline" size="sm" className="mt-4">
-                    <Label htmlFor="reference-image-upload" className="cursor-pointer gap-2">
+                    <Label htmlFor="main-image-upload" className="cursor-pointer gap-2">
                         <UploadCloud className="h-4 w-4" /> 
-                        {influencerPhotoPreview ? 'Trocar' : 'Escolher'}
+                        {mainImagePreview ? 'Trocar' : 'Escolher'}
                     </Label>
                 </Button>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="background-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem de Fundo (Opcional)</Label>
+              <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
+                {backgroundImagePreview ? (
+                  <Image src={backgroundImagePreview} alt="Prévia da imagem de fundo" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
+                ) : (
+                  <div className="space-y-2 py-8 text-muted-foreground">
+                    <ImageIcon className="mx-auto h-10 w-10" />
+                    <p className="text-xs">Carregue uma imagem para o cenário de fundo</p>
+                  </div>
+                )}
+                 <input id="background-image-upload" type="file" className="hidden" accept="image/*" onChange={handleBackgroundImageUpload} />
+                 <Button asChild variant="outline" size="sm" className="mt-4">
+                    <Label htmlFor="background-image-upload" className="cursor-pointer gap-2">
+                        <UploadCloud className="h-4 w-4" /> 
+                        {backgroundImagePreview ? 'Trocar' : 'Escolher'}
+                    </Label>
+                </Button>
+              </div>
+            </div>
+
 
             <div className="space-y-2">
                 <Label htmlFor="video-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema para Thumbnail</Label>
@@ -389,11 +400,11 @@ export default function ViralVideoView({
               onClick={handleGenerateClick}
               loading={loading}
               isApiConfigured={isApiConfigured}
-              disabled={!influencerPhotoPreview || !videoTheme.trim()}
+              disabled={!mainImagePreview || !videoTheme.trim()}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Bot className="mr-2 h-5 w-5" />
-              {loading ? 'A gerar ideias...' : 'Gerar Ideias para Thumbnail'}
+              {loading ? 'A gerar ideias...' : (backgroundImagePreview ? 'Combinar Imagens e Gerar' : 'Gerar Ideias para Thumbnail')}
             </AiButton>
           </CardContent>
         </Card>

@@ -33,15 +33,12 @@ import SceneGalleryView from './views/scene-gallery-view';
 import ViralVideoView from './views/viral-video-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
+import { LoginModal } from './login-modal';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
 
-interface ScriptifyStudioProps {
-  isApiConfigured: boolean;
-}
-
-export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProps) {
+export default function ScriptifyStudio() {
     const [activeView, setActiveView] = useState<ActiveView>('creator');
     
     const [influencer, setInfluencer] = useState<Influencer>(getInitialInfluencerState());
@@ -64,9 +61,25 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
     const [isQuickSceneModalOpen, setIsQuickSceneModalOpen] = useState(false);
     const [selectedInfluencerForQuickScene, setSelectedInfluencerForQuickScene] = useState<Influencer | null>(null);
     const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [isApiConfigured, setIsApiConfigured] = useState(false);
     
     useEffect(() => {
         setHasMounted(true);
+
+        const checkApiKey = () => {
+            const storedKey = localStorage.getItem('gemini_api_key');
+            const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+            const key = storedKey || envKey;
+            
+            if (key && key.trim() !== '' && key !== 'YOUR_API_KEY_HERE') {
+                setIsApiConfigured(true);
+            } else {
+                setIsApiConfigured(false);
+                setTimeout(() => setIsLoginModalOpen(true), 500);
+            }
+        };
+        checkApiKey();
         
         async function loadData() {
             try {
@@ -84,6 +97,13 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
         loadData();
     }, [toast]);
+    
+    const handleApiKeySave = (apiKey: string) => {
+        localStorage.setItem('gemini_api_key', apiKey);
+        setIsApiConfigured(true);
+        setIsLoginModalOpen(false);
+        toast({ variant: 'success', title: 'Sucesso!', description: 'A chave API foi guardada e está pronta a ser usada.' });
+    };
 
     const setLoading = (key: keyof LoadingStates, value: boolean) => {
         setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -430,15 +450,15 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
         }
     };
 
-    const handleGenerateThumbnailIdeas = async (referenceImageDataUri: string, videoTheme: string) => {
-        if (!referenceImageDataUri || !videoTheme) {
-            return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue a imagem e preencha o tema do vídeo." });
+    const handleGenerateThumbnailIdeas = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string) => {
+        if (!mainImageDataUri || !videoTheme) {
+            return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue a imagem principal e preencha o tema do vídeo." });
         }
         
         setLoading('generatingThumbnail', true);
         setGeneratedThumbnailIdeas(null);
         try {
-            const result = await generateThumbnailIdeas({ referenceImageDataUri, videoTheme });
+            const result = await generateThumbnailIdeas({ mainImageDataUri, backgroundImageDataUri, videoTheme });
             setGeneratedThumbnailIdeas(result);
             toast({ variant: 'success', title: "Ideias para thumbnail geradas!" });
         } catch (error: any) {
@@ -708,6 +728,11 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
     return (
         <div suppressHydrationWarning>
+             <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+                onSave={handleApiKeySave}
+            />
             <QuickSceneModal
                 isOpen={isQuickSceneModalOpen}
                 onClose={() => setIsQuickSceneModalOpen(false)}
@@ -721,6 +746,7 @@ export default function ScriptifyStudio({ isApiConfigured }: ScriptifyStudioProp
 
             <AppHeader
                 isApiConfigured={isApiConfigured}
+                onSettingsClick={() => setIsLoginModalOpen(true)}
             />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
