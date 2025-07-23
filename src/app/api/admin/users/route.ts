@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db/index';
+import { getDb } from '@/lib/db/index';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
+        const db = getDb();
         const userList = await db.select({
             id: users.id,
             email: users.email,
@@ -31,7 +32,11 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(userList);
     } catch (error) {
         console.error('Erro ao carregar utilizadores:', error);
-        return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
+        // Check if it's a known error type, otherwise return a generic message
+        if (error instanceof Error) {
+            return NextResponse.json({ error: `Erro interno do servidor: ${error.message}` }, { status: 500 });
+        }
+        return NextResponse.json({ error: 'Erro interno do servidor desconhecido.' }, { status: 500 });
     }
 }
 
@@ -46,6 +51,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     try {
+        const db = getDb();
         const body = await req.json();
         const parsed = deleteUserSchema.safeParse(body);
 
@@ -66,6 +72,9 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ message: 'Utilizador apagado com sucesso.' });
     } catch (error) {
         console.error('Erro ao apagar utilizador:', error);
-        return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
+         if (error instanceof Error) {
+            return NextResponse.json({ error: `Erro interno do servidor: ${error.message}` }, { status: 500 });
+        }
+        return NextResponse.json({ error: 'Erro interno do servidor desconhecido.' }, { status: 500 });
     }
 }

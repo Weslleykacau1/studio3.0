@@ -5,7 +5,7 @@ import { and, desc, eq } from 'drizzle-orm';
 import * as schema from './db/schema';
 import type { Influencer, Scene } from '@/types';
 import { nanoid } from 'nanoid';
-import { db } from './db/index';
+import { getDb } from './db/index';
 
 // This is a placeholder for session management. In a real app,
 // you'd use a library like 'next-auth' or 'lucia-auth'.
@@ -20,6 +20,7 @@ const getUserId = () => {
 // == Influencer Functions ==
 
 export async function fetchInfluencers(): Promise<Influencer[]> {
+  const db = getDb();
   const userId = getUserId();
   const influencerList = await db.query.influencers.findMany({
     where: eq(schema.influencers.userId, userId),
@@ -29,6 +30,7 @@ export async function fetchInfluencers(): Promise<Influencer[]> {
 }
 
 export async function addInfluencer(influencer: Omit<Influencer, 'id'> & { id?: string | null }): Promise<Influencer> {
+    const db = getDb();
     const userId = getUserId();
     const { id, created_at, user_id, ...influencerData } = influencer;
 
@@ -59,6 +61,7 @@ export async function addInfluencer(influencer: Omit<Influencer, 'id'> & { id?: 
 
 
 export async function deleteInfluencer(id: string): Promise<void> {
+  const db = getDb();
   const userId = getUserId();
   await db.delete(schema.influencers).where(and(eq(schema.influencers.id, id), eq(schema.influencers.userId, userId)));
 }
@@ -66,6 +69,7 @@ export async function deleteInfluencer(id: string): Promise<void> {
 // == Scene Functions ==
 
 export async function fetchScenes(): Promise<Scene[]> {
+  const db = getDb();
   const userId = getUserId();
    const sceneList = await db.query.scenes.findMany({
     where: eq(schema.scenes.userId, userId),
@@ -75,6 +79,7 @@ export async function fetchScenes(): Promise<Scene[]> {
 }
 
 export async function addScene(scene: Omit<Scene, 'id' | 'created_at'> & { id?: string | null }): Promise<Scene> {
+    const db = getDb();
     const userId = getUserId();
     const { id, created_at, user_id, ...sceneData } = scene;
 
@@ -104,6 +109,7 @@ export async function addScene(scene: Omit<Scene, 'id' | 'created_at'> & { id?: 
 }
 
 export async function deleteScene(id: string): Promise<void> {
+  const db = getDb();
   const userId = getUserId();
   await db.delete(schema.scenes).where(and(eq(schema.scenes.id, id), eq(schema.scenes.userId, userId)));
 }
