@@ -39,22 +39,23 @@ export async function fetchInfluencers(): Promise<Influencer[]> {
 
 export async function addInfluencer(influencer: Omit<Influencer, 'id'> & { id?: string | null }): Promise<Influencer> {
     const userId = getUserId();
-    const { id, ...influencerData } = influencer;
-    
-    // Drizzle needs properties not in schema removed
-    const { created_at, user_id, ...dataToSave } = influencerData;
+    const { id, created_at, user_id, ...influencerData } = influencer;
 
     try {
         if (id) {
-            await db.update(schema.influencers).set(dataToSave).where(and(eq(schema.influencers.id, id), eq(schema.influencers.userId, userId)));
+            // Update existing influencer
+            await db.update(schema.influencers).set(influencerData).where(and(eq(schema.influencers.id, id), eq(schema.influencers.userId, userId)));
             const updatedInfluencer = await db.query.influencers.findFirst({ where: eq(schema.influencers.id, id) });
+            if (!updatedInfluencer) throw new Error("Falha ao encontrar o influenciador após a atualização.");
             return updatedInfluencer as Influencer;
         } else {
+            // Create new influencer
             const newId = nanoid();
             const newInfluencer = {
-                ...dataToSave,
+                ...influencerData,
                 id: newId,
                 userId: userId,
+                createdAt: new Date().toISOString(),
             };
             await db.insert(schema.influencers).values(newInfluencer);
             return { ...newInfluencer, id: newId };
@@ -84,21 +85,23 @@ export async function fetchScenes(): Promise<Scene[]> {
 
 export async function addScene(scene: Omit<Scene, 'id' | 'created_at'> & { id?: string | null }): Promise<Scene> {
     const userId = getUserId();
-    const { id, ...sceneData } = scene;
-    
-    const { created_at, user_id, ...dataToSave } = sceneData;
+    const { id, created_at, user_id, ...sceneData } = scene;
 
     try {
         if (id) {
-            await db.update(schema.scenes).set(dataToSave).where(and(eq(schema.scenes.id, id), eq(schema.scenes.userId, userId)));
+            // Update existing scene
+            await db.update(schema.scenes).set(sceneData).where(and(eq(schema.scenes.id, id), eq(schema.scenes.userId, userId)));
             const updatedScene = await db.query.scenes.findFirst({ where: eq(schema.scenes.id, id) });
+            if (!updatedScene) throw new Error("Falha ao encontrar a cena após a atualização.");
             return updatedScene as Scene;
         } else {
+            // Create new scene
             const newId = nanoid();
             const newScene = {
-                ...dataToSave,
+                ...sceneData,
                 id: newId,
                 userId: userId,
+                createdAt: new Date().toISOString(),
             };
             await db.insert(schema.scenes).values(newScene);
             return { ...newScene, id: newId };

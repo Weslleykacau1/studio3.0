@@ -5,12 +5,12 @@ export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   hashedPassword: text('hashed_password').notNull(),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text('created_at').notNull(),
 });
 
 export const influencers = sqliteTable('influencers', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id),
+  userId: text('user_id').notNull(),
   name: text('name').notNull(),
   niche: text('niche').notNull(),
   personality: text('personality').notNull(),
@@ -23,12 +23,12 @@ export const influencers = sqliteTable('influencers', {
   accent: text('accent').notNull(),
   seed: integer('seed').notNull(),
   imagePreview: text('image_preview'),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text('created_at').notNull(),
 });
 
 export const scenes = sqliteTable('scenes', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id),
+  userId: text('user_id').notNull(),
   title: text('title').notNull(),
   setting: text('setting').notNull(),
   action: text('action').notNull(),
@@ -47,5 +47,5 @@ export const scenes = sqliteTable('scenes', {
   allowDigitalText: integer('allow_digital_text', { mode: 'boolean' }).default(false),
   onlyPhysicalText: integer('only_physical_text', { mode: 'boolean' }).default(false),
   markdownScript: text('markdown_script'),
-  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text('created_at').notNull(),
 });
