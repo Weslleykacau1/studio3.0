@@ -12,7 +12,6 @@ import '@/ai/flows/generate-scene-title.ts';
 import '@/ai/flows/generate-scene-dialogue.ts';
 import '@/ai/flows/generate-quick-scene.ts';
 import '@/ai/flows/generate-veo-prompt.ts';
-import '@/ai/flows/analyze-youtube-video.ts';
 import '@/ai/flows/generate-thumbnail-ideas.ts';
 import '@/ai/flows/generate-viral-script.ts';
 import '@/ai/flows/transcribe-uploaded-video.ts';
