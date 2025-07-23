@@ -216,7 +216,7 @@ export default function SceneEditor({
                 <div><Label>Marca Parceira</Label><Input name="productBrand" value={currentScene.productBrand} onChange={handleInputChange} /></div>
             </div>
             <div>
-                <Label className="mb-2 block font-medium">Imagem do Produto</Label>
+                <Label className="mb-2 block font-medium">carregue o video ou a imagem do produto</Label>
                  <div className="flex items-center gap-4">
                     <input id="product-image-upload" type="file" className="hidden" onChange={(e) => handlers.handleImageUpload(e, 'product')} />
                     <Button asChild variant="outline"><Label htmlFor="product-image-upload" className="cursor-pointer gap-2"><FileIcon className="h-4 w-4"/>Escolher ficheiro</Label></Button>
