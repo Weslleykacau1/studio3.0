@@ -46,3 +46,24 @@ export const handleImageUpload = (
     reader.readAsDataURL(file);
   }
 };
+
+export const convertJsonToCsv = (jsonData: any[]): string => {
+    if (!jsonData || jsonData.length === 0) {
+        return '';
+    }
+
+    const keys = Object.keys(jsonData[0]);
+    
+    const replacer = (key: string, value: any) => value === null ? '' : value;
+
+    const header = keys.map(key => `"${key}"`).join(',');
+
+    const rows = jsonData.map(row => 
+        keys.map(key => 
+            JSON.stringify(row[key], replacer)
+            .replace(/\\"/g, '""') // Escape double quotes
+        ).join(',')
+    );
+
+    return [header, ...rows].join('\r\n');
+};

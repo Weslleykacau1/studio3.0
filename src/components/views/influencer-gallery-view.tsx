@@ -2,8 +2,9 @@
 import type { Influencer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UploadCloud, FileText, Trash2, Palette, Plus, Sparkles } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, Palette, Plus, Sparkles, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { convertJsonToCsv } from '@/lib/utils';
 
 interface InfluencerGalleryViewProps {
   influencers: Influencer[];
@@ -35,6 +36,24 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
         toast({ variant: 'success', title: `'${fileName}' exportado!` });
     };
 
+    const exportAllAsCsv = () => {
+        if (influencers.length === 0) {
+            toast({ variant: 'destructive', title: 'Nada para exportar', description: 'A galeria de influenciadores está vazia.' });
+            return;
+        }
+
+        const csvContent = convertJsonToCsv(influencers);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'influenciadores.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast({ variant: 'success', title: 'Exportação Concluída', description: 'O ficheiro influenciadores.csv foi descarregado.' });
+    };
+
   return (
     <Card>
       <CardHeader>
@@ -48,9 +67,14 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                     Influenciadores que você criou. Carregue um para editar ou gerar roteiros.
                 </CardDescription>
             </div>
-            <Button onClick={onAddNew}>
-                <Plus className="mr-2 h-4 w-4" /> Novo Influenciador
-            </Button>
+            <div className="flex flex-wrap gap-2">
+                <Button onClick={onAddNew}>
+                    <Plus className="mr-2 h-4 w-4" /> Novo Influenciador
+                </Button>
+                <Button onClick={exportAllAsCsv} variant="outline">
+                    <Download className="mr-2 h-4 w-4" /> Exportar para CSV
+                </Button>
+            </div>
         </div>
       </CardHeader>
       <CardContent>
