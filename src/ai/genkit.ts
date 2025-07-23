@@ -13,7 +13,7 @@ function getApiKey() {
 
 export const ai = genkit({
   plugins: [googleAI({
-      apiKey: getApiKey, // Pass the function itself, not the result
+      apiKey: getApiKey(), // Execute a função para obter o valor da chave.
   })],
   model: 'googleai/gemini-2.0-flash',
 });
