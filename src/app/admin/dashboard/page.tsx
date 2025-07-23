@@ -25,7 +25,6 @@ interface User {
   id: string;
   email: string | undefined;
   created_at: string;
-  // This is the hardcoded admin user that cannot be deleted
   is_admin?: boolean;
 }
 
@@ -45,7 +44,6 @@ export default function AdminDashboardPage() {
       }
       const data = await response.json();
       
-      // Add a flag for the admin user to prevent deletion in the UI
       const processedUsers = data.map((user: User) => ({
         ...user,
         is_admin: user.email === 'weslley.kacau@gmail.com',
@@ -68,7 +66,6 @@ export default function AdminDashboardPage() {
   }, []);
 
   const handleLogout = () => {
-    // Since we are not using database auth for the admin panel, just redirect
     router.push('/admin/login');
   };
 
@@ -92,7 +89,7 @@ export default function AdminDashboardPage() {
             title: 'Sucesso',
             description: 'Utilizador apagado com sucesso.',
         });
-        fetchUsers(); // Recarrega a lista de utilizadores
+        fetchUsers(); 
     } catch (error: any) {
         toast({
             variant: 'destructive',
