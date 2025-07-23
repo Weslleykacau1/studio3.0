@@ -26,9 +26,6 @@ export function getDb(): LibSQLDatabase<typeof schema> {
       authToken: process.env.TURSO_AUTH_TOKEN,
   });
 
-  dbInstance = drizzle(clientInstance, { schema, logger: false }); // Set logger to false for production builds
+  dbInstance = drizzle(clientInstance, { schema, logger: false });
   return dbInstance;
 }
-
-// We will use a getter for the db object instead of exporting it directly.
-export const db = getDb();
