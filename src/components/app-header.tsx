@@ -54,10 +54,13 @@ export function AppHeader({ isApiConfigured, onOpenLoginModal }: AppHeaderProps)
       </div>
       <div className="flex items-center gap-2">
         {isApiConfigured ? (
-          <Badge variant="outline" className="border-green-600 bg-green-50 text-green-700 py-1.5 px-3">
-            <KeyRound className="mr-2 h-4 w-4" />
-            API Gemini OK
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="border-green-600 bg-green-50 text-green-700 py-1.5 px-3">
+              <KeyRound className="mr-2 h-4 w-4" />
+              API Gemini OK
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={onOpenLoginModal}>Trocar Chave</Button>
+          </div>
         ) : (
           <TooltipProvider>
             <Tooltip>
