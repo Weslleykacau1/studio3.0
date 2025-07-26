@@ -416,7 +416,7 @@ export default function ViralVideoView({
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="dark-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Vídeo Dark</Label>
+                <Label htmlFor="dark-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> temas variados</Label>
                 <Input 
                     id="dark-theme"
                     value={darkTheme}
