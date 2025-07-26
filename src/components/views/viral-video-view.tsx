@@ -127,7 +127,7 @@ export default function ViralVideoView({
   
   // State for Long Script Generator
   const [longScriptTheme, setLongScriptTheme] = useState('');
-  const [longScriptDuration, setLongScriptDuration] = useState('10 minutes');
+  const [longScriptDuration, setLongScriptDuration] = useState('5 minutes');
   const [longScriptCameraAngle, setLongScriptCameraAngle] = useState('Câmera Dinâmica (Criatividade da IA)');
   const [selectedInfluencerId, setSelectedInfluencerId] = useState<string | undefined>(undefined);
   const [selectedSceneId, setSelectedSceneId] = useState<string | undefined>(undefined);
@@ -489,7 +489,7 @@ export default function ViralVideoView({
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                   <Pencil />
-                  Gerador de Roteiro de Vídeo (10-20 min)
+                  Gerador de Roteiro de Vídeo (5-20 min)
               </CardTitle>
               <CardDescription>
                   Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.
@@ -546,6 +546,8 @@ export default function ViralVideoView({
                   <Select value={longScriptDuration} onValueChange={setLongScriptDuration}>
                       <SelectTrigger id="long-script-duration"><SelectValue placeholder="Selecione a duração" /></SelectTrigger>
                       <SelectContent>
+                          <SelectItem value="5 minutes">5 minutos</SelectItem>
+                          <SelectItem value="8 minutes">8 minutos</SelectItem>
                           <SelectItem value="10 minutes">10 minutos</SelectItem>
                           <SelectItem value="15 minutes">15 minutos</SelectItem>
                           <SelectItem value="20 minutes">20 minutos</SelectItem>

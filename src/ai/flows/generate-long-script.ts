@@ -14,7 +14,7 @@ import {z} from 'genkit';
 
 const GenerateLongScriptInputSchema = z.object({
   videoTheme: z.string().describe("The main theme or topic for the long-form YouTube video."),
-  duration: z.string().describe("The target duration for the video (e.g., '10 minutes', '15 minutes', '20 minutes')."),
+  duration: z.string().describe("The target duration for the video (e.g., '5 minutes', '10 minutes', '20 minutes')."),
   influencerAppearance: z.string().describe("An optional description of the influencer's appearance for context.").optional(),
   influencerAccent: z.string().describe("The influencer's accent in Portuguese.").optional(),
   influencerPersonality: z.string().describe("The personality traits of the influencer.").optional(),
