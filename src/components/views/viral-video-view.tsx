@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle } from 'lucide-react';
-import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene } from '@/types';
+import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -48,6 +48,11 @@ interface ViralVideoViewProps {
   onGenerateLongScript: (videoTheme: string, duration: string, cameraAngle: string, influencerId?: string, sceneId?: string) => void;
   loadingLongScript: boolean;
   generatedLongScript: { scenes: LongScriptScene[], fullScriptTxt: string } | null;
+
+  // Props for Web Doc Generator
+  onGenerateWebDocScript: (theme: string, duration: string) => void;
+  loadingWebDoc: boolean;
+  generatedWebDocScript: WebDocScript | null;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -93,6 +98,9 @@ export default function ViralVideoView({
     onGenerateLongScript,
     loadingLongScript,
     generatedLongScript,
+    onGenerateWebDocScript,
+    loadingWebDoc,
+    generatedWebDocScript,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -116,6 +124,11 @@ export default function ViralVideoView({
   const [selectedInfluencerId, setSelectedInfluencerId] = useState<string | undefined>(undefined);
   const [selectedSceneId, setSelectedSceneId] = useState<string | undefined>(undefined);
   const [copiedScene, setCopiedScene] = useState<number | null>(null);
+
+  // State for Web Doc Generator
+  const [webDocTheme, setWebDocTheme] = useState('');
+  const [webDocDuration, setWebDocDuration] = useState('5 minutes');
+  const [copiedWebDocScene, setCopiedWebDocScene] = useState<{ type: 'script' | 'prompt', index: number } | null>(null);
 
   const { toast } = useToast();
 
@@ -182,6 +195,12 @@ export default function ViralVideoView({
       onGenerateLongScript(longScriptTheme, longScriptDuration, longScriptCameraAngle, selectedInfluencerId, selectedSceneId);
     }
   };
+
+  const handleGenerateWebDocClick = () => {
+    if (webDocTheme) {
+      onGenerateWebDocScript(webDocTheme, webDocDuration);
+    }
+  };
   
   const handleCopyScript = (script: string | undefined, setSuccess: (val: boolean) => void) => {
     if (!script) return;
@@ -210,6 +229,18 @@ export default function ViralVideoView({
         setTimeout(() => setCopiedScene(null), 2000);
     }).catch(err => {
         console.error('Failed to copy scene text: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
+  const handleCopyWebDocScenePart = (content: string, type: 'script' | 'prompt', index: number) => {
+    navigator.clipboard.writeText(content).then(() => {
+        setCopiedWebDocScene({ type, index });
+        const partName = type === 'script' ? 'Roteiro' : 'Prompt';
+        toast({ variant: 'success', title: `${partName} da Cena ${index + 1} copiado!` });
+        setTimeout(() => setCopiedWebDocScene(null), 2000);
+    }).catch(err => {
+        console.error('Failed to copy web doc scene text: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
@@ -274,6 +305,117 @@ export default function ViralVideoView({
 
   return (
     <div className="space-y-8">
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+                    <BookOpen />
+                    Gerador de Roteiro para Web Doc
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="webdoc-theme" className="flex items-center gap-2"><Pencil />Tema do Documentário</Label>
+                    <Input 
+                        id="webdoc-theme"
+                        value={webDocTheme}
+                        onChange={(e) => setWebDocTheme(e.target.value)}
+                        placeholder="Ex: A ascensão dos impérios digitais, Os segredos do oceano profundo..."
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="webdoc-duration" className="flex items-center gap-2"><Clock />Duração do Vídeo</Label>
+                    <Select value={webDocDuration} onValueChange={setWebDocDuration}>
+                        <SelectTrigger id="webdoc-duration"><SelectValue placeholder="Selecione a duração" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="5 minutes">5 minutos</SelectItem>
+                            <SelectItem value="10 minutes">10 minutos</SelectItem>
+                            <SelectItem value="15 minutes">15 minutos</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <AiButton
+                    onClick={handleGenerateWebDocClick}
+                    loading={loadingWebDoc}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!webDocTheme.trim()}
+                    className="w-full bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg transition-transform hover:scale-105"
+                >
+                    <Bot className="mr-2 h-5 w-5" />
+                    Gerar Roteiro de Web Doc
+                </AiButton>
+            </CardContent>
+        </Card>
+        
+        <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+          <AlertTriangle className="h-4 w-4 text-blue-500" />
+          <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-400">
+            Esta ferramenta cria um roteiro completo para um documentário, cena por cena. Para cada cena, a IA gera a narração em português e um "prompt" de imagem em inglês. Use este prompt em geradores de imagem (como Midjourney ou DALL-E) para criar os visuais que acompanharão a narração, produzindo um storyboard completo.
+          </AlertDescription>
+        </Alert>
+        
+        {loadingWebDoc && (
+          <Card>
+              <CardContent className="p-6">
+                  <div className="space-y-4 pt-4">
+                      <Skeleton className="h-8 w-1/2" />
+                      <div className="space-y-2 rounded-lg border p-4">
+                          <Skeleton className="h-6 w-1/4" />
+                          <Skeleton className="h-10 w-full" />
+                          <Skeleton className="h-10 w-full" />
+                      </div>
+                      <div className="space-y-2 rounded-lg border p-4">
+                          <Skeleton className="h-6 w-1/4" />
+                          <Skeleton className="h-10 w-full" />
+                          <Skeleton className="h-10 w-full" />
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
+      )}
+
+      {generatedWebDocScript && !loadingWebDoc && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center justify-between gap-2 font-headline">
+                      <span>{generatedWebDocScript.title}</span>
+                  </CardTitle>
+                  <CardDescription>Roteiro e prompts de imagem gerados</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  {generatedWebDocScript.scenes.map((scene, index) => (
+                      <Card key={index} className="overflow-hidden bg-secondary/30">
+                          <CardHeader className="bg-muted/40 p-3">
+                              <CardTitle className="text-base">Cena {scene.sceneNumber}</CardTitle>
+                          </CardHeader>
+                          <div className="grid grid-cols-1 gap-px bg-border md:grid-cols-2">
+                            <div className="bg-background p-4">
+                                <Label className="flex items-center gap-2 text-sm font-semibold">Roteiro (PT-BR)</Label>
+                                <p className="mt-2 text-sm">{scene.sceneScript}</p>
+                                <Button
+                                    onClick={() => handleCopyWebDocScenePart(scene.sceneScript, 'script', index)}
+                                    variant="ghost" size="sm" className="mt-2">
+                                    <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'script' && copiedWebDocScene?.index === index && 'text-green-600')} />
+                                    {copiedWebDocScene?.type === 'script' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar Roteiro'}
+                                </Button>
+                            </div>
+                            <div className="bg-background p-4">
+                                <Label className="flex items-center gap-2 text-sm font-semibold">Prompt de Imagem (EN)</Label>
+                                <p className="mt-2 font-mono text-xs">{scene.imagePrompt}</p>
+                                <Button
+                                    onClick={() => handleCopyWebDocScenePart(scene.imagePrompt, 'prompt', index)}
+                                    variant="ghost" size="sm" className="mt-2">
+                                    <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'prompt' && copiedWebDocScene?.index === index && 'text-green-600')} />
+                                    {copiedWebDocScene?.type === 'prompt' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar Prompt'}
+                                </Button>
+                            </div>
+                          </div>
+                      </Card>
+                  ))}
+              </CardContent>
+          </Card>
+      )}
+
       <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
@@ -401,14 +543,6 @@ export default function ViralVideoView({
               </CardContent>
           </Card>
       )}
-      
-      <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
-        <AlertTriangle className="h-4 w-4 text-blue-500" />
-        <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>
-        <AlertDescription className="text-blue-700 dark:text-blue-400">
-          Esta ferramenta cria um roteiro completo para um documentário, cena por cena. Para cada cena, a IA gera a narração em português e um "prompt" de imagem em inglês. Use este prompt em geradores de imagem (como Midjourney ou DALL-E) para criar os visuais que acompanharão a narração, produzindo um storyboard completo.
-        </AlertDescription>
-      </Alert>
       
       <Card>
         <CardHeader>

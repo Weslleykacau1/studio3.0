@@ -72,8 +72,8 @@ export type LoadingStates = {
     transcribingUploadedVideo: boolean;
     generatingScriptFromTranscription: boolean;
     generatingParaphrasedScriptFromTranscription: boolean;
-
     generatingLongScript: boolean;
+    generatingWebDoc: boolean;
 };
 
 export type ThumbnailStyle =
@@ -102,4 +102,15 @@ export type ThumbnailStyle =
 export interface LongScriptScene {
     title: string;
     content: string;
+}
+
+export interface WebDocScene {
+  sceneNumber: number;
+  sceneScript: string;
+  imagePrompt: string;
+}
+
+export interface WebDocScript {
+  title: string;
+  scenes: WebDocScene[];
 }
