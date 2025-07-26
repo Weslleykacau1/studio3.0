@@ -46,13 +46,15 @@ const prompt = ai.definePrompt({
 **CRITICAL INSTRUCTIONS:**
 1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene must be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
 2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene must be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue.
-3.  **Dialogue Language:** The dialogue MUST be in **Brazilian Portuguese** and include English emotional cues in parentheses (e.g., (curioso)).
+3.  **Language Requirements:**
+    - The character's description and the scene's setting description MUST be in **English**.
+    - The dialogue MUST be in **Brazilian Portuguese** and include English emotional cues in parentheses (e.g., (curioso)).
 {{#if influencerAccent}}
 The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
 {{/if}}
 4.  **Character and Scene Prompts:** For EACH scene, the 'content' field must also explicitly contain:
-    - The character description **in English**. You MUST include the full character appearance description in every single scene to maintain video consistency.
-    - A description of the scene's specific setting.
+    - The full character appearance description in **English** to maintain video consistency.
+    - A description of the scene's specific setting in **English**.
 5.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
 
 **Video Details:**
