@@ -148,17 +148,11 @@ export default function ViralVideoView({
   const { toast } = useToast();
 
   const handleYoutubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setYoutubeUrl(e.target.value);
-  };
-
-  const convertYoutubeUrl = () => {
-    if (youtubeUrl.includes('/shorts/')) {
-        const newUrl = youtubeUrl.replace('/shorts/', '/watch?v=');
-        setYoutubeUrl(newUrl);
-        toast({ variant: 'success', title: 'URL convertido para formato "Watch"!' });
-    } else {
-        toast({ variant: 'info', title: 'O URL já está no formato correto.' });
+    let url = e.target.value;
+    if (url.includes('/shorts/')) {
+        url = url.replace('/shorts/', '/watch?v=');
     }
+    setYoutubeUrl(url);
   };
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -503,7 +497,7 @@ export default function ViralVideoView({
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                   <Pencil />
-                  Gerador de Roteiro de Vídeo (5,8,10,15,-20 min)
+                  Gerador de Roteiro de Vídeo Longo
               </CardTitle>
               <CardDescription>
                   Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.
@@ -649,7 +643,7 @@ export default function ViralVideoView({
                   onChange={handleYoutubeUrlChange}
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
-                <Button variant="secondary" onClick={convertYoutubeUrl} aria-label="Converter URL de Shorts">
+                <Button variant="secondary" onClick={() => setYoutubeUrl(youtubeUrl)} aria-label="Converter URL de Shorts">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
