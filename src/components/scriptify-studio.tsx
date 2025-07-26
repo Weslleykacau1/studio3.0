@@ -647,7 +647,8 @@ export default function ScriptifyStudio() {
                 duration,
                 influencerAppearance: fullAppearance,
                 influencerAccent: influencerContext?.accent,
-                sceneSetting: sceneContext?.setting
+                sceneSetting: sceneContext?.setting,
+                sceneCameraAngle: sceneContext?.cameraAngle,
             });
             setGeneratedLongScript(result);
             toast({ variant: 'success', title: 'Roteiro longo gerado com sucesso!' });

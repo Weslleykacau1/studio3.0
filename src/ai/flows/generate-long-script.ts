@@ -18,6 +18,7 @@ const GenerateLongScriptInputSchema = z.object({
   influencerAppearance: z.string().describe("An optional description of the influencer's appearance for context.").optional(),
   influencerAccent: z.string().describe("The influencer's accent in Portuguese.").optional(),
   sceneSetting: z.string().describe("An optional description of the primary scene setting for context.").optional(),
+  sceneCameraAngle: z.string().describe("The camera angle for the scene.").optional(),
 });
 export type GenerateLongScriptInput = z.infer<typeof GenerateLongScriptInputSchema>;
 
@@ -72,6 +73,10 @@ const prompt = ai.definePrompt({
 
 {{#if sceneSetting}}
 - **Scene Context:** The main setting for the video should be inspired by this: "{{{sceneSetting}}}"
+{{/if}}
+
+{{#if sceneCameraAngle}}
+- **Camera Style:** Apply this camera angle/style throughout all scenes: "{{{sceneCameraAngle}}}"
 {{/if}}
 
 Please generate a high-quality, well-structured script following these instructions.
