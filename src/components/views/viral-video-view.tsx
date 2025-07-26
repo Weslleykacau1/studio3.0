@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ContentDisplay } from '../content-display';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 interface ViralVideoViewProps {
   onGenerate: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => void;
@@ -451,47 +452,14 @@ export default function ViralVideoView({
               </CardContent>
           </Card>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Youtube />
-            Analisar Vídeo do YouTube
-          </CardTitle>
-           <CardDescription>
-            Cole um URL do YouTube, use o conversor de link (se for um Short) e descarregue o vídeo para o usar na secção de transcrição abaixo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Input 
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      value={youtubeUrl}
-                      onChange={(e) => setYoutubeUrl(e.target.value)}
-                      className="flex-grow"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleTransformUrl}
-                    aria-label="Converter link Short para Watch"
-                  >
-                   Converter Link
-                  </Button>
-                  <Button asChild variant="secondary">
-                    <a href="https://savefrom.in.net/youtube-video-downloader" target="_blank" rel="noopener noreferrer">
-                        <Download className="mr-2 h-4 w-4"/> Descarregar Vídeo
-                    </a>
-                  </Button>
-                </div>
-                 <p className="mt-2 text-xs text-muted-foreground">
-                  Dica: se for um Short, clique no botão para converter o link automaticamente antes de descarregar.
-                </p>
-              </div>
-          </div>
-        </CardContent>
-      </Card>
+      
+      <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+        <AlertTriangle className="h-4 w-4 text-blue-500" />
+        <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>
+        <AlertDescription className="text-blue-700 dark:text-blue-400">
+          Esta ferramenta cria um roteiro completo para um documentário, cena por cena. Para cada cena, a IA gera a narração em português e um "prompt" de imagem em inglês. Use este prompt em geradores de imagem (como Midjourney ou DALL-E) para criar os visuais que acompanharão a narração, produzindo um storyboard completo.
+        </AlertDescription>
+      </Alert>
       
       <Card>
         <CardHeader>
@@ -683,13 +651,13 @@ export default function ViralVideoView({
                                         <p>{scene.sceneScript}</p>
                                       </div>
                                       <Button
-                                          onClick={() => handleCopyWebDocContent(scene.sceneScript, 'script', scene.sceneNumber)}
+                                          onClick={() => handleCopyWebDocContent(scene.sceneScript, 'script', scene.sceneNumber - 1)}
                                           variant="outline"
                                           size="sm"
-                                          className={cn('w-full', copyWebDocSuccess?.type === 'script' && copyWebDocSuccess?.index === scene.sceneNumber && 'border-green-500 bg-green-50 text-green-700')}
+                                          className={cn('w-full', copyWebDocSuccess?.type === 'script' && copyWebDocSuccess?.index === (scene.sceneNumber - 1) && 'border-green-500 bg-green-50 text-green-700')}
                                       >
                                           <Copy className="mr-2 h-4 w-4"/>
-                                          {copyWebDocSuccess?.type === 'script' && copyWebDocSuccess?.index === scene.sceneNumber ? 'Copiado!' : 'Copiar Roteiro'}
+                                          {copyWebDocSuccess?.type === 'script' && copyWebDocSuccess?.index === (scene.sceneNumber - 1) ? 'Copiado!' : 'Copiar Roteiro'}
                                       </Button>
                                   </div>
                                   <div className="space-y-2">
@@ -698,13 +666,13 @@ export default function ViralVideoView({
                                           <code>{scene.imagePrompt}</code>
                                       </div>
                                       <Button
-                                          onClick={() => handleCopyWebDocContent(scene.imagePrompt, 'prompt', scene.sceneNumber)}
+                                          onClick={() => handleCopyWebDocContent(scene.imagePrompt, 'prompt', scene.sceneNumber - 1)}
                                           variant="outline"
                                           size="sm"
-                                          className={cn('w-full', copyWebDocSuccess?.type === 'prompt' && copyWebDocSuccess?.index === scene.sceneNumber && 'border-green-500 bg-green-50 text-green-700')}
+                                          className={cn('w-full', copyWebDocSuccess?.type === 'prompt' && copyWebDocSuccess?.index === (scene.sceneNumber - 1) && 'border-green-500 bg-green-50 text-green-700')}
                                       >
                                           <Copy className="mr-2 h-4 w-4"/>
-                                          {copyWebDocSuccess?.type === 'prompt' && copyWebDocSuccess?.index === scene.sceneNumber ? 'Copiado!' : 'Copiar Prompt'}
+                                          {copyWebDocSuccess?.type === 'prompt' && copyWebDocSuccess?.index === (scene.sceneNumber - 1) ? 'Copiado!' : 'Copiar Prompt'}
                                       </Button>
                                   </div>
                               </div>
