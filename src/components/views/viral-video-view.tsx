@@ -489,7 +489,7 @@ export default function ViralVideoView({
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                   <Pencil />
-                  Gerador de Roteiro de Vídeo (10-20 min)
+                  Gerador de Roteiro de Vídeo (5,8,10,15,-20 min)
               </CardTitle>
               <CardDescription>
                   Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.
@@ -614,6 +614,34 @@ export default function ViralVideoView({
               </CardContent>
           </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+            <Youtube />
+            Utilitário de Vídeo do YouTube
+          </CardTitle>
+          <CardDescription>
+            Cole um URL do YouTube para descarregar o vídeo e usá-lo na secção de transcrição abaixo.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="youtube-url">URL do YouTube</Label>
+              <Input
+                id="youtube-url"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+            <Button asChild variant="outline" className="mt-4 w-full sm:w-auto">
+              <a href="https://savefrom.in.net/youtube-video-downloader" target="_blank" rel="noopener noreferrer">
+                <Download className="mr-2 h-4 w-4" /> Descarregar Vídeo
+              </a>
+            </Button>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>
