@@ -50,11 +50,11 @@ const prompt = ai.definePrompt({
     - **Visual Storytelling**: Focus on strong, evocative visual descriptions for actions and settings. Show, don't just tell.
     - **Pacing Variation**: Intelligently mix faster-paced, dynamic scenes with slower, more deliberate ones to maintain interest and dramatic tension.
     - **Open Loops**: Strategically end some scenes with a point of curiosity that makes the viewer want to see what happens next.
-3.  **Language Requirements:**
-    - ALL descriptive parts of the scene (setting, character actions, visual descriptions) MUST be in **English**. This is to ensure compatibility with video generation models like Veo.
-    - The dialogue MUST be in **Brazilian Portuguese** and include English emotional cues in parentheses (e.g., (curioso)).
+3.  **Language and Content Requirements for EACH scene's 'content' field:**
+    -   ALL descriptive parts of the scene (setting, character actions, visual descriptions) MUST be in **English**. This is to ensure compatibility with video generation models like Veo.
+    -   The **dialogue** MUST be in **Brazilian Portuguese** and MUST include English emotional cues in parentheses (e.g., (curioso)).
 {{#if influencerAccent}}
-The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
+    The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
 {{/if}}
 4.  **Character and Scene Prompts:** For EACH scene, the 'content' field must also explicitly contain:
     - The full character appearance description (including clothing, age, and physical appearance) in **English** to maintain video consistency.
@@ -93,5 +93,3 @@ const generateLongScriptFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
