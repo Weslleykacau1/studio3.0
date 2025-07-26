@@ -43,14 +43,13 @@ const prompt = ai.definePrompt({
     prompt: `You are an expert screenwriter for long-form YouTube content. Your task is to create a complete, engaging video script based on the provided theme and duration. The output MUST be a JSON object containing 'scenes' and 'fullScriptTxt'.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **Structure:** The script must be broken down into logical scenes. Each scene in the 'scenes' array must have a 'title' and 'content'.
-2.  **Pacing:** The total length of all scenes combined must be appropriate for a video of approximately {{{duration}}}. Pace the content, dialogue, and actions accordingly.
-3.  **Content:** The 'content' for each scene should be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue. Dialogue MUST be in Brazilian Portuguese and include English emotional cues in parentheses (e.g., (curioso)).
-4.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
+1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene should be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
+2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene should be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue. Dialogue MUST be in Brazilian Portuguese and include English emotional cues in parentheses (e.g., (curioso)).
+3.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
 
 **Video Details:**
 - **Theme:** {{{videoTheme}}}
-- **Target Duration:** {{{duration}}}
+- **Total Target Duration:** {{{duration}}}
 
 {{#if influencerAppearance}}
 - **Influencer Context (Optional):** The main character should generally match this description: "{{{influencerAppearance}}}"
