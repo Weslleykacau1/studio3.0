@@ -404,7 +404,7 @@ export default function ViralVideoView({
                   {generatedLongScript.scenes.map((scene, index) => (
                       <Card key={index} className="bg-secondary/30">
                           <CardHeader className="flex flex-row items-center justify-between pb-2">
-                              <CardTitle className="text-lg">{scene.title}</CardTitle>
+                              <CardTitle className="text-lg">Cena {index + 1}: {scene.title}</CardTitle>
                               <Button
                                   onClick={() => handleCopySingleScene(scene.content, index)}
                                   variant="ghost"

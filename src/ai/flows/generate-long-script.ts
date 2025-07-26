@@ -50,8 +50,8 @@ const prompt = ai.definePrompt({
 {{#if influencerAccent}}
 The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
 {{/if}}
-4.  **Character and Scene Prompts:** For each scene, the 'content' field must also explicitly contain:
-    - The character description **in English**. Use the provided influencer appearance.
+4.  **Character and Scene Prompts:** For EACH scene, the 'content' field must also explicitly contain:
+    - The character description **in English**. You MUST include the full character appearance description in every single scene to maintain video consistency.
     - A description of the scene's specific setting.
 5.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
 
