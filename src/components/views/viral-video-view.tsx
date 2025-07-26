@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ContentDisplay } from '../content-display';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ViralVideoViewProps {
   onGenerate: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => void;
@@ -202,6 +203,36 @@ export default function ViralVideoView({
     }
   };
 
+  const uploadButton = (id: string, text: string, disabledText: string, handler: (e: React.ChangeEvent<HTMLInputElement>) => void, fileType: 'image/*' | 'video/*') => {
+      const buttonContent = (
+          <Button asChild variant="outline" size="sm" className="mt-4" disabled={!isApiConfigured}>
+              <Label htmlFor={id} className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}>
+                  <UploadCloud className="h-4 w-4" /> 
+                  {text}
+              </Label>
+          </Button>
+      );
+      return (
+          <>
+              <input id={id} type="file" className="hidden" accept={fileType} onChange={handler} disabled={!isApiConfigured} />
+              {isApiConfigured ? (
+                  buttonContent
+              ) : (
+                  <TooltipProvider>
+                      <Tooltip>
+                          <TooltipTrigger asChild>
+                              <div className='w-full flex justify-center'>{buttonContent}</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                              <p>{disabledText}</p>
+                          </TooltipContent>
+                      </Tooltip>
+                  </TooltipProvider>
+              )}
+          </>
+      )
+  };
+
 
   return (
     <div className="space-y-8">
@@ -269,13 +300,7 @@ export default function ViralVideoView({
                           <p className="text-xs">Formatos suportados: MP4, MOV, WEBM, etc.</p>
                         </div>
                       )}
-                       <input id="video-upload-input" type="file" className="hidden" accept="video/*" onChange={handleVideoUpload} />
-                       <Button asChild variant="outline" size="sm" className="mt-4">
-                          <Label htmlFor="video-upload-input" className="cursor-pointer gap-2">
-                              <UploadCloud className="h-4 w-4" /> 
-                              {uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo'}
-                          </Label>
-                      </Button>
+                      {uploadButton('video-upload-input', uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo', 'Configure a sua chave API para carregar vídeos.', handleVideoUpload, 'video/*')}
                     </div>
                 </div>
                 <div className="space-y-2">
@@ -289,13 +314,7 @@ export default function ViralVideoView({
                           <p className="text-xs">Isto irá definir o cenário visual do roteiro gerado.</p>
                         </div>
                       )}
-                       <input id="transcription-scene-photo-upload" type="file" className="hidden" accept="image/*" onChange={handleTranscriptionScenePhotoUpload} />
-                       <Button asChild variant="outline" size="sm" className="mt-4">
-                          <Label htmlFor="transcription-scene-photo-upload" className="cursor-pointer gap-2">
-                              <UploadCloud className="h-4 w-4" /> 
-                              {transcriptionScenePhotoPreview ? 'Trocar' : 'Escolher Imagem'}
-                          </Label>
-                      </Button>
+                      {uploadButton('transcription-scene-photo-upload', transcriptionScenePhotoPreview ? 'Trocar' : 'Escolher Imagem', 'Configure a sua chave API para carregar imagens.', handleTranscriptionScenePhotoUpload, 'image/*')}
                     </div>
                 </div>
             </div>
@@ -385,13 +404,7 @@ export default function ViralVideoView({
                     <p className="text-xs">Carregue a imagem do personagem ou objeto principal</p>
                   </div>
                 )}
-                 <input id="main-image-upload" type="file" className="hidden" accept="image/*" onChange={handleMainImageUpload} />
-                 <Button asChild variant="outline" size="sm" className="mt-4">
-                    <Label htmlFor="main-image-upload" className="cursor-pointer gap-2">
-                        <UploadCloud className="h-4 w-4" /> 
-                        {mainImagePreview ? 'Trocar' : 'Escolher'}
-                    </Label>
-                </Button>
+                 {uploadButton('main-image-upload', mainImagePreview ? 'Trocar' : 'Escolher', 'Configure a sua chave API para carregar imagens.', handleMainImageUpload, 'image/*')}
               </div>
             </div>
 
@@ -406,13 +419,7 @@ export default function ViralVideoView({
                     <p className="text-xs">Carregue uma imagem para o cenário de fundo</p>
                   </div>
                 )}
-                 <input id="background-image-upload" type="file" className="hidden" accept="image/*" onChange={handleBackgroundImageUpload} />
-                 <Button asChild variant="outline" size="sm" className="mt-4">
-                    <Label htmlFor="background-image-upload" className="cursor-pointer gap-2">
-                        <UploadCloud className="h-4 w-4" /> 
-                        {backgroundImagePreview ? 'Trocar' : 'Escolher'}
-                    </Label>
-                </Button>
+                 {uploadButton('background-image-upload', backgroundImagePreview ? 'Trocar' : 'Escolher', 'Configure a sua chave API para carregar imagens.', handleBackgroundImageUpload, 'image/*')}
               </div>
             </div>
 

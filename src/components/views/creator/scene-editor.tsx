@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
 import { Film, UploadCloud, Bot, Package, Save, Plus, File as FileIcon, Type } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SceneEditorProps {
   currentScene: Scene;
@@ -43,6 +44,22 @@ export default function SceneEditor({
   const handleSelectChange = (name: keyof Scene, value: string | boolean) => {
     setCurrentScene(prev => ({ ...prev, [name]: value }));
   };
+
+  const scenarioUploadButton = (
+    <Button asChild variant="outline" disabled={!isApiConfigured}>
+      <Label htmlFor="scenario-image-upload" className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}>
+        <FileIcon className="h-4 w-4"/> Escolher ficheiro
+      </Label>
+    </Button>
+  );
+
+  const productUploadButton = (
+    <Button asChild variant="outline" disabled={!isApiConfigured}>
+      <Label htmlFor="product-image-upload" className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}>
+        <FileIcon className="h-4 w-4"/>Escolher ficheiro
+      </Label>
+    </Button>
+  );
   
   return (
     <Card>
@@ -72,8 +89,21 @@ export default function SceneEditor({
         <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
             <Label className="flex items-center gap-2 font-medium"><UploadCloud />Referência de Cenário (Opcional)</Label>
             <div className="flex items-center gap-4">
-                <input id="scenario-image-upload" type="file" className="hidden" onChange={(e) => handlers.handleImageUpload(e, 'scenario')} />
-                <Button asChild variant="outline"><Label htmlFor="scenario-image-upload" className="cursor-pointer gap-2"><FileIcon className="h-4 w-4"/> Escolher ficheiro</Label></Button>
+                <input id="scenario-image-upload" type="file" className="hidden" onChange={(e) => handlers.handleImageUpload(e, 'scenario')} disabled={!isApiConfigured}/>
+                 {isApiConfigured ? (
+                    scenarioUploadButton
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <div>{scenarioUploadButton}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Configure a sua chave API para carregar imagens.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 {currentScene.scenarioImagePreview && <Image src={currentScene.scenarioImagePreview} alt="Prévia do cenário" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />}
             </div>
             {currentScene.scenarioImagePreview && <AiButton onClick={handlers.analyzeScenarioImageAndFill} loading={loadingStates.analyzingScenario} isApiConfigured={isApiConfigured} className="bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700 text-white"><Bot className="mr-2 h-5 w-5"/>Analisar Cenário</AiButton>}
@@ -218,8 +248,21 @@ export default function SceneEditor({
             <div>
                 <Label className="mb-2 block font-medium">carregue o video ou a imagem do produto</Label>
                  <div className="flex items-center gap-4">
-                    <input id="product-image-upload" type="file" className="hidden" onChange={(e) => handlers.handleImageUpload(e, 'product')} />
-                    <Button asChild variant="outline"><Label htmlFor="product-image-upload" className="cursor-pointer gap-2"><FileIcon className="h-4 w-4"/>Escolher ficheiro</Label></Button>
+                    <input id="product-image-upload" type="file" className="hidden" onChange={(e) => handlers.handleImageUpload(e, 'product')} disabled={!isApiConfigured} />
+                    {isApiConfigured ? (
+                      productUploadButton
+                    ) : (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>{productUploadButton}</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Configure a sua chave API para carregar ficheiros.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                     {currentScene.productImagePreview && <Image src={currentScene.productImagePreview} alt="Prévia do produto" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />}
                  </div>
                 {currentScene.productImagePreview && <div className="mt-4"><AiButton onClick={handlers.analyzeAndDescribeProduct} loading={loadingStates.analyzingProduct} isApiConfigured={isApiConfigured} className="bg-green-600 hover:bg-green-700 text-white"><Bot className="mr-2 h-5 w-5"/>Analisar Produto</AiButton></div>}

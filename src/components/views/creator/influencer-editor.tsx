@@ -10,6 +10,7 @@ import { AiButton } from '@/components/ai-button';
 import Image from 'next/image';
 import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon, RefreshCw } from 'lucide-react';
 import React from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface InfluencerEditorProps {
   influencer: Influencer;
@@ -43,6 +44,12 @@ export default function InfluencerEditor({
     setInfluencer(prev => ({ ...prev, [name]: value }));
   };
   
+  const uploadButton = (
+    <Button asChild variant="outline" className="w-full" disabled={!isApiConfigured}>
+        <Label htmlFor="imageUpload" className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}><FileIcon className="h-4 w-4"/>Escolher</Label>
+    </Button>
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -57,10 +64,21 @@ export default function InfluencerEditor({
             <Label className="flex items-center gap-2 font-medium"><UploadCloud /> Carregar Foto de Referência</Label>
             <div className="flex flex-col items-start gap-4 sm:flex-row">
               <div className="w-full space-y-2 sm:w-1/3">
-                <input type="file" id="imageUpload" accept="image/*" onChange={(e) => handlers.handleImageUpload(e, 'influencer')} className="hidden" />
-                <Button asChild variant="outline" className="w-full">
-                    <Label htmlFor="imageUpload" className="cursor-pointer gap-2"><FileIcon className="h-4 w-4"/>Escolher</Label>
-                </Button>
+                <input type="file" id="imageUpload" accept="image/*" onChange={(e) => handlers.handleImageUpload(e, 'influencer')} className="hidden" disabled={!isApiConfigured} />
+                 {isApiConfigured ? (
+                    uploadButton
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className='w-full'>{uploadButton}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Configure a sua chave API para carregar imagens.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                  {influencer.imagePreview ? (
                     <Image src={influencer.imagePreview} alt="Prévia" width={100} height={100} className="h-24 w-full rounded-lg object-cover shadow-md" />
                  ) : (
