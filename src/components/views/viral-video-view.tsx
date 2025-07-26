@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, Moon, User, Film, Clock } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, Moon, User, Film, Clock, Camera } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -46,7 +46,7 @@ interface ViralVideoViewProps {
   // Props for Long Script Generator
   influencers: Influencer[];
   scenes: Scene[];
-  onGenerateLongScript: (videoTheme: string, duration: string, influencerId?: string, sceneId?: string) => void;
+  onGenerateLongScript: (videoTheme: string, duration: string, cameraAngle: string, influencerId?: string, sceneId?: string) => void;
   loadingLongScript: boolean;
   generatedLongScript: { scenes: LongScriptScene[], fullScriptTxt: string } | null;
 }
@@ -120,6 +120,7 @@ export default function ViralVideoView({
   // State for Long Script Generator
   const [longScriptTheme, setLongScriptTheme] = useState('');
   const [longScriptDuration, setLongScriptDuration] = useState('10 minutes');
+  const [longScriptCameraAngle, setLongScriptCameraAngle] = useState('Câmera Dinâmica (Criatividade da IA)');
   const [selectedInfluencerId, setSelectedInfluencerId] = useState<string | undefined>(undefined);
   const [selectedSceneId, setSelectedSceneId] = useState<string | undefined>(undefined);
   const [copiedScene, setCopiedScene] = useState<number | null>(null);
@@ -199,7 +200,7 @@ export default function ViralVideoView({
 
   const handleGenerateLongScriptClick = () => {
     if (longScriptTheme) {
-      onGenerateLongScript(longScriptTheme, longScriptDuration, selectedInfluencerId, selectedSceneId);
+      onGenerateLongScript(longScriptTheme, longScriptDuration, longScriptCameraAngle, selectedInfluencerId, selectedSceneId);
     }
   };
   
@@ -343,6 +344,20 @@ export default function ViralVideoView({
                           </SelectContent>
                       </Select>
                   </div>
+              </div>
+               <div className="space-y-2">
+                  <Label htmlFor="long-script-camera" className="flex items-center gap-2"><Camera />Ângulo da Câmera</Label>
+                  <Select value={longScriptCameraAngle} onValueChange={setLongScriptCameraAngle}>
+                      <SelectTrigger id="long-script-camera"><SelectValue placeholder="Selecione o ângulo da câmera" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="Câmera Dinâmica (Criatividade da IA)">Câmera Dinâmica (Criatividade da IA)</SelectItem>
+                          <SelectItem value="Ponto de Vista (Influenciador)">Ponto de Vista (Influenciador)</SelectItem>
+                          <SelectItem value="Vlog (Conversacional)">Vlog (Conversacional)</SelectItem>
+                          <SelectItem value="Selfie (Plano próximo, filmado pelo próprio)">Selfie</SelectItem>
+                          <SelectItem value="Médio (Da cintura para cima)">Médio</SelectItem>
+                          <SelectItem value="Plano Geral (Corpo inteiro)">Plano Geral</SelectItem>
+                      </SelectContent>
+                  </Select>
               </div>
               <div className="space-y-2">
                   <Label htmlFor="long-script-theme" className="flex items-center gap-2"><Pencil />Tema do Roteiro</Label>

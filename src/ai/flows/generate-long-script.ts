@@ -91,7 +91,13 @@ const generateLongScriptFlow = ai.defineFlow(
     outputSchema: GenerateLongScriptOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
+    let processedInput = { ...input };
+    
+    if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
+        processedInput.sceneCameraAngle = "Use a creative and dynamic camera angle. Utilize a variety of shots, such as close-ups, wide shots, tracking shots, and point-of-view to make the scene visually engaging, as if directed by a professional filmmaker.";
+    }
+
+    const {output} = await prompt(processedInput);
     if (!output) {
       throw new Error('A geração do roteiro longo não produziu um resultado.');
     }

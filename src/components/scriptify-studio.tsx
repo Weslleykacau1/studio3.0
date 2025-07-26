@@ -629,7 +629,7 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateLongScript = async (videoTheme: string, duration: string, influencerId?: string, sceneId?: string) => {
+    const handleGenerateLongScript = async (videoTheme: string, duration: string, cameraAngle: string, influencerId?: string, sceneId?: string) => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!videoTheme.trim()) {
             return toast({ variant: 'destructive', title: 'Tema em Falta', description: 'Por favor, forneça um tema para o roteiro.' });
@@ -648,7 +648,7 @@ export default function ScriptifyStudio() {
                 influencerAppearance: fullAppearance,
                 influencerAccent: influencerContext?.accent,
                 sceneSetting: sceneContext?.setting,
-                sceneCameraAngle: sceneContext?.cameraAngle,
+                sceneCameraAngle: cameraAngle, // Use the direct camera angle from the UI
             });
             setGeneratedLongScript(result);
             toast({ variant: 'success', title: 'Roteiro longo gerado com sucesso!' });
