@@ -22,6 +22,7 @@ const AnalyzeTextProfileOutputSchema = z.object({
   niche: z.string().describe('The niche of the influencer.'),
   personality: z.string().describe('The personality traits of the influencer.'),
   appearance: z.string().describe('The physical appearance details of the influencer.'),
+  clothing: z.string().describe('The clothing details of the influencer.'),
   bio: z.string().describe('A short biography of the influencer.'),
   uniqueTrait: z.string().describe('A unique or peculiar trait of the influencer.'),
   negativePrompt: z.string().describe('Negative prompts for image generation to avoid certain characteristics.'),
@@ -39,7 +40,7 @@ const analyzeTextProfilePrompt = ai.definePrompt({
   name: 'analyzeTextProfilePrompt',
   input: {schema: AnalyzeTextProfileInputSchema},
   output: {schema: AnalyzeTextProfileOutputSchema},
-  prompt: `A partir do seguinte texto, extraia as características de um influenciador. Forneça o resultado como um objeto JSON com as seguintes chaves: "name", "niche", "personality", "appearance", "bio", "uniqueTrait", "negativePrompt", "age", "gender", "accent". **TODOS os valores para estas chaves DEVEM estar em Português do Brasil.** Se um valor para uma chave não for encontrado, deixe-o como uma string vazia.\n\nTexto para analisar:\n"""{{{pastedText}}}"""`,
+  prompt: `A partir do seguinte texto, extraia as características de um influenciador. Forneça o resultado como um objeto JSON com as seguintes chaves: "name", "niche", "personality", "appearance", "clothing", "bio", "uniqueTrait", "negativePrompt", "age", "gender", "accent". **TODOS os valores para estas chaves DEVEM estar em Português do Brasil.** Se um valor para uma chave não for encontrado, deixe-o como uma string vazia.\n\nTexto para analisar:\n"""{{{pastedText}}}"""`,
 });
 
 const analyzeTextProfileFlow = ai.defineFlow(

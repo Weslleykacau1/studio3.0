@@ -26,6 +26,7 @@ const AnalyzeInfluencerImageOutputSchema = z.object({
   niche: z.string().describe('The niche of the influencer (e.g., fashion, gaming).'),
   personality: z.string().describe('The personality traits of the influencer.'),
   appearance: z.string().describe('Detailed description of the influencer\'s appearance.'),
+  clothing: z.string().describe('Detailed description of the influencer\'s clothing.'),
   bio: z.string().describe('A short biography of the influencer.'),
   uniqueTrait: z.string().describe('A unique or peculiar trait of the influencer.'),
   negativePrompt: z.string().describe('Things to avoid when generating images of the influencer.'),
@@ -43,7 +44,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeInfluencerImagePrompt',
   input: {schema: AnalyzeInfluencerImageInputSchema},
   output: {schema: AnalyzeInfluencerImageOutputSchema},
-  prompt: `Analise a imagem de um influenciador virtual fornecida. Crie um perfil detalhado para ele. A saída final DEVE ser um único objeto JSON com as seguintes chaves: 'name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'negativePrompt', 'age', 'gender', 'accent'. **TODOS os valores para estas chaves DEVEM estar em Português do Brasil.** Para o campo 'appearance', forneça uma descrição extremamente detalhada das características faciais, incluindo formato do rosto, cor e formato dos olhos, cor e estilo do cabelo, tom de pele, tipo de nariz, formato dos lábios e quaisquer marcas únicas como sardas ou pintas. Para 'accent', sugira um sotaque brasileiro (ex: 'Paulistano'). Para 'bio', crie uma frase curta e apelativa. Para 'negativePrompt', sugira características a serem evitadas para manter a consistência visual.
+  prompt: `Analise a imagem de um influenciador virtual fornecida. Crie um perfil detalhado para ele. A saída final DEVE ser um único objeto JSON com as seguintes chaves: 'name', 'niche', 'personality', 'appearance', 'clothing', 'bio', 'uniqueTrait', 'negativePrompt', 'age', 'gender', 'accent'. **TODOS os valores para estas chaves DEVEM estar em Português do Brasil.** Para o campo 'appearance', forneça uma descrição extremamente detalhada das características faciais, incluindo formato do rosto, cor e formato dos olhos, cor e estilo do cabelo, tom de pele, tipo de nariz, formato dos lábios e quaisquer marcas únicas como sardas ou pintas. Para 'clothing', descreva em detalhe as roupas, sapatos e acessórios que o personagem está a usar. Para 'accent', sugira um sotaque brasileiro (ex: 'Paulistano'). Para 'bio', crie uma frase curta e apelativa. Para 'negativePrompt', sugira características a serem evitadas para manter a consistência visual.
 
 Image: {{media url=photoDataUri}}`,
 });

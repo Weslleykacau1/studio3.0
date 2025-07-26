@@ -13,7 +13,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateVeoPromptInputSchema = z.object({
-  influencerAppearance: z.string().describe('A detailed description of the influencer appearance.').optional(),
+  influencerAppearance: z.string().describe('A detailed description of the influencer appearance, including clothing.').optional(),
   sceneSetting: z.string().describe('A detailed description of the scene setting.'),
   sceneAction: z.string().describe('The main action occurring in the scene.'),
   sceneDialogue: z.string().describe('The dialogue for the scene. This will be spoken by the character.'),
@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
 
 The prompt should be a descriptive paragraph. It must integrate the scene's setting, the main action, and camera instructions.
 {{#if influencerAppearance}}
-It must also integrate the character's appearance.
+It must also integrate the character's appearance and clothing.
 {{/if}}
 
 Crucially, you must embed the dialogue directly into the prompt in a natural way, for example: "...the character says, '{{{sceneDialogue}}}'". Do not include emotional cues like (surprised) in the final dialogue. The entire prompt should be in English to be compatible with video models.

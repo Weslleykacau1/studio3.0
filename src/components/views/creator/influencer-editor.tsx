@@ -109,6 +109,10 @@ export default function InfluencerEditor({
                 <Textarea name="appearance" value={influencer.appearance} onChange={handleInputChange} placeholder="Descreva a aparência física em detalhe extremo..." />
                 <p className="mt-2 rounded-lg border bg-blue-50 p-2 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Dica: Seja detalhado - formato do rosto, cor dos olhos, textura do cabelo, etc. para melhor geração de vídeo.</p>
             </div>
+            <div className="md:col-span-2">
+                <Label>Vestuário</Label>
+                <Textarea name="clothing" value={influencer.clothing} onChange={handleInputChange} placeholder="Descreva as roupas, sapatos e acessórios que o personagem está a usar..." />
+            </div>
             <div className="md:col-span-2"><Label>Biografia Curta</Label><Input name="bio" value={influencer.bio} onChange={handleInputChange} /></div>
             <div className="md:col-span-2"><Label>Traço Único/Peculiar</Label><Input name="uniqueTrait" value={influencer.uniqueTrait} onChange={handleInputChange} /></div>
             <div><Label>Idade</Label><Input name="age" type="number" value={influencer.age} onChange={handleInputChange} /></div>

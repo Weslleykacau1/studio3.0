@@ -36,7 +36,7 @@ import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 
-const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
+const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
 
 const COOKIE_KEY_INFLUENCERS = 'scriptify_influencers';
@@ -306,10 +306,11 @@ export default function ScriptifyStudio() {
         setGeneratedContent('');
         
         try {
+            const fullAppearance = `${influencer.appearance} Clothing: ${influencer.clothing}`;
             const responseText = await generateVideoScript({
                 influencerName: influencer.name,
                 influencerPersonality: influencer.personality,
-                influencerAppearance: influencer.appearance,
+                influencerAppearance: fullAppearance,
                 influencerNiche: influencer.niche,
                 influencerSeed: influencer.seed,
                 influencerAccent: influencer.accent,
@@ -347,8 +348,9 @@ export default function ScriptifyStudio() {
         setLoading('generatingVeoPrompt', true);
         setGeneratedVeoPrompt('');
         try {
+            const fullAppearance = `${influencer.appearance} Clothing: ${influencer.clothing}`;
             const result = await generateVeoPrompt({
-                influencerAppearance: influencer.appearance,
+                influencerAppearance: fullAppearance,
                 sceneSetting: currentScene.setting,
                 sceneAction: currentScene.action,
                 sceneDialogue: currentScene.dialogue,
@@ -637,11 +639,13 @@ export default function ScriptifyStudio() {
         try {
             const influencerContext = galleryInfluencers.find(i => i.id === influencerId);
             const sceneContext = scenes.find(s => s.id === sceneId);
+
+            const fullAppearance = influencerContext ? `${influencerContext.appearance} Clothing: ${influencerContext.clothing}` : undefined;
             
             const result = await generateLongScript({
                 videoTheme,
                 duration,
-                influencerAppearance: influencerContext?.appearance,
+                influencerAppearance: fullAppearance,
                 influencerAccent: influencerContext?.accent,
                 sceneSetting: sceneContext?.setting
             });
@@ -657,7 +661,7 @@ export default function ScriptifyStudio() {
     
     // DB Handlers (now local state handlers)
     const saveOrUpdateInfluencer = () => {
-        const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
+        const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'clothing', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
         
         const missingFields = requiredFields.filter(field => {
             const value = influencer[field];

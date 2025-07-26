@@ -6,6 +6,7 @@ export interface Influencer {
     niche: string;
     personality: string;
     appearance: string;
+    clothing: string;
     bio: string;
     uniqueTrait: string;
     negativePrompt: string;
