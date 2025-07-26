@@ -19,7 +19,7 @@ const GenerateViralScriptInputSchema = z.object({
     .describe(
       "The base image for the thumbnail, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ).optional(),
-  duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
+  duration: z.string().describe("The desired duration of the video (e.g., '8 seg', '5 min')."),
   videoType: z.enum(['shorts', 'watch']).describe("The type of video: 'shorts' for vertical, fast-paced videos, or 'watch' for standard horizontal videos."),
   cta: z.string().optional().describe("An optional Call to Action to be included at the end of the script."),
 });
@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
 The 'markdownScript' field must be a Markdown formatted string containing the full script, with sections for Title, Setting, Action, and Dialogue.
 All text values MUST be in Brazilian Portuguese, except for the emotional cues in the dialogue which must be in English.
 
-**CRITICAL INSTRUCTION: The total length of the resulting script (dialogue and actions) MUST be designed to perfectly fit a video with the exact duration specified: {{{duration}}}. Do not make it longer or shorter. You must pace all elements of the script to meet this time constraint.**
+**CRITICAL INSTRUCTION: The total length of the resulting script (dialogue and actions) MUST be designed to perfectly fit a video with the exact duration specified: {{{duration}}}. Do not make it longer or shorter. You must pace all elements of the script to meet this time constraint, whether it's in seconds or minutes.**
 
 You are creating a script for a {{{videoType}}} video.
 
