@@ -45,9 +45,9 @@ const prompt = ai.definePrompt({
 
 **CRITICAL INSTRUCTIONS:**
 1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene must be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
-2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene must be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue.
+2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene must be written in Markdown format.
 3.  **Language Requirements:**
-    - The character's description and the scene's setting description MUST be in **English**.
+    - ALL descriptive parts of the scene (setting, character actions, visual descriptions) MUST be in **English**. This is to ensure compatibility with video generation models like Veo.
     - The dialogue MUST be in **Brazilian Portuguese** and include English emotional cues in parentheses (e.g., (curioso)).
 {{#if influencerAccent}}
 The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
@@ -63,7 +63,7 @@ The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**
 - **Total Target Duration:** {{{duration}}}
 
 {{#if influencerAppearance}}
-- **Influencer Context:** The main character should match this description (this part must be in English in the final output): "{{{influencerAppearance}}}"
+- **Influencer Context:** The main character should match this description: "{{{influencerAppearance}}}"
 {{/if}}
 
 {{#if sceneSetting}}
@@ -89,3 +89,5 @@ const generateLongScriptFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
