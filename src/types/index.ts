@@ -68,6 +68,7 @@ export type LoadingStates = {
     analyzingYouTube: boolean;
     generatingThumbnail: boolean;
     generatingViralScript: boolean;
+    generatingDarkYoutubeScript: boolean;
     transcribingUploadedVideo: boolean;
     generatingScriptFromTranscription: boolean;
     generatingParaphrasedScriptFromTranscription: boolean;

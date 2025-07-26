@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, Moon } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -31,6 +31,9 @@ interface ViralVideoViewProps {
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
   onLoadToCreator: (scene: Scene) => void;
+  onGenerateDarkYoutubeScript: (videoTheme: string, imageDataUri?: string) => void;
+  loadingDarkYoutubeScript: boolean;
+  generatedDarkYoutubeScene: Scene | null;
   onTranscribeUploadedVideo: (videoDataUri: string) => void;
   loadingUploadedVideoTranscription: boolean;
   generatedUploadedVideoTranscription: string;
@@ -71,6 +74,9 @@ export default function ViralVideoView({
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
+    onGenerateDarkYoutubeScript,
+    loadingDarkYoutubeScript,
+    generatedDarkYoutubeScene,
     onTranscribeUploadedVideo,
     loadingUploadedVideoTranscription,
     generatedUploadedVideoTranscription,
@@ -86,10 +92,14 @@ export default function ViralVideoView({
   const [backgroundImageDataUri, setBackgroundImageDataUri] = useState<string | null>(null);
   const [videoTheme, setVideoTheme] = useState('');
   const [scriptTheme, setScriptTheme] = useState('');
+  const [darkTheme, setDarkTheme] = useState('');
+  const [darkThemeImagePreview, setDarkThemeImagePreview] = useState<string | null>(null);
+  const [darkThemeImageDataUri, setDarkThemeImageDataUri] = useState<string | null>(null);
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
   const [thumbnailStyle, setThumbnailStyle] = useState<ThumbnailStyle>('default');
   const [copyViralScriptSuccess, setCopyViralScriptSuccess] = useState(false);
+  const [copyDarkYoutubeScriptSuccess, setCopyDarkYoutubeScriptSuccess] = useState(false);
   const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
   const [transcriptionScenePhotoPreview, setTranscriptionScenePhotoPreview] = useState<string | null>(null);
@@ -100,6 +110,13 @@ export default function ViralVideoView({
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
       setMainImagePreview(preview);
       setMainImageDataUri(`data:${type};base64,${base64}`);
+    });
+  };
+  
+  const handleDarkThemeImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleImageUploadUtil(e, ({ preview, base64, type }) => {
+      setDarkThemeImagePreview(preview);
+      setDarkThemeImageDataUri(`data:${type};base64,${base64}`);
     });
   };
 
@@ -148,16 +165,22 @@ export default function ViralVideoView({
     }
   };
 
+  const handleGenerateDarkYoutubeScriptClick = () => {
+    if (darkTheme) {
+        onGenerateDarkYoutubeScript(darkTheme, darkThemeImageDataUri ?? undefined);
+    }
+  };
+
   const handleTranscribeUploadedVideoClick = () => {
     if (uploadedVideoUri) {
       onTranscribeUploadedVideo(uploadedVideoUri);
     }
   };
   
-  const handleCopyViralScript = () => {
-    if (!generatedViralScene?.markdownScript) return;
+  const handleCopyScript = (script: string | undefined, setSuccess: (val: boolean) => void) => {
+    if (!script) return;
 
-    let textToCopy = generatedViralScene.markdownScript;
+    let textToCopy = script;
     const codeBlockMatch = textToCopy.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
     
     if (codeBlockMatch && codeBlockMatch[1]) {
@@ -165,9 +188,9 @@ export default function ViralVideoView({
     }
     
     navigator.clipboard.writeText(textToCopy).then(() => {
-        setCopyViralScriptSuccess(true);
+        setSuccess(true);
         toast({ variant: 'success', title: 'Roteiro copiado!' });
-        setTimeout(() => setCopyViralScriptSuccess(false), 2000);
+        setTimeout(() => setSuccess(false), 2000);
     }).catch(err => {
         console.error('Failed to copy script text: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
@@ -380,6 +403,87 @@ export default function ViralVideoView({
             </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+            <Moon />
+            Gerar Roteiro de Vídeo Dark para YouTube
+          </CardTitle>
+          <CardDescription>
+            Crie roteiros com temas de mistério, suspense, ou terror. Forneça um tema e, opcionalmente, uma imagem de inspiração.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="dark-theme" className="flex items-center gap-2"><Pencil className="h-4 w-4"/> Tema do Vídeo Dark</Label>
+                <Input 
+                    id="dark-theme"
+                    value={darkTheme}
+                    onChange={(e) => setDarkTheme(e.target.value)}
+                    placeholder="Ex: O mistério do farol abandonado, A lenda urbana que se tornou real..."
+                />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="dark-theme-image-upload" className="flex items-center gap-2"><ImageIcon className="h-4 w-4"/> Imagem de Inspiração (Opcional)</Label>
+              <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
+                {darkThemeImagePreview ? (
+                  <Image src={darkThemeImagePreview} alt="Prévia da imagem para tema dark" width={200} height={200} className="max-h-[150px] w-auto rounded-md object-contain" />
+                ) : (
+                  <div className="space-y-2 py-8 text-muted-foreground">
+                    <ImageIcon className="mx-auto h-10 w-10" />
+                    <p className="text-xs">Carregue uma imagem para inspirar o cenário e a atmosfera.</p>
+                  </div>
+                )}
+                 {uploadButton('dark-theme-image-upload', darkThemeImagePreview ? 'Trocar' : 'Escolher Imagem', 'Configure a sua chave API para carregar imagens.', handleDarkThemeImageUpload, 'image/*')}
+              </div>
+            </div>
+            <AiButton
+                onClick={handleGenerateDarkYoutubeScriptClick}
+                loading={loadingDarkYoutubeScript}
+                isApiConfigured={isApiConfigured}
+                disabled={!darkTheme.trim()}
+                className="w-full bg-slate-800 text-white shadow-lg transition-transform hover:scale-105 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600"
+            >
+                <Bot className="mr-2 h-5 w-5" />
+                Gerar Roteiro Dark
+            </AiButton>
+
+            {loadingDarkYoutubeScript && (
+                 <div className="space-y-4 pt-4">
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-6 w-4/5" />
+                </div>
+            )}
+
+            {generatedDarkYoutubeScene && !loadingDarkYoutubeScript && (
+                <div className="mt-4 space-y-4">
+                    <Card className="bg-secondary/30">
+                        <CardHeader><CardTitle className="text-lg">Roteiro Dark Gerado</CardTitle></CardHeader>
+                        <CardContent>
+                           {generatedDarkYoutubeScene.markdownScript && <ContentDisplay content={generatedDarkYoutubeScene.markdownScript} />}
+                        </CardContent>
+                    </Card>
+                    <div className="flex flex-wrap gap-2">
+                        <Button onClick={() => onLoadToCreator(generatedDarkYoutubeScene)}>
+                            <UploadCloud className="mr-2 h-4 w-4" /> Carregar para o Criador
+                        </Button>
+                        <Button
+                          onClick={() => handleCopyScript(generatedDarkYoutubeScene.markdownScript, setCopyDarkYoutubeScriptSuccess)}
+                          variant="outline"
+                          className={cn('transition-colors', copyDarkYoutubeScriptSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100')}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          {copyDarkYoutubeScriptSuccess ? 'Copiado!' : 'Copiar Roteiro'}
+                        </Button>
+                    </div>
+                </div>
+            )}
+        </CardContent>
+      </Card>
+
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Card>
@@ -640,7 +744,7 @@ export default function ViralVideoView({
                             Carregar para o Criador
                         </Button>
                         <Button
-                          onClick={handleCopyViralScript}
+                          onClick={() => handleCopyScript(generatedViralScene.markdownScript, setCopyViralScriptSuccess)}
                           variant="outline"
                           className={cn(
                             'transition-colors',
