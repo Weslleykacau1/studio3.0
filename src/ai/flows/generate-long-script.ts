@@ -16,6 +16,7 @@ const GenerateLongScriptInputSchema = z.object({
   videoTheme: z.string().describe("The main theme or topic for the long-form YouTube video."),
   duration: z.string().describe("The target duration for the video (e.g., '10 minutes', '20 minutes')."),
   influencerAppearance: z.string().describe("An optional description of the influencer's appearance for context.").optional(),
+  influencerAccent: z.string().describe("The influencer's accent in Portuguese.").optional(),
   sceneSetting: z.string().describe("An optional description of the primary scene setting for context.").optional(),
 });
 export type GenerateLongScriptInput = z.infer<typeof GenerateLongScriptInputSchema>;
@@ -43,20 +44,27 @@ const prompt = ai.definePrompt({
     prompt: `You are an expert screenwriter for long-form YouTube content. Your task is to create a complete, engaging video script based on the provided theme and duration. The output MUST be a JSON object containing 'scenes' and 'fullScriptTxt'.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene should be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
-2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene should be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue. Dialogue MUST be in Brazilian Portuguese and include English emotional cues in parentheses (e.g., (curioso)).
-3.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
+1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene must be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
+2.  **Scene Content:** Each scene in the 'scenes' array must have a 'title' and 'content'. The 'content' for each scene must be written in Markdown format. It must include detailed descriptions of actions, visuals, and dialogue.
+3.  **Dialogue Language:** The dialogue MUST be in **Brazilian Portuguese** and include English emotional cues in parentheses (e.g., (curioso)).
+{{#if influencerAccent}}
+The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**.
+{{/if}}
+4.  **Character and Scene Prompts:** For each scene, the 'content' field must also explicitly contain:
+    - The character description **in English**. Use the provided influencer appearance.
+    - A description of the scene's specific setting.
+5.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
 
 **Video Details:**
 - **Theme:** {{{videoTheme}}}
 - **Total Target Duration:** {{{duration}}}
 
 {{#if influencerAppearance}}
-- **Influencer Context (Optional):** The main character should generally match this description: "{{{influencerAppearance}}}"
+- **Influencer Context:** The main character should match this description (this part must be in English in the final output): "{{{influencerAppearance}}}"
 {{/if}}
 
 {{#if sceneSetting}}
-- **Scene Context (Optional):** The main setting for the video should be inspired by this: "{{{sceneSetting}}}"
+- **Scene Context:** The main setting for the video should be inspired by this: "{{{sceneSetting}}}"
 {{/if}}
 
 Please generate a high-quality, well-structured script following these instructions.

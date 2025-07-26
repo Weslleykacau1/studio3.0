@@ -642,6 +642,7 @@ export default function ScriptifyStudio() {
                 videoTheme,
                 duration,
                 influencerAppearance: influencerContext?.appearance,
+                influencerAccent: influencerContext?.accent,
                 sceneSetting: sceneContext?.setting
             });
             setGeneratedLongScript(result);
