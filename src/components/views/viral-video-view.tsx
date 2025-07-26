@@ -147,6 +147,14 @@ export default function ViralVideoView({
 
   const { toast } = useToast();
 
+  const handleYoutubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let url = e.target.value;
+    if (url.includes('/shorts/')) {
+      url = url.replace('/shorts/', '/watch?v=');
+    }
+    setYoutubeUrl(url);
+  };
+
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
       setMainImagePreview(preview);
@@ -631,7 +639,7 @@ export default function ViralVideoView({
               <Input
                 id="youtube-url"
                 value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
+                onChange={handleYoutubeUrlChange}
                 placeholder="https://www.youtube.com/watch?v=..."
               />
             </div>
