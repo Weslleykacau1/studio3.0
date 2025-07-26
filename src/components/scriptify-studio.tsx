@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -23,6 +23,7 @@ import { generateDarkYouTubeScript } from '@/ai/flows/generate-dark-youtube-scri
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
+import { generateLongScript } from '@/ai/flows/generate-long-script';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -57,8 +58,9 @@ export default function ScriptifyStudio() {
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
     const [generatedDarkYoutubeScene, setGeneratedDarkYoutubeScene] = useState<Scene | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
+    const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingDarkYoutubeScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingDarkYoutubeScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -624,6 +626,33 @@ export default function ScriptifyStudio() {
             });
         }
     };
+
+    const handleGenerateLongScript = async (videoTheme: string, duration: string, influencerId?: string, sceneId?: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!videoTheme.trim()) {
+            return toast({ variant: 'destructive', title: 'Tema em Falta', description: 'Por favor, forneça um tema para o roteiro.' });
+        }
+        setLoading('generatingLongScript', true);
+        setGeneratedLongScript(null);
+        try {
+            const influencerContext = galleryInfluencers.find(i => i.id === influencerId);
+            const sceneContext = scenes.find(s => s.id === sceneId);
+            
+            const result = await generateLongScript({
+                videoTheme,
+                duration,
+                influencerAppearance: influencerContext?.appearance,
+                sceneSetting: sceneContext?.setting
+            });
+            setGeneratedLongScript(result);
+            toast({ variant: 'success', title: 'Roteiro longo gerado com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate long script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração', description: error.message });
+        } finally {
+            setLoading('generatingLongScript', false);
+        }
+    };
     
     // DB Handlers (now local state handlers)
     const saveOrUpdateInfluencer = () => {
@@ -843,6 +872,11 @@ export default function ScriptifyStudio() {
                         onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
                         loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
                         onClearTranscription={handleClearTranscription}
+                        influencers={galleryInfluencers}
+                        scenes={scenes}
+                        onGenerateLongScript={handleGenerateLongScript}
+                        loadingLongScript={loadingStates.generatingLongScript}
+                        generatedLongScript={generatedLongScript}
                     />
                 </TabsContent>
             </Tabs>

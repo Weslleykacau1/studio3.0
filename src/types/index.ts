@@ -72,6 +72,7 @@ export type LoadingStates = {
     transcribingUploadedVideo: boolean;
     generatingScriptFromTranscription: boolean;
     generatingParaphrasedScriptFromTranscription: boolean;
+    generatingLongScript: boolean;
 };
 
 export type ThumbnailStyle =
@@ -96,3 +97,8 @@ export type ThumbnailStyle =
     | 'explosion-background'
     | 'elemental-face'
     | 'poster';
+
+export interface LongScriptScene {
+    title: string;
+    content: string;
+}

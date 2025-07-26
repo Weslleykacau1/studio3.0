@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, Moon } from 'lucide-react';
-import type { ThumbnailIdeas, Scene, ThumbnailStyle } from '@/types';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, Moon, User, Film, Clock } from 'lucide-react';
+import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -42,6 +42,13 @@ interface ViralVideoViewProps {
   onGenerateParaphrasedScriptFromTranscription: (imageDataUri?: string) => void;
   loadingParaphrasedScript: boolean;
   onClearTranscription: () => void;
+  
+  // Props for Long Script Generator
+  influencers: Influencer[];
+  scenes: Scene[];
+  onGenerateLongScript: (videoTheme: string, duration: string, influencerId?: string, sceneId?: string) => void;
+  loadingLongScript: boolean;
+  generatedLongScript: { scenes: LongScriptScene[], fullScriptTxt: string } | null;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -84,7 +91,12 @@ export default function ViralVideoView({
     loadingScriptFromTranscription,
     onGenerateParaphrasedScriptFromTranscription,
     loadingParaphrasedScript,
-    onClearTranscription
+    onClearTranscription,
+    influencers,
+    scenes,
+    onGenerateLongScript,
+    loadingLongScript,
+    generatedLongScript,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -104,6 +116,14 @@ export default function ViralVideoView({
   const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
   const [transcriptionScenePhotoPreview, setTranscriptionScenePhotoPreview] = useState<string | null>(null);
   const [transcriptionScenePhotoDataUri, setTranscriptionScenePhotoDataUri] = useState<string | null>(null);
+  
+  // State for Long Script Generator
+  const [longScriptTheme, setLongScriptTheme] = useState('');
+  const [longScriptDuration, setLongScriptDuration] = useState('10 minutes');
+  const [selectedInfluencerId, setSelectedInfluencerId] = useState<string | undefined>(undefined);
+  const [selectedSceneId, setSelectedSceneId] = useState<string | undefined>(undefined);
+  const [copiedScene, setCopiedScene] = useState<number | null>(null);
+
   const { toast } = useToast();
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,6 +196,12 @@ export default function ViralVideoView({
       onTranscribeUploadedVideo(uploadedVideoUri);
     }
   };
+
+  const handleGenerateLongScriptClick = () => {
+    if (longScriptTheme) {
+      onGenerateLongScript(longScriptTheme, longScriptDuration, selectedInfluencerId, selectedSceneId);
+    }
+  };
   
   const handleCopyScript = (script: string | undefined, setSuccess: (val: boolean) => void) => {
     if (!script) return;
@@ -196,6 +222,32 @@ export default function ViralVideoView({
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
+  
+  const handleCopySingleScene = (content: string, index: number) => {
+    navigator.clipboard.writeText(content).then(() => {
+        setCopiedScene(index);
+        toast({ variant: 'success', title: `Cena ${index + 1} copiada!` });
+        setTimeout(() => setCopiedScene(null), 2000);
+    }).catch(err => {
+        console.error('Failed to copy scene text: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
+  const handleExportFullScript = () => {
+    if (!generatedLongScript || !generatedLongScript.fullScriptTxt) return;
+    const blob = new Blob([generatedLongScript.fullScriptTxt], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'roteiro_completo.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ variant: 'success', title: 'Roteiro completo exportado como TXT!' });
+  };
+
 
   const handleCopyUploadedVideoTranscription = () => {
     if (!generatedUploadedVideoTranscription) return;
@@ -259,6 +311,120 @@ export default function ViralVideoView({
 
   return (
     <div className="space-y-8">
+      <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+                  <Pencil />
+                  Gerador de Roteiro Longo (10-20 min)
+              </CardTitle>
+              <CardDescription>
+                  Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.
+              </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                      <Label htmlFor="long-script-influencer" className="flex items-center gap-2"><User />Carregar Personagem (Opcional)</Label>
+                      <Select onValueChange={setSelectedInfluencerId} value={selectedInfluencerId}>
+                          <SelectTrigger id="long-script-influencer"><SelectValue placeholder="Selecione um influenciador..." /></SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="none">Nenhum</SelectItem>
+                              {influencers.map(inf => <SelectItem key={inf.id} value={inf.id!}>{inf.name}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+                  <div className="space-y-2">
+                      <Label htmlFor="long-script-scene" className="flex items-center gap-2"><Film />Carregar Cenário (Opcional)</Label>
+                      <Select onValueChange={setSelectedSceneId} value={selectedSceneId}>
+                          <SelectTrigger id="long-script-scene"><SelectValue placeholder="Selecione um cenário..." /></SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="none">Nenhum</SelectItem>
+                              {scenes.map(sc => <SelectItem key={sc.id} value={sc.id!}>{sc.title || "Cena sem título"}</SelectItem>)}
+                          </SelectContent>
+                      </Select>
+                  </div>
+              </div>
+              <div className="space-y-2">
+                  <Label htmlFor="long-script-theme" className="flex items-center gap-2"><Pencil />Tema do Roteiro</Label>
+                  <Input 
+                      id="long-script-theme"
+                      value={longScriptTheme}
+                      onChange={(e) => setLongScriptTheme(e.target.value)}
+                      placeholder="Ex: A história da inteligência artificial, Um dia na vida de um programador..."
+                  />
+              </div>
+              <div className="space-y-2">
+                  <Label htmlFor="long-script-duration" className="flex items-center gap-2"><Clock />Duração do Vídeo</Label>
+                  <Select value={longScriptDuration} onValueChange={setLongScriptDuration}>
+                      <SelectTrigger id="long-script-duration"><SelectValue placeholder="Selecione a duração" /></SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="10 minutes">10 minutos</SelectItem>
+                          <SelectItem value="15 minutes">15 minutos</SelectItem>
+                          <SelectItem value="20 minutes">20 minutos</SelectItem>
+                      </SelectContent>
+                  </Select>
+              </div>
+              <AiButton
+                  onClick={handleGenerateLongScriptClick}
+                  loading={loadingLongScript}
+                  isApiConfigured={isApiConfigured}
+                  disabled={!longScriptTheme.trim()}
+                  className="w-full bg-gradient-to-r from-blue-500 to-teal-500 text-white shadow-lg transition-transform hover:scale-105"
+              >
+                  <Bot className="mr-2 h-5 w-5" />
+                  Gerar Roteiro Longo
+              </AiButton>
+          </CardContent>
+      </Card>
+
+      {loadingLongScript && (
+          <Card>
+              <CardContent className="p-6">
+                  <div className="space-y-4 pt-4">
+                      <Skeleton className="h-8 w-3/4" />
+                      <Skeleton className="h-20 w-full" />
+                      <Skeleton className="h-8 w-3/4" />
+                      <Skeleton className="h-20 w-full" />
+                  </div>
+              </CardContent>
+          </Card>
+      )}
+
+      {generatedLongScript && !loadingLongScript && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center justify-between gap-2 font-headline">
+                      <span>Roteiro Gerado</span>
+                      <Button onClick={handleExportFullScript} variant="outline" size="sm">
+                          <Download className="mr-2 h-4 w-4" /> Exportar para TXT
+                      </Button>
+                  </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  {generatedLongScript.scenes.map((scene, index) => (
+                      <Card key={index} className="bg-secondary/30">
+                          <CardHeader className="flex flex-row items-center justify-between pb-2">
+                              <CardTitle className="text-lg">{scene.title}</CardTitle>
+                              <Button
+                                  onClick={() => handleCopySingleScene(scene.content, index)}
+                                  variant="ghost"
+                                  size="icon"
+                                  className={cn('transition-colors h-8 w-8', copiedScene === index && 'text-green-600 hover:text-green-700')}
+                              >
+                                  <Copy className="h-4 w-4" />
+                              </Button>
+                          </CardHeader>
+                          <CardContent>
+                              <div className="prose prose-sm dark:prose-invert max-w-none leading-relaxed whitespace-pre-wrap">
+                                  {scene.content}
+                              </div>
+                          </CardContent>
+                      </Card>
+                  ))}
+              </CardContent>
+          </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 font-headline text-2xl">
