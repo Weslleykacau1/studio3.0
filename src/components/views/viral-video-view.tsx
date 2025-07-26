@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -148,11 +148,17 @@ export default function ViralVideoView({
   const { toast } = useToast();
 
   const handleYoutubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let url = e.target.value;
-    if (url.includes('/shorts/')) {
-      url = url.replace('/shorts/', '/watch?v=');
+    setYoutubeUrl(e.target.value);
+  };
+
+  const convertYoutubeUrl = () => {
+    if (youtubeUrl.includes('/shorts/')) {
+        const newUrl = youtubeUrl.replace('/shorts/', '/watch?v=');
+        setYoutubeUrl(newUrl);
+        toast({ variant: 'success', title: 'URL convertido para formato "Watch"!' });
+    } else {
+        toast({ variant: 'info', title: 'O URL já está no formato correto.' });
     }
-    setYoutubeUrl(url);
   };
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -636,12 +642,17 @@ export default function ViralVideoView({
         <CardContent>
             <div className="space-y-2">
               <Label htmlFor="youtube-url">URL do YouTube</Label>
-              <Input
-                id="youtube-url"
-                value={youtubeUrl}
-                onChange={handleYoutubeUrlChange}
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="youtube-url"
+                  value={youtubeUrl}
+                  onChange={handleYoutubeUrlChange}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                <Button variant="secondary" onClick={convertYoutubeUrl} aria-label="Converter URL de Shorts">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <Button asChild variant="outline" className="mt-4 w-full sm:w-auto">
               <a href="https://savefrom.in.net/youtube-video-downloader" target="_blank" rel="noopener noreferrer">
