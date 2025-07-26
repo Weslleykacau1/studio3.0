@@ -545,7 +545,7 @@ export default function ScriptifyStudio() {
         toast({ variant: 'info', title: "Cena salva e carregada no editor!" });
     };
 
-    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => {
+    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch', cta: string | undefined) => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!videoTitle.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
 
@@ -556,7 +556,8 @@ export default function ScriptifyStudio() {
                 videoTitle, 
                 imageDataUri: imageDataUri || undefined,
                 duration, 
-                videoType 
+                videoType,
+                cta,
             });
 
             const newScene: Scene = {
@@ -617,7 +618,7 @@ export default function ScriptifyStudio() {
                 influencerUniqueTrait: influencerContext?.uniqueTrait,
                 influencerNegativePrompt: influencerContext?.negativePrompt,
                 sceneSetting: sceneContext?.setting,
-                sceneCameraAngle: cameraAngle, // Use the direct camera angle from the UI
+                sceneCameraAngle: cameraAngle,
             });
             setGeneratedLongScript(result);
             toast({ variant: 'success', title: 'Roteiro longo gerado com sucesso!' });

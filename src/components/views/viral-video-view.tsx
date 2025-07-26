@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -29,7 +29,7 @@ interface ViralVideoViewProps {
   setYoutubeUrl: (url: string) => void;
   onAnalyzeVideo: () => void;
   loadingYouTube: boolean;
-  onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch') => void;
+  onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch', cta: string | undefined) => void;
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
   onLoadToCreator: (scene: Scene) => void;
@@ -129,6 +129,11 @@ export default function ViralVideoView({
   const [webDocTheme, setWebDocTheme] = useState('');
   const [webDocDuration, setWebDocDuration] = useState('5 minutes');
   const [copiedWebDocScene, setCopiedWebDocScene] = useState<{ type: 'script' | 'prompt', index: number } | null>(null);
+  
+  // State for Viral Script CTA
+  const [ctaOption, setCtaOption] = useState('Siga para mais!');
+  const [customCta, setCustomCta] = useState('');
+
 
   const { toast } = useToast();
 
@@ -180,7 +185,8 @@ export default function ViralVideoView({
 
   const handleGenerateViralScriptClick = () => {
     if (scriptTheme) {
-        onGenerateViralScript(scriptTheme, mainImageDataUri, viralScriptDuration, videoType);
+        const cta = ctaOption === 'personalizado' ? customCta : ctaOption;
+        onGenerateViralScript(scriptTheme, mainImageDataUri, viralScriptDuration, videoType, cta);
     }
   };
 
@@ -857,6 +863,35 @@ export default function ViralVideoView({
                     </RadioGroup>
                 </div>
             </div>
+            <div className="space-y-2">
+                <Label htmlFor="cta-option" className="flex items-center gap-2"><MessageSquareQuote className="h-4 w-4"/> Call to Action (CTA)</Label>
+                <Select value={ctaOption} onValueChange={setCtaOption}>
+                    <SelectTrigger id="cta-option">
+                        <SelectValue placeholder="Selecione uma CTA" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Siga para mais!">Siga para mais!</SelectItem>
+                        <SelectItem value="Comente a sua opinião!">Comente a sua opinião!</SelectItem>
+                        <SelectItem value="Clique no link da bio!">Clique no link da bio!</SelectItem>
+                        <SelectItem value="Partilhe com um amigo!">Partilhe com um amigo!</SelectItem>
+                        <SelectItem value="Nenhum">Nenhum</SelectItem>
+                        <SelectItem value="personalizado">Personalizado</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {ctaOption === 'personalizado' && (
+                <div className="space-y-2">
+                    <Label htmlFor="custom-cta">CTA Personalizada</Label>
+                    <Input 
+                        id="custom-cta"
+                        value={customCta}
+                        onChange={(e) => setCustomCta(e.target.value)}
+                        placeholder="Digite a sua CTA aqui"
+                    />
+                </div>
+            )}
+
             <AiButton
                 onClick={handleGenerateViralScriptClick}
                 loading={loadingViralScript}

@@ -21,6 +21,7 @@ const GenerateViralScriptInputSchema = z.object({
     ).optional(),
   duration: z.string().describe("The desired duration of the video (e.g., '8 seg')."),
   videoType: z.enum(['shorts', 'watch']).describe("The type of video: 'shorts' for vertical, fast-paced videos, or 'watch' for standard horizontal videos."),
+  cta: z.string().optional().describe("An optional Call to Action to be included at the end of the script."),
 });
 export type GenerateViralScriptInput = z.infer<typeof GenerateViralScriptInputSchema>;
 
@@ -57,7 +58,11 @@ Set up - The one liner that contains stakes (easy to understand.)
 Unexpected action (Hook)
 Explanation of action / escalation
 Climax / Twist / Punchline
+{{#if cta}}
+CTA: Include the following Call to Action at the end: "{{{cta}}}"
+{{else}}
 CTA
+{{/if}}
 The dialogue should be short and punchy.
 
 If you are creating a "watch" video, it should be well-structured for longer-form content and horizontal viewing. It should follow this formula:
@@ -66,6 +71,9 @@ If you are creating a "watch" video, it should be well-structured for longer-for
 2.  **Introduction (10-30 seconds)**: Briefly introduce the topic.
 3.  **Main Content**: The body of the video, paced for the duration.
 4.  **Conclusion & CTA (Last 15-30 seconds)**: Summarize and provide a clear call to action.
+{{#if cta}}
+The CTA should be: "{{{cta}}}"
+{{/if}}
 The dialogue can be more detailed.
 
 Please generate the script according to the format specified (shorts or watch) and the details below.
