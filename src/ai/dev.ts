@@ -17,5 +17,5 @@ import '@/ai/flows/generate-viral-script.ts';
 import '@/ai/flows/transcribe-uploaded-video.ts';
 import '@/ai/flows/generate-script-from-transcription.ts';
 import '@/ai/flows/generate-paraphrased-script-from-transcription.ts';
-import '@/ai/flows/generate-dark-youtube-script.ts';
+import '@/ai/flows/generate-web-doc-script.ts';
 import '@/ai/flows/generate-long-script.ts';

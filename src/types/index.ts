@@ -69,7 +69,7 @@ export type LoadingStates = {
     analyzingYouTube: boolean;
     generatingThumbnail: boolean;
     generatingViralScript: boolean;
-    generatingDarkYoutubeScript: boolean;
+    generatingWebDoc: boolean;
     transcribingUploadedVideo: boolean;
     generatingScriptFromTranscription: boolean;
     generatingParaphrasedScriptFromTranscription: boolean;
@@ -102,4 +102,15 @@ export type ThumbnailStyle =
 export interface LongScriptScene {
     title: string;
     content: string;
+}
+
+export interface WebDocScene {
+  sceneNumber: number;
+  sceneScript: string;
+  imagePrompt: string;
+}
+
+export interface WebDocScript {
+  title: string;
+  scenes: WebDocScene[];
 }

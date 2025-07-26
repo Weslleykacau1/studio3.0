@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -19,7 +19,7 @@ import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
-import { generateDarkYouTubeScript } from '@/ai/flows/generate-dark-youtube-script';
+import { generateWebDocScript } from '@/ai/flows/generate-web-doc-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
@@ -56,11 +56,11 @@ export default function ScriptifyStudio() {
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
-    const [generatedDarkYoutubeScene, setGeneratedDarkYoutubeScene] = useState<Scene | null>(null);
+    const [generatedWebDoc, setGeneratedWebDoc] = useState<WebDocScript | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
     const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingDarkYoutubeScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingWebDoc: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -583,37 +583,27 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateDarkYoutubeScript = async (videoTheme: string, imageDataUri?: string) => {
+    const handleGenerateWebDocScript = async (videoTheme: string, imageDataUri?: string) => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!videoTheme.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
 
-        setLoading('generatingDarkYoutubeScript', true);
-        setGeneratedDarkYoutubeScene(null);
+        setLoading('generatingWebDoc', true);
+        setGeneratedWebDoc(null);
         try {
-            const result = await generateDarkYouTubeScript({ videoTheme, imageDataUri });
-
-            const newScene: Scene = {
-                ...initialSceneState,
-                ...result,
-                id: nanoid(),
-                duration: "40 seg",
-                videoFormat: "16:9 (Horizontal)",
-            };
-
-            setScenes(prev => [newScene, ...prev]);
-            setGeneratedDarkYoutubeScene(newScene);
+            const result = await generateWebDocScript({ videoTheme, imageDataUri });
+            setGeneratedWebDoc(result);
 
             toast({ 
                 variant: 'success',
-                title: "Roteiro Dark gerado!", 
-                description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`,
+                title: "Roteiro de Web Doc gerado!", 
+                description: `O roteiro para "${result.title}" foi gerado abaixo.`,
             });
 
         } catch (error: any) {
-            console.error("Failed to generate dark youtube script:", error);
+            console.error("Failed to generate web doc script:", error);
             toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
         } finally {
-            setLoading('generatingDarkYoutubeScript', false);
+            setLoading('generatingWebDoc', false);
         }
     };
     
@@ -867,9 +857,9 @@ export default function ScriptifyStudio() {
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
                         onLoadToCreator={handleLoadViralSceneToCreator}
-                        onGenerateDarkYoutubeScript={handleGenerateDarkYoutubeScript}
-                        loadingDarkYoutubeScript={loadingStates.generatingDarkYoutubeScript}
-                        generatedDarkYoutubeScene={generatedDarkYoutubeScene}
+                        onGenerateWebDocScript={handleGenerateWebDocScript}
+                        loadingWebDoc={loadingStates.generatingWebDoc}
+                        generatedWebDoc={generatedWebDoc}
                         onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
                         loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
                         generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
