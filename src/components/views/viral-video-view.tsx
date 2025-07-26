@@ -489,7 +489,7 @@ export default function ViralVideoView({
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                   <Pencil />
-                  Gerador de Roteiro de Vídeo (5-20 min)
+                  Gerador de Roteiro de Vídeo (10-20 min)
               </CardTitle>
               <CardDescription>
                   Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.
@@ -907,6 +907,11 @@ export default function ViralVideoView({
                             <SelectItem value="20 seg">20 seg</SelectItem>
                             <SelectItem value="30 seg">30 seg</SelectItem>
                             <SelectItem value="40 seg">40 seg</SelectItem>
+                            <SelectItem value="1 min">1 min</SelectItem>
+                            <SelectItem value="2 min">2 min</SelectItem>
+                            <SelectItem value="5 min">5 min</SelectItem>
+                            <SelectItem value="8 min">8 min</SelectItem>
+                            <SelectItem value="10 min">10 min</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
