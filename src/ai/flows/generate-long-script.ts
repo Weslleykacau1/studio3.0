@@ -55,7 +55,8 @@ The dialogue must also match the influencer's accent: **{{{influencerAccent}}}**
 4.  **Character and Scene Prompts:** For EACH scene, the 'content' field must also explicitly contain:
     - The full character appearance description in **English** to maintain video consistency.
     - A description of the scene's specific setting in **English**.
-5.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
+5. **Character Consistency**: The character's core attributes, such as **age and clothing**, MUST remain consistent across all scenes to ensure visual continuity, unless a change is a key plot point.
+6.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
 
 **Video Details:**
 - **Theme:** {{{videoTheme}}}
