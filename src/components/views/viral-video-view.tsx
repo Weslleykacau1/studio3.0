@@ -53,6 +53,10 @@ interface ViralVideoViewProps {
   onGenerateWebDocScript: (theme: string, duration: string) => void;
   loadingWebDoc: boolean;
   generatedWebDocScript: WebDocScript | null;
+  onExportWebDocScript: () => void;
+  onGenerateWebDocSeo: () => void;
+  loadingWebDocSeo: boolean;
+  generatedWebDocSeo: string;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -101,6 +105,10 @@ export default function ViralVideoView({
     onGenerateWebDocScript,
     loadingWebDoc,
     generatedWebDocScript,
+    onExportWebDocScript,
+    onGenerateWebDocSeo,
+    loadingWebDocSeo,
+    generatedWebDocSeo,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -133,6 +141,8 @@ export default function ViralVideoView({
   // State for Viral Script CTA
   const [ctaOption, setCtaOption] = useState('Siga para mais!');
   const [customCta, setCustomCta] = useState('');
+
+  const [copySeoSuccess, setCopySeoSuccess] = useState(false);
 
 
   const { toast } = useToast();
@@ -278,6 +288,18 @@ export default function ViralVideoView({
     });
   };
 
+  const handleCopySeo = () => {
+    if (!generatedWebDocSeo) return;
+    navigator.clipboard.writeText(generatedWebDocSeo).then(() => {
+        setCopySeoSuccess(true);
+        toast({ variant: 'success', title: 'Conteúdo SEO copiado!' });
+        setTimeout(() => setCopySeoSuccess(false), 2000);
+    }).catch(err => {
+        console.error('Failed to copy SEO text: ', err);
+        toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
+
   const uploadButton = (id: string, text: string, disabledText: string, handler: (e: React.ChangeEvent<HTMLInputElement>) => void, fileType: 'image/*' | 'video/*') => {
       const buttonContent = (
           <Button asChild variant="outline" size="sm" className="mt-4" disabled={!isApiConfigured}>
@@ -311,6 +333,14 @@ export default function ViralVideoView({
 
   return (
     <div className="space-y-8">
+        <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+          <AlertTriangle className="h-4 w-4 text-blue-500" />
+          <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-400">
+            Esta ferramenta cria um roteiro completo para um documentário, cena por cena. Para cada cena, a IA gera a narração em português e um "prompt" de imagem em inglês. Use este prompt em geradores de imagem (como Midjourney ou DALL-E) para criar os visuais que acompanharão a narração, produzindo um storyboard completo.
+          </AlertDescription>
+        </Alert>
+
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-3 font-headline text-2xl">
@@ -352,14 +382,6 @@ export default function ViralVideoView({
             </CardContent>
         </Card>
         
-        <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
-          <AlertTriangle className="h-4 w-4 text-blue-500" />
-          <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>
-          <AlertDescription className="text-blue-700 dark:text-blue-400">
-            Esta ferramenta cria um roteiro completo para um documentário, cena por cena. Para cada cena, a IA gera a narração em português e um "prompt" de imagem em inglês. Use este prompt em geradores de imagem (como Midjourney ou DALL-E) para criar os visuais que acompanharão a narração, produzindo um storyboard completo.
-          </AlertDescription>
-        </Alert>
-        
         {loadingWebDoc && (
           <Card>
               <CardContent className="p-6">
@@ -385,6 +407,21 @@ export default function ViralVideoView({
               <CardHeader>
                   <CardTitle className="flex items-center justify-between gap-2 font-headline">
                       <span>{generatedWebDocScript.title}</span>
+                       <div className="flex gap-2">
+                          <Button onClick={onExportWebDocScript} variant="outline" size="sm">
+                              <Download className="mr-2 h-4 w-4" /> Exportar para TXT
+                          </Button>
+                          <AiButton
+                              onClick={onGenerateWebDocSeo}
+                              loading={loadingWebDocSeo}
+                              isApiConfigured={isApiConfigured}
+                              disabled={!generatedWebDocScript}
+                              variant="secondary"
+                              size="sm"
+                          >
+                              <Bot className="mr-2 h-4 w-4" /> Gerar SEO
+                          </AiButton>
+                      </div>
                   </CardTitle>
                   <CardDescription>Roteiro e prompts de imagem gerados</CardDescription>
               </CardHeader>
@@ -421,6 +458,32 @@ export default function ViralVideoView({
               </CardContent>
           </Card>
       )}
+      
+      {generatedWebDocSeo && (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <Bot />
+                    SEO Gerado para Web Doc
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ContentDisplay content={generatedWebDocSeo} />
+                <Button
+                  onClick={handleCopySeo}
+                  variant="outline"
+                  className={cn(
+                    'mt-4 transition-colors',
+                    copySeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+                  )}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copySeoSuccess ? 'Copiado!' : 'Copiar SEO'}
+                </Button>
+            </CardContent>
+        </Card>
+      )}
+
 
       <Card>
           <CardHeader>

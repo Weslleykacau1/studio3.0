@@ -59,8 +59,10 @@ export default function ScriptifyStudio() {
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
     const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
     const [generatedWebDocScript, setGeneratedWebDocScript] = useState<WebDocScript | null>(null);
+    const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false });
+
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -637,6 +639,7 @@ export default function ScriptifyStudio() {
         }
         setLoading('generatingWebDoc', true);
         setGeneratedWebDocScript(null);
+        setGeneratedWebDocSeo('');
         try {
             const result = await generateWebDocScript({ theme, duration });
             setGeneratedWebDocScript(result);
@@ -649,6 +652,53 @@ export default function ScriptifyStudio() {
         }
     };
     
+    const handleExportWebDocScript = () => {
+        if (!generatedWebDocScript) return;
+
+        let content = `Title: ${generatedWebDocScript.title}\n\n`;
+        content += generatedWebDocScript.scenes
+            .map(scene => `----------\nSCENE ${scene.sceneNumber}\n\nSCRIPT (PT-BR):\n${scene.sceneScript}\n\nIMAGE PROMPT (EN):\n${scene.imagePrompt}\n`)
+            .join('\n');
+        
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `${generatedWebDocScript.title.replace(/ /g, '_')}_webdoc.txt`;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast({ variant: 'success', title: `'${fileName}' exportado com sucesso!` });
+    };
+
+    const handleGenerateWebDocSeo = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!generatedWebDocScript) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro para o Web Doc primeiro.' });
+        }
+
+        const fullDialogue = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n');
+        
+        if (!fullDialogue.trim()) {
+            return toast({ variant: 'destructive', title: 'Conteúdo em Falta', description: 'O roteiro gerado não tem diálogo para ser analisado.' });
+        }
+        
+        setLoading('generatingWebDocSeo', true);
+        setGeneratedWebDocSeo('');
+        try {
+            const seoResult = await generateSeoForPlatforms({ dialogue: fullDialogue });
+            setGeneratedWebDocSeo(seoResult);
+            toast({ variant: 'success', title: 'SEO para o Web Doc gerado com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate web doc SEO:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
+        } finally {
+            setLoading('generatingWebDocSeo', false);
+        }
+    };
+
     // DB Handlers (now local state handlers)
     const saveOrUpdateInfluencer = () => {
         const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'clothing', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
@@ -872,6 +922,10 @@ export default function ScriptifyStudio() {
                         onGenerateWebDocScript={handleGenerateWebDocScript}
                         loadingWebDoc={loadingStates.generatingWebDoc}
                         generatedWebDocScript={generatedWebDocScript}
+                        onExportWebDocScript={handleExportWebDocScript}
+                        onGenerateWebDocSeo={handleGenerateWebDocSeo}
+                        loadingWebDocSeo={loadingStates.generatingWebDocSeo}
+                        generatedWebDocSeo={generatedWebDocSeo}
                     />
                 </TabsContent>
             </Tabs>

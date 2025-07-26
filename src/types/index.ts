@@ -74,6 +74,7 @@ export type LoadingStates = {
     generatingParaphrasedScriptFromTranscription: boolean;
     generatingLongScript: boolean;
     generatingWebDoc: boolean;
+    generatingWebDocSeo: boolean;
 };
 
 export type ThumbnailStyle =
