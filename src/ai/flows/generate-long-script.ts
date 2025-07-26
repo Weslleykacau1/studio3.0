@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -14,7 +15,7 @@ import {z} from 'genkit';
 
 const GenerateLongScriptInputSchema = z.object({
   videoTheme: z.string().describe("The main theme or topic for the long-form YouTube video."),
-  duration: z.string().describe("The target duration for the video (e.g., '5 minutes', '10 minutes', '20 minutes')."),
+  duration: z.string().describe("The target duration for the video (e.g., '5 minutes', '8 minutes', '10 minutes', '15 minutes', '20 minutes')."),
   influencerAppearance: z.string().describe("An optional description of the influencer's appearance for context.").optional(),
   influencerAccent: z.string().describe("The influencer's accent in Portuguese.").optional(),
   influencerPersonality: z.string().describe("The personality traits of the influencer.").optional(),
@@ -65,6 +66,7 @@ const prompt = ai.definePrompt({
     - A description of the scene's specific setting in **English**.
 5. **Character Consistency**: The character's core attributes, such as **age and clothing**, MUST remain consistent across all scenes to ensure visual continuity, unless a change is a key plot point.
 6.  **Full Script:** The 'fullScriptTxt' field must be a single string containing the entire script, with scene titles clearly marking each section, suitable for exporting to a .txt file.
+7.  **Conciseness and Validity**: Be concise. Ensure your entire response is a single, complete, and valid JSON object, without any truncation. Do not generate an excessive number of scenes that could lead to an incomplete output.
 
 **Video Details:**
 - **Theme:** {{{videoTheme}}}
