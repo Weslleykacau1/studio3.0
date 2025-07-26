@@ -4,10 +4,14 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 
-export function PromoBanner() {
+interface PromoBannerProps {
+  hasPurchased: boolean;
+}
+
+export function PromoBanner({ hasPurchased }: PromoBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
 
-  if (!isVisible) {
+  if (!isVisible || hasPurchased) {
     return null;
   }
 

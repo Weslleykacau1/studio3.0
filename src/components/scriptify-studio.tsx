@@ -29,7 +29,7 @@ import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import ViralVideoView from './views/viral-video-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid, Zap, BookOpen } from 'lucide-react';
+import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
@@ -40,6 +40,7 @@ const initialSceneState: Scene = { id: null, title: '', setting: '', action: '',
 const COOKIE_KEY_INFLUENCERS = 'scriptify_influencers';
 const COOKIE_KEY_SCENES = 'scriptify_scenes';
 const COOKIE_KEY_API_KEY = 'gemini_api_key';
+const COOKIE_KEY_PURCHASE = 'has_purchased';
 
 export default function ScriptifyStudio() {
     const [activeView, setActiveView] = useState<ActiveView>('creator');
@@ -66,10 +67,27 @@ export default function ScriptifyStudio() {
     const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isApiConfigured, setIsApiConfigured] = useState(false);
+    const [hasPurchased, setHasPurchased] = useState(false);
+
     
     // Load data from cookies when component mounts on the client
     useEffect(() => {
         setHasMounted(true);
+        
+        // Check for purchase status in URL first
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('purchase_success') === 'true') {
+            document.cookie = `${COOKIE_KEY_PURCHASE}=true;path=/;max-age=31536000;samesite=strict`;
+            setHasPurchased(true);
+             // Remove query params from URL without reloading
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+            // Then check cookie
+            const purchaseCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_PURCHASE}=`));
+            if (purchaseCookie && purchaseCookie.split('=')[1] === 'true') {
+                setHasPurchased(true);
+            }
+        }
 
         try {
             const influencersCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_INFLUENCERS}=`));
@@ -696,7 +714,7 @@ export default function ScriptifyStudio() {
 
             <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
 
-            <PromoBanner />
+            <PromoBanner hasPurchased={hasPurchased} />
 
             <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 bg-primary/10">
