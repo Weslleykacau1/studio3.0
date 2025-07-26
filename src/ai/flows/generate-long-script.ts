@@ -17,6 +17,9 @@ const GenerateLongScriptInputSchema = z.object({
   duration: z.string().describe("The target duration for the video (e.g., '10 minutes', '15 minutes', '20 minutes')."),
   influencerAppearance: z.string().describe("An optional description of the influencer's appearance for context.").optional(),
   influencerAccent: z.string().describe("The influencer's accent in Portuguese.").optional(),
+  influencerPersonality: z.string().describe("The personality traits of the influencer.").optional(),
+  influencerUniqueTrait: z.string().describe("A unique or peculiar trait of the influencer.").optional(),
+  influencerNegativePrompt: z.string().describe("Things to avoid when generating images of the influencer.").optional(),
   sceneSetting: z.string().describe("An optional description of the primary scene setting for context.").optional(),
   sceneCameraAngle: z.string().describe("The camera angle for the scene.").optional(),
 });
@@ -69,6 +72,15 @@ const prompt = ai.definePrompt({
 
 {{#if influencerAppearance}}
 - **Influencer Context:** The main character should match this description: "{{{influencerAppearance}}}"
+{{/if}}
+{{#if influencerPersonality}}
+- **Personality:** {{{influencerPersonality}}}
+{{/if}}
+{{#if influencerUniqueTrait}}
+- **Unique Trait:** {{{influencerUniqueTrait}}}
+{{/if}}
+{{#if influencerNegativePrompt}}
+- **Negative Prompt (Avoid):** {{{influencerNegativePrompt}}}
 {{/if}}
 
 {{#if sceneSetting}}

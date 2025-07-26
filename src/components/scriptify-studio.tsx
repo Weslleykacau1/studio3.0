@@ -613,6 +613,9 @@ export default function ScriptifyStudio() {
                 duration,
                 influencerAppearance: fullAppearance,
                 influencerAccent: influencerContext?.accent,
+                influencerPersonality: influencerContext?.personality,
+                influencerUniqueTrait: influencerContext?.uniqueTrait,
+                influencerNegativePrompt: influencerContext?.negativePrompt,
                 sceneSetting: sceneContext?.setting,
                 sceneCameraAngle: cameraAngle, // Use the direct camera angle from the UI
             });
