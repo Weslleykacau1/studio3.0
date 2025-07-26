@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -19,7 +19,6 @@ import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
-import { generateWebDocScript } from '@/ai/flows/generate-web-doc-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
@@ -56,11 +55,10 @@ export default function ScriptifyStudio() {
     const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
     const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
     const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
-    const [generatedWebDoc, setGeneratedWebDoc] = useState<WebDocScript | null>(null);
     const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
     const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, generatingWebDoc: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -582,30 +580,6 @@ export default function ScriptifyStudio() {
             setLoading('generatingViralScript', false);
         }
     };
-
-    const handleGenerateWebDocScript = async (videoTheme: string, imageDataUri?: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!videoTheme.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
-
-        setLoading('generatingWebDoc', true);
-        setGeneratedWebDoc(null);
-        try {
-            const result = await generateWebDocScript({ videoTheme, imageDataUri });
-            setGeneratedWebDoc(result);
-
-            toast({ 
-                variant: 'success',
-                title: "Roteiro de Web Doc gerado!", 
-                description: `O roteiro para "${result.title}" foi gerado abaixo.`,
-            });
-
-        } catch (error: any) {
-            console.error("Failed to generate web doc script:", error);
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
-        } finally {
-            setLoading('generatingWebDoc', false);
-        }
-    };
     
     const handleLoadViralSceneToCreator = (scene: Scene) => {
         if (scene) {
@@ -857,9 +831,6 @@ export default function ScriptifyStudio() {
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
                         onLoadToCreator={handleLoadViralSceneToCreator}
-                        onGenerateWebDocScript={handleGenerateWebDocScript}
-                        loadingWebDoc={loadingStates.generatingWebDoc}
-                        generatedWebDoc={generatedWebDoc}
                         onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
                         loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
                         generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
