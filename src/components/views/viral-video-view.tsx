@@ -527,7 +527,7 @@ export default function ViralVideoView({
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui (Ex: CENA 1...)</Label>
+                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui (Seu roteiro completo que vamos gerar o prompt de todas as cenas)</Label>
                 <Textarea
                     id="pasted-script"
                     value={pastedScript}
