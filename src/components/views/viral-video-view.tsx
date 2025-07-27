@@ -70,6 +70,9 @@ interface ViralVideoViewProps {
   loadingThumbnailFromScript: boolean;
   generatedThumbnailFromScript: ThumbnailIdeas | null;
   onExportPrompts: () => void;
+  onGenerateThumbnailFromWebDoc: () => void;
+  loadingThumbnailFromWebDoc: boolean;
+  generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -134,6 +137,9 @@ export default function ViralVideoView({
     loadingThumbnailFromScript,
     generatedThumbnailFromScript,
     onExportPrompts,
+    onGenerateThumbnailFromWebDoc,
+    loadingThumbnailFromWebDoc,
+    generatedThumbnailFromWebDoc,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -453,22 +459,18 @@ export default function ViralVideoView({
       {generatedWebDocScript && !loadingWebDoc && (
           <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center justify-between gap-2 font-headline">
+                  <CardTitle className="flex flex-wrap items-center justify-between gap-2 font-headline">
                       <span>{generatedWebDocScript.title}</span>
-                       <div className="flex gap-2">
+                       <div className="flex flex-wrap gap-2">
+                          <AiButton onClick={onGenerateWebDocSeo} loading={loadingWebDocSeo} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                              <Bot className="mr-2 h-4 w-4" /> Gerar SEO
+                          </AiButton>
+                          <AiButton onClick={onGenerateThumbnailFromWebDoc} loading={loadingThumbnailFromWebDoc} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                              <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                          </AiButton>
                           <Button onClick={onExportWebDocScript} variant="outline" size="sm">
                               <Download className="mr-2 h-4 w-4" /> Exportar para TXT
                           </Button>
-                          <AiButton
-                              onClick={onGenerateWebDocSeo}
-                              loading={loadingWebDocSeo}
-                              isApiConfigured={isApiConfigured}
-                              disabled={!generatedWebDocScript}
-                              variant="secondary"
-                              size="sm"
-                          >
-                              <Bot className="mr-2 h-4 w-4" /> Gerar SEO
-                          </AiButton>
                       </div>
                   </CardTitle>
                   <CardDescription>Roteiro e prompts de imagem gerados</CardDescription>
@@ -515,6 +517,48 @@ export default function ViralVideoView({
                           </div>
                       </Card>
                   ))}
+              </CardContent>
+          </Card>
+      )}
+
+      {loadingThumbnailFromWebDoc && (
+          <Card>
+              <CardHeader><CardTitle>A Gerar Ideias de Thumbnail para o Web Doc...</CardTitle></CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Skeleton className="h-[150px] w-full" />
+                    <Skeleton className="h-[150px] w-full" />
+                </div>
+              </CardContent>
+          </Card>
+      )}
+      
+      {generatedThumbnailFromWebDoc && !loadingThumbnailFromWebDoc && (
+          <Card>
+              <CardHeader><CardTitle>Ideias de Thumbnail Geradas para o Web Doc</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Image src={generatedThumbnailFromWebDoc.generatedImage1DataUri} alt="Thumbnail 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromWebDoc.generatedImage1DataUri, 'thumbnail_webdoc_1.png')}>
+                        <Download className="mr-2 h-4 w-4" /> Baixar Opção 1
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Image src={generatedThumbnailFromWebDoc.generatedImage2DataUri} alt="Thumbnail 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromWebDoc.generatedImage2DataUri, 'thumbnail_webdoc_2.png')}>
+                        <Download className="mr-2 h-4 w-4" /> Baixar Opção 2
+                    </Button>
+                  </div>
+                </div>
+                 <div className="space-y-1 pt-4">
+                  <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
+                  <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromWebDoc.emoji} {generatedThumbnailFromWebDoc.title}</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
+                  <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromWebDoc.styleDescription}</p>
+                </div>
               </CardContent>
           </Card>
       )}
