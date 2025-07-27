@@ -459,21 +459,27 @@ export default function ViralVideoView({
       {generatedWebDocScript && !loadingWebDoc && (
           <Card>
               <CardHeader>
-                  <CardTitle className="flex flex-wrap items-center justify-between gap-2 font-headline">
-                      <span>{generatedWebDocScript.title}</span>
-                       <div className="flex flex-wrap gap-2">
-                          <AiButton onClick={onGenerateWebDocSeo} loading={loadingWebDocSeo} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
-                              <Bot className="mr-2 h-4 w-4" /> Gerar SEO
-                          </AiButton>
-                          <AiButton onClick={onGenerateThumbnailFromWebDoc} loading={loadingThumbnailFromWebDoc} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
-                              <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
-                          </AiButton>
-                          <Button onClick={onExportWebDocScript} variant="outline" size="sm">
-                              <Download className="mr-2 h-4 w-4" /> Exportar para TXT
-                          </Button>
-                      </div>
-                  </CardTitle>
-                  <CardDescription>Roteiro e prompts de imagem gerados</CardDescription>
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <CardTitle className="font-headline">
+                            {generatedWebDocScript.title}
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                            Roteiro e prompts de imagem gerados
+                        </CardDescription>
+                    </div>
+                    <div className="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                        <AiButton onClick={onGenerateWebDocSeo} loading={loadingWebDocSeo} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                            <Bot className="mr-2 h-4 w-4" /> Gerar SEO
+                        </AiButton>
+                        <AiButton onClick={onGenerateThumbnailFromWebDoc} loading={loadingThumbnailFromWebDoc} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                            <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                        </AiButton>
+                        <Button onClick={onExportWebDocScript} variant="outline" size="sm">
+                            <Download className="mr-2 h-4 w-4" /> Exportar para TXT
+                        </Button>
+                    </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                   {generatedWebDocScript.scenes.map((scene, index) => (
