@@ -21,7 +21,8 @@ export type GenerateWebDocScriptInput = z.infer<typeof GenerateWebDocScriptInput
 const WebDocSceneSchema = z.object({
   sceneNumber: z.number().describe('The sequential number of the scene.'),
   sceneScript: z.string().describe('The narration or script for this scene, in Brazilian Portuguese.'),
-  imagePrompt: z.string().describe('A detailed, descriptive prompt in English for an AI image generator to create the visual for this scene.'),
+  imagePrompt: z.string().describe('A detailed, descriptive prompt in English for an AI image generator (like Midjourney) to create the visual for this scene.'),
+  videoPrompt: z.string().describe('A detailed, descriptive prompt in English for an AI video generator (like Veo) to create a dynamic video clip for this scene, focusing on action and camera movement.'),
 });
 
 const GenerateWebDocScriptOutputSchema = z.object({
@@ -43,10 +44,11 @@ const prompt = ai.definePrompt({
 
 **CRITICAL INSTRUCTIONS:**
 1.  **Structure and Pacing:** Break down the documentary into a series of short, numbered scenes. The number of scenes should be appropriate for the total target duration of {{{duration}}}.
-2.  **Dual Output for Each Scene:** For each scene in the 'scenes' array, you MUST generate two distinct pieces of content:
+2.  **Multiple Outputs for Each Scene:** For each scene in the 'scenes' array, you MUST generate THREE distinct pieces of content:
     -   **sceneScript:** This is the narrator's script for the scene. It MUST be written in engaging, clear **Brazilian Portuguese**.
-    -   **imagePrompt:** This is a detailed, visually rich prompt for an AI image generator (like Midjourney or DALL-E). It MUST be written in **English**. This prompt should describe the visual that accompanies the narration of that specific scene. The prompt should be descriptive, specifying style, lighting, composition, and key elements to create a compelling and professional image.
-3.  **Content Cohesion:** The 'imagePrompt' must directly and creatively correspond to the content of the 'sceneScript' for that same scene, creating a cohesive audio-visual experience.
+    -   **imagePrompt:** This is a detailed, visually rich prompt for a static AI image generator (like Midjourney). It MUST be in **English** and focus on style, lighting, composition, and key elements to create a compelling still image.
+    -   **videoPrompt**: A descriptive prompt for a video generator (like Veo). It MUST be in **English** and focus on **action, character movement, camera movement (e.g., 'slow pan'), and the sequence of events** within the scene.
+3.  **Content Cohesion:** The prompts must directly and creatively correspond to the content of the 'sceneScript' for that same scene, creating a cohesive audio-visual experience.
 4.  **Title:** Generate a captivating and relevant title for the documentary in **Brazilian Portuguese**.
 
 **Documentary Details:**

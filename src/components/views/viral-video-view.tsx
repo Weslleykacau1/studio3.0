@@ -147,7 +147,7 @@ export default function ViralVideoView({
   // State for Web Doc Generator
   const [webDocTheme, setWebDocTheme] = useState('');
   const [webDocDuration, setWebDocDuration] = useState('5 minutes');
-  const [copiedWebDocScene, setCopiedWebDocScene] = useState<{ type: 'script' | 'prompt', index: number } | null>(null);
+  const [copiedWebDocScene, setCopiedWebDocScene] = useState<{ type: 'script' | 'image' | 'video', index: number } | null>(null);
   
   // State for Viral Script CTA
   const [ctaOption, setCtaOption] = useState('Siga para mais!');
@@ -270,10 +270,10 @@ export default function ViralVideoView({
     });
   };
 
-  const handleCopyWebDocScenePart = (content: string, type: 'script' | 'prompt', index: number) => {
+  const handleCopyWebDocScenePart = (content: string, type: 'script' | 'image' | 'video', index: number) => {
     navigator.clipboard.writeText(content).then(() => {
         setCopiedWebDocScene({ type, index });
-        const partName = type === 'script' ? 'Roteiro' : 'Prompt';
+        const partName = type === 'script' ? 'Roteiro' : (type === 'image' ? 'Prompt de Imagem' : 'Prompt de Vídeo');
         toast({ variant: 'success', title: `${partName} da Cena ${index + 1} copiado!` });
         setTimeout(() => setCopiedWebDocScene(null), 2000);
     }).catch(err => {
@@ -476,15 +476,27 @@ export default function ViralVideoView({
                                     {copiedWebDocScene?.type === 'script' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar Roteiro'}
                                 </Button>
                             </div>
-                            <div className="bg-background p-4">
-                                <Label className="flex items-center gap-2 text-sm font-semibold">Prompt de Imagem (EN)</Label>
-                                <p className="mt-2 font-mono text-xs">{scene.imagePrompt}</p>
-                                <Button
-                                    onClick={() => handleCopyWebDocScenePart(scene.imagePrompt, 'prompt', index)}
-                                    variant="ghost" size="sm" className="mt-2">
-                                    <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'prompt' && copiedWebDocScene?.index === index && 'text-green-600')} />
-                                    {copiedWebDocScene?.type === 'prompt' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar Prompt'}
-                                </Button>
+                            <div className="flex flex-col gap-px bg-border">
+                                <div className="bg-background p-4">
+                                    <Label className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" />Prompt de Imagem (EN)</Label>
+                                    <p className="mt-2 font-mono text-xs">{scene.imagePrompt}</p>
+                                    <Button
+                                        onClick={() => handleCopyWebDocScenePart(scene.imagePrompt, 'image', index)}
+                                        variant="ghost" size="sm" className="mt-2">
+                                        <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index && 'text-green-600')} />
+                                        {copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar'}
+                                    </Button>
+                                </div>
+                                <div className="bg-background p-4">
+                                    <Label className="flex items-center gap-2 text-sm font-semibold"><VideoIcon className="h-4 w-4" />Prompt de Vídeo (EN)</Label>
+                                    <p className="mt-2 font-mono text-xs">{scene.videoPrompt}</p>
+                                    <Button
+                                        onClick={() => handleCopyWebDocScenePart(scene.videoPrompt, 'video', index)}
+                                        variant="ghost" size="sm" className="mt-2">
+                                        <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'video' && copiedWebDocScene?.index === index && 'text-green-600')} />
+                                        {copiedWebDocScene?.type === 'video' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar'}
+                                    </Button>
+                                </div>
                             </div>
                           </div>
                       </Card>
@@ -616,8 +628,7 @@ export default function ViralVideoView({
       <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-                  <Pencil />
-                  Gerador de Roteiro de Vídeo Longo
+                Gerador de Roteiro de Vídeo Longo
               </CardTitle>
               <CardDescription>
                   Crie roteiros completos para vídeos mais longos. Opcionalmente, carregue um influenciador e um cenário para dar contexto à IA.

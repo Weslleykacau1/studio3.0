@@ -110,6 +110,7 @@ export interface WebDocScene {
   sceneNumber: number;
   sceneScript: string;
   imagePrompt: string;
+  videoPrompt: string;
 }
 
 export interface WebDocScript {
