@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw } from 'lucide-react';
-import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene, ImagePromptScene } from '@/types';
+import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene, ScenePrompts } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -59,10 +59,10 @@ interface ViralVideoViewProps {
   loadingWebDocSeo: boolean;
   generatedWebDocSeo: string;
   pastedScript: string;
-  setPastedScript: (script: string) => void;
-  onGenerateImagePromptsFromScript: () => void;
+  setPastedText: (script: string) => void;
+  onGeneratePromptsFromScript: () => void;
   loadingImagePrompts: boolean;
-  generatedImagePrompts: ImagePromptScene[] | null;
+  generatedScenePrompts: ScenePrompts[] | null;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -116,10 +116,10 @@ export default function ViralVideoView({
     loadingWebDocSeo,
     generatedWebDocSeo,
     pastedScript,
-    setPastedScript,
-    onGenerateImagePromptsFromScript,
+    setPastedText,
+    onGeneratePromptsFromScript,
     loadingImagePrompts,
-    generatedImagePrompts,
+    generatedScenePrompts,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -155,6 +155,7 @@ export default function ViralVideoView({
 
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
   const [copiedImagePrompt, setCopiedImagePrompt] = useState<number | null>(null);
+  const [copiedVideoPrompt, setCopiedVideoPrompt] = useState<number | null>(null);
 
 
   const { toast } = useToast();
@@ -281,13 +282,15 @@ export default function ViralVideoView({
     });
   };
 
-  const handleCopyImagePrompt = (prompt: string, index: number) => {
+  const handleCopyPrompt = (prompt: string, type: 'image' | 'video', index: number) => {
     navigator.clipboard.writeText(prompt).then(() => {
-        setCopiedImagePrompt(index);
-        toast({ variant: 'success', title: `Prompt da Cena ${index + 1} copiado!` });
-        setTimeout(() => setCopiedImagePrompt(null), 2000);
+      const stateSetter = type === 'image' ? setCopiedImagePrompt : setCopiedVideoPrompt;
+      const toastTitle = type === 'image' ? 'Prompt de Imagem copiado!' : 'Prompt de Vídeo copiado!';
+      stateSetter(index);
+      toast({ variant: 'success', title: toastTitle });
+      setTimeout(() => stateSetter(null), 2000);
     }).catch(err => {
-        console.error('Failed to copy image prompt: ', err);
+        console.error('Failed to copy prompt: ', err);
         toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
 };
@@ -519,10 +522,10 @@ export default function ViralVideoView({
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                 <ImageIcon />
-                Gerador de Prompts a Partir de Roteiro Existente
+                Gerador de Prompts de Imagem e Vídeo a Partir de Roteiro
             </CardTitle>
             <CardDescription>
-                Cole o seu roteiro para a IA criar os prompts de imagem para cada cena.
+                Cole o seu roteiro para a IA criar os prompts de imagem e vídeo para cada cena.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -531,20 +534,20 @@ export default function ViralVideoView({
                 <Textarea
                     id="pasted-script"
                     value={pastedScript}
-                    onChange={(e) => setPastedScript(e.target.value)}
+                    onChange={(e) => setPastedText(e.target.value)}
                     placeholder="CENA 1&#10;EXT. CASA ABANDONADA - DIA&#10;Um jovem aventureiro olha para a casa com uma mistura de medo e excitação.&#10;&#10;JOVEM&#10;(Para a câmara)&#10;Estão prontos para isto?..."
                     className="min-h-[150px] font-mono text-xs"
                 />
             </div>
             <AiButton
-                onClick={onGenerateImagePromptsFromScript}
+                onClick={onGeneratePromptsFromScript}
                 loading={loadingImagePrompts}
                 isApiConfigured={isApiConfigured}
                 disabled={!pastedScript.trim()}
                 className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg transition-transform hover:scale-105"
             >
                 <Bot className="mr-2 h-5 w-5" />
-                Gerar Prompts de Imagem
+                Gerar Prompts de Imagem e Vídeo
             </AiButton>
         </CardContent>
       </Card>
@@ -555,38 +558,53 @@ export default function ViralVideoView({
                   <div className="space-y-4 pt-4">
                       <div className="space-y-2 rounded-lg border p-4">
                           <Skeleton className="h-6 w-1/4" />
-                          <Skeleton className="h-10 w-full" />
+                          <div className="grid grid-cols-2 gap-4">
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                          </div>
                       </div>
                       <div className="space-y-2 rounded-lg border p-4">
                           <Skeleton className="h-6 w-1/4" />
-                          <Skeleton className="h-10 w-full" />
+                          <div className="grid grid-cols-2 gap-4">
+                            <Skeleton className="h-10 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                          </div>
                       </div>
                   </div>
               </CardContent>
           </Card>
       )}
 
-      {generatedImagePrompts && !loadingImagePrompts && (
+      {generatedScenePrompts && !loadingImagePrompts && (
           <Card>
               <CardHeader>
                   <CardTitle className="font-headline">
-                      Prompts de Imagem Gerados
+                      Prompts Gerados por Cena
                   </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                  {generatedImagePrompts.map((prompt, index) => (
+                  {generatedScenePrompts.map((prompt, index) => (
                       <Card key={index} className="overflow-hidden bg-secondary/30">
                           <CardHeader className="bg-muted/40 p-3">
                               <CardTitle className="text-base">Cena {prompt.sceneNumber}</CardTitle>
                           </CardHeader>
-                          <div className="bg-background p-4">
-                              <p className="font-mono text-xs">{prompt.imagePrompt}</p>
-                              <Button
-                                  onClick={() => handleCopyImagePrompt(prompt.imagePrompt, index)}
-                                  variant="ghost" size="sm" className="mt-2">
-                                  <Copy className={cn('mr-2 h-3 w-3', copiedImagePrompt === index && 'text-green-600')} />
-                                  {copiedImagePrompt === index ? 'Copiado!' : 'Copiar Prompt'}
-                              </Button>
+                          <div className="grid grid-cols-1 gap-px bg-border md:grid-cols-2">
+                               <div className="bg-background p-4">
+                                  <Label className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" />Prompt de Imagem (EN)</Label>
+                                  <p className="mt-2 font-mono text-xs">{prompt.imagePrompt}</p>
+                                  <Button onClick={() => handleCopyPrompt(prompt.imagePrompt, 'image', index)} variant="ghost" size="sm" className="mt-2">
+                                      <Copy className={cn('mr-2 h-3 w-3', copiedImagePrompt === index && 'text-green-600')} />
+                                      {copiedImagePrompt === index ? 'Copiado!' : 'Copiar'}
+                                  </Button>
+                              </div>
+                              <div className="bg-background p-4">
+                                  <Label className="flex items-center gap-2 text-sm font-semibold"><VideoIcon className="h-4 w-4" />Prompt de Vídeo (EN)</Label>
+                                  <p className="mt-2 font-mono text-xs">{prompt.videoPrompt}</p>
+                                  <Button onClick={() => handleCopyPrompt(prompt.videoPrompt, 'video', index)} variant="ghost" size="sm" className="mt-2">
+                                      <Copy className={cn('mr-2 h-3 w-3', copiedVideoPrompt === index && 'text-green-600')} />
+                                      {copiedVideoPrompt === index ? 'Copiado!' : 'Copiar'}
+                                  </Button>
+                              </div>
                           </div>
                       </Card>
                   ))}

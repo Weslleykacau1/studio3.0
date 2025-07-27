@@ -117,7 +117,8 @@ export interface WebDocScript {
   scenes: WebDocScene[];
 }
 
-export interface ImagePromptScene {
+export interface ScenePrompts {
   sceneNumber: number;
   imagePrompt: string;
+  videoPrompt: string;
 }

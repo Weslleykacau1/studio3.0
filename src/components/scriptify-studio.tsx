@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ImagePromptScene } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -24,7 +24,7 @@ import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { generateLongScript } from '@/ai/flows/generate-long-script';
-import { generateImagePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
+import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -62,7 +62,7 @@ export default function ScriptifyStudio() {
     const [generatedWebDocScript, setGeneratedWebDocScript] = useState<WebDocScript | null>(null);
     const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
     const [pastedScript, setPastedScript] = useState('');
-    const [generatedImagePrompts, setGeneratedImagePrompts] = useState<ImagePromptScene[] | null>(null);
+    const [generatedScenePrompts, setGeneratedScenePrompts] = useState<ScenePrompts[] | null>(null);
 
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false });
@@ -702,16 +702,16 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateImagePromptsFromScript = async () => {
+    const handleGeneratePromptsFromScript = async () => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!pastedScript.trim()) {
             return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, cole um roteiro para gerar os prompts.' });
         }
         setLoading('generatingImagePrompts', true);
-        setGeneratedImagePrompts(null);
+        setGeneratedScenePrompts(null);
         try {
-            const result = await generateImagePromptsFromScript({ scriptText: pastedScript });
-            setGeneratedImagePrompts(result.prompts);
+            const result = await generatePromptsFromScript({ scriptText: pastedScript });
+            setGeneratedScenePrompts(result.prompts);
             toast({ variant: 'success', title: 'Prompts de imagem gerados com sucesso!' });
         } catch (error: any) {
             console.error('Failed to generate image prompts from script:', error);
@@ -949,10 +949,10 @@ export default function ScriptifyStudio() {
                         loadingWebDocSeo={loadingStates.generatingWebDocSeo}
                         generatedWebDocSeo={generatedWebDocSeo}
                         pastedScript={pastedScript}
-                        setPastedScript={setPastedScript}
-                        onGenerateImagePromptsFromScript={handleGenerateImagePromptsFromScript}
+                        setPastedText={setPastedScript}
+                        onGeneratePromptsFromScript={handleGeneratePromptsFromScript}
                         loadingImagePrompts={loadingStates.generatingImagePrompts}
-                        generatedImagePrompts={generatedImagePrompts}
+                        generatedScenePrompts={generatedScenePrompts}
                     />
                 </TabsContent>
             </Tabs>
