@@ -20,3 +20,5 @@ import '@/ai/flows/generate-paraphrased-script-from-transcription.ts';
 import '@/ai/flows/generate-long-script.ts';
 import '@/ai/flows/generate-web-doc-script.ts';
 import '@/ai/flows/generate-image-prompts-from-script.ts';
+import '@/ai/flows/generate-seo-from-script.ts';
+import '@/ai/flows/generate-thumbnail-from-script.ts';

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw, Search, ThumbsUp } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene, ScenePrompts } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -63,6 +63,13 @@ interface ViralVideoViewProps {
   onGeneratePromptsFromScript: () => void;
   loadingImagePrompts: boolean;
   generatedScenePrompts: ScenePrompts[] | null;
+  onGenerateSeoFromScript: () => void;
+  loadingSeoFromScript: boolean;
+  generatedSeoFromScript: string;
+  onGenerateThumbnailFromScript: () => void;
+  loadingThumbnailFromScript: boolean;
+  generatedThumbnailFromScript: ThumbnailIdeas | null;
+  onExportPrompts: () => void;
 }
 
 const thumbnailStyleOptions: { value: ThumbnailStyle; label: string; description: string }[] = [
@@ -120,6 +127,13 @@ export default function ViralVideoView({
     onGeneratePromptsFromScript,
     loadingImagePrompts,
     generatedScenePrompts,
+    onGenerateSeoFromScript,
+    loadingSeoFromScript,
+    generatedSeoFromScript,
+    onGenerateThumbnailFromScript,
+    loadingThumbnailFromScript,
+    generatedThumbnailFromScript,
+    onExportPrompts,
 }: ViralVideoViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -589,10 +603,21 @@ export default function ViralVideoView({
 
       {generatedScenePrompts && !loadingImagePrompts && (
           <Card>
-              <CardHeader>
+              <CardHeader className="flex-row items-center justify-between">
                   <CardTitle className="font-headline">
                       Prompts Gerados por Cena
                   </CardTitle>
+                   <div className="flex gap-2">
+                      <AiButton onClick={onGenerateSeoFromScript} loading={loadingSeoFromScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                          <Search className="mr-2 h-4 w-4" /> Gerar SEO
+                      </AiButton>
+                      <AiButton onClick={onGenerateThumbnailFromScript} loading={loadingThumbnailFromScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                          <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                      </AiButton>
+                      <Button onClick={onExportPrompts} variant="outline" size="sm">
+                          <Download className="mr-2 h-4 w-4" /> Exportar
+                      </Button>
+                  </div>
               </CardHeader>
               <CardContent className="space-y-4">
                   {generatedScenePrompts.map((prompt, index) => (
@@ -620,6 +645,57 @@ export default function ViralVideoView({
                           </div>
                       </Card>
                   ))}
+              </CardContent>
+          </Card>
+      )}
+      
+      {generatedSeoFromScript && (
+          <Card>
+              <CardHeader><CardTitle>SEO Gerado do Roteiro</CardTitle></CardHeader>
+              <CardContent>
+                  <ContentDisplay content={generatedSeoFromScript} />
+              </CardContent>
+          </Card>
+      )}
+
+      {loadingThumbnailFromScript && (
+          <Card>
+              <CardHeader><CardTitle>A Gerar Ideias de Thumbnail...</CardTitle></CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <Skeleton className="h-[150px] w-full" />
+                    <Skeleton className="h-[150px] w-full" />
+                </div>
+              </CardContent>
+          </Card>
+      )}
+      
+      {generatedThumbnailFromScript && !loadingThumbnailFromScript && (
+          <Card>
+              <CardHeader><CardTitle>Ideias de Thumbnail Geradas do Roteiro</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Image src={generatedThumbnailFromScript.generatedImage1DataUri} alt="Thumbnail 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromScript.generatedImage1DataUri, 'thumbnail_1.png')}>
+                        <Download className="mr-2 h-4 w-4" /> Baixar Opção 1
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Image src={generatedThumbnailFromScript.generatedImage2DataUri} alt="Thumbnail 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromScript.generatedImage2DataUri, 'thumbnail_2.png')}>
+                        <Download className="mr-2 h-4 w-4" /> Baixar Opção 2
+                    </Button>
+                  </div>
+                </div>
+                 <div className="space-y-1 pt-4">
+                  <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
+                  <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromScript.emoji} {generatedThumbnailFromScript.title}</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
+                  <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromScript.styleDescription}</p>
+                </div>
               </CardContent>
           </Card>
       )}

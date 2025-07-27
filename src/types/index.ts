@@ -76,6 +76,8 @@ export type LoadingStates = {
     generatingWebDoc: boolean;
     generatingWebDocSeo: boolean;
     generatingImagePrompts: boolean;
+    generatingSeoFromScript: boolean;
+    generatingThumbnailFromScript: boolean;
 };
 
 export type ThumbnailStyle =

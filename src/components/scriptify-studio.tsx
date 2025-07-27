@@ -25,6 +25,8 @@ import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { generateLongScript } from '@/ai/flows/generate-long-script';
 import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
+import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
+import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -63,9 +65,11 @@ export default function ScriptifyStudio() {
     const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
     const [pastedScript, setPastedScript] = useState('');
     const [generatedScenePrompts, setGeneratedScenePrompts] = useState<ScenePrompts[] | null>(null);
+    const [generatedSeoFromScript, setGeneratedSeoFromScript] = useState('');
+    const [generatedThumbnailFromScript, setGeneratedThumbnailFromScript] = useState<ThumbnailIdeas | null>(null);
 
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -709,6 +713,8 @@ export default function ScriptifyStudio() {
         }
         setLoading('generatingImagePrompts', true);
         setGeneratedScenePrompts(null);
+        setGeneratedSeoFromScript('');
+        setGeneratedThumbnailFromScript(null);
         try {
             const result = await generatePromptsFromScript({ scriptText: pastedScript });
             setGeneratedScenePrompts(result.prompts);
@@ -719,6 +725,64 @@ export default function ScriptifyStudio() {
         } finally {
             setLoading('generatingImagePrompts', false);
         }
+    };
+
+    const handleGenerateSeoFromScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!pastedScript.trim()) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'O roteiro precisa estar colado para gerar o SEO.' });
+        }
+        setLoading('generatingSeoFromScript', true);
+        setGeneratedSeoFromScript('');
+        try {
+            const result = await generateSeoFromScript({ scriptText: pastedScript });
+            setGeneratedSeoFromScript(result);
+            toast({ variant: 'success', title: 'SEO gerado a partir do roteiro!' });
+        } catch (error: any) {
+            console.error('Failed to generate SEO from script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
+        } finally {
+            setLoading('generatingSeoFromScript', false);
+        }
+    };
+
+    const handleGenerateThumbnailFromScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!pastedScript.trim()) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'O roteiro precisa estar colado para gerar a thumbnail.' });
+        }
+        setLoading('generatingThumbnailFromScript', true);
+        setGeneratedThumbnailFromScript(null);
+        try {
+            const result = await generateThumbnailFromScript({ scriptText: pastedScript });
+            setGeneratedThumbnailFromScript(result);
+            toast({ variant: 'success', title: 'Ideias de thumbnail geradas a partir do roteiro!' });
+        } catch (error: any) {
+            console.error('Failed to generate thumbnail from script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
+        } finally {
+            setLoading('generatingThumbnailFromScript', false);
+        }
+    };
+
+    const handleExportPrompts = () => {
+        if (!generatedScenePrompts) return;
+
+        let content = "Prompts Gerados a partir do Roteiro\n\n";
+        content += generatedScenePrompts.map(p => 
+            `----------\nSCENE ${p.sceneNumber}\n\nIMAGE PROMPT:\n${p.imagePrompt}\n\nVIDEO PROMPT:\n${p.videoPrompt}\n`
+        ).join('\n');
+        
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'prompts_de_cena.txt';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast({ variant: 'success', title: 'Prompts exportados com sucesso!' });
     };
 
     // DB Handlers (now local state handlers)
@@ -953,6 +1017,13 @@ export default function ScriptifyStudio() {
                         onGeneratePromptsFromScript={handleGeneratePromptsFromScript}
                         loadingImagePrompts={loadingStates.generatingImagePrompts}
                         generatedScenePrompts={generatedScenePrompts}
+                        onGenerateSeoFromScript={handleGenerateSeoFromScript}
+                        loadingSeoFromScript={loadingStates.generatingSeoFromScript}
+                        generatedSeoFromScript={generatedSeoFromScript}
+                        onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
+                        loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
+                        generatedThumbnailFromScript={generatedThumbnailFromScript}
+                        onExportPrompts={handleExportPrompts}
                     />
                 </TabsContent>
             </Tabs>
