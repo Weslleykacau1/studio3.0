@@ -75,6 +75,7 @@ export type LoadingStates = {
     generatingLongScript: boolean;
     generatingWebDoc: boolean;
     generatingWebDocSeo: boolean;
+    generatingImagePrompts: boolean;
 };
 
 export type ThumbnailStyle =
@@ -114,4 +115,9 @@ export interface WebDocScene {
 export interface WebDocScript {
   title: string;
   scenes: WebDocScene[];
+}
+
+export interface ImagePromptScene {
+  sceneNumber: number;
+  imagePrompt: string;
 }

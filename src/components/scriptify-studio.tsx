@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript } from '@/types';
+import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ImagePromptScene } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
@@ -24,6 +24,7 @@ import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { generateLongScript } from '@/ai/flows/generate-long-script';
+import { generateImagePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -60,9 +61,11 @@ export default function ScriptifyStudio() {
     const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
     const [generatedWebDocScript, setGeneratedWebDocScript] = useState<WebDocScript | null>(null);
     const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
+    const [pastedScript, setPastedScript] = useState('');
+    const [generatedImagePrompts, setGeneratedImagePrompts] = useState<ImagePromptScene[] | null>(null);
 
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -699,6 +702,25 @@ export default function ScriptifyStudio() {
         }
     };
 
+    const handleGenerateImagePromptsFromScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!pastedScript.trim()) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, cole um roteiro para gerar os prompts.' });
+        }
+        setLoading('generatingImagePrompts', true);
+        setGeneratedImagePrompts(null);
+        try {
+            const result = await generateImagePromptsFromScript({ scriptText: pastedScript });
+            setGeneratedImagePrompts(result.prompts);
+            toast({ variant: 'success', title: 'Prompts de imagem gerados com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate image prompts from script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração', description: error.message });
+        } finally {
+            setLoading('generatingImagePrompts', false);
+        }
+    };
+
     // DB Handlers (now local state handlers)
     const saveOrUpdateInfluencer = () => {
         const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'clothing', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
@@ -926,6 +948,11 @@ export default function ScriptifyStudio() {
                         onGenerateWebDocSeo={handleGenerateWebDocSeo}
                         loadingWebDocSeo={loadingStates.generatingWebDocSeo}
                         generatedWebDocSeo={generatedWebDocSeo}
+                        pastedScript={pastedScript}
+                        setPastedScript={setPastedScript}
+                        onGenerateImagePromptsFromScript={handleGenerateImagePromptsFromScript}
+                        loadingImagePrompts={loadingStates.generatingImagePrompts}
+                        generatedImagePrompts={generatedImagePrompts}
                     />
                 </TabsContent>
             </Tabs>
