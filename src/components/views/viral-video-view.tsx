@@ -527,12 +527,12 @@ export default function ViralVideoView({
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui</Label>
+                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui (Ex: CENA 1...)</Label>
                 <Textarea
                     id="pasted-script"
                     value={pastedScript}
                     onChange={(e) => setPastedScript(e.target.value)}
-                    placeholder="CENA 1&#10;EXT. CASA ABANDONADA - DIA&#10;Um jovem aventureiro olha para a casa com uma mistura de medo e excitação.&#10;JOVEM&#10;(Para a câmara)&#10;Estão prontos para isto?..."
+                    placeholder="CENA 1&#10;EXT. CASA ABANDONADA - DIA&#10;Um jovem aventureiro olha para a casa com uma mistura de medo e excitação.&#10;&#10;JOVEM&#10;(Para a câmara)&#10;Estão prontos para isto?..."
                     className="min-h-[150px] font-mono text-xs"
                 />
             </div>
