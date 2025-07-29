@@ -41,9 +41,9 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
-import { ArrowLeft, ChevronLeft, Undo2 } from 'lucide-react';
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
+import { ChevronLeft } from 'lucide-react';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
@@ -1112,7 +1112,7 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
                         loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
                         generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={onExportPrompts}
+                        onExportPrompts={handleExportPrompts}
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
@@ -1165,15 +1165,10 @@ export default function ScriptifyStudio() {
             <PromoBanner hasPurchased={hasPurchased} />
 
             {activeView !== 'bento' && (
-                 <>
-                    <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
-                        <ChevronLeft className="mr-2 h-4 w-4 stroke-[3]" />
-                        Voltar para o Início
-                    </Button>
-                     <Button variant="default" size="icon" onClick={() => setActiveView('bento')} className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full shadow-lg block md:hidden" aria-label="Voltar para o Início">
-                        <ChevronLeft className="h-6 w-6 stroke-[3]" />
-                    </Button>
-                </>
+                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Voltar para o Início
+                </Button>
             )}
 
             <div className="w-full">
