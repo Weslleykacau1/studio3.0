@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='a' x1='0' y1='0' x2='100' y2='100' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='%23FF4C00'/><stop offset='1' stop-color='%23D97700'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23a)'/><g fill='white'><path d='M69,25c-8,0-15,4-17,11l-14,7c-1-3-4-5-8-5c-5,0-9,4-9,9s4,9,9,9c4,0,7-2,8-5l14,7c2,7,8,12,17,12c9,0,17-8,17-17V42C86,33,78,25,69,25z M26,55c-2,0-4-2-4-4s2-4,4-4s4,2,4,4S28,55,26,55z M69,71c-5,0-9-4-9-9s4-9,9-9s9,4,9,9S74,71,69,71z'/><polygon points='66,41 66,51 74,46'/></g></svg>" type="image/svg+xml" />
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52' fill='none'><rect width='52' height='52' rx='14' fill='url(%23g)'/><defs><linearGradient id='g' x1='0' y1='0' x2='52' y2='52' gradientUnits='userSpaceOnUse'><stop stop-color='%23FF4C00'/><stop offset='1' stop-color='%23D97700'/></linearGradient></defs><g fill='white'><path d='M26 13L29.29 22.71L39 26L29.29 29.29L26 39L22.71 29.29L13 26L22.71 22.71L26 13Z'/><path d='M37 15L38 17L40 18L38 19L37 21L36 19L34 18L36 17L37 15Z'/><path d='M15 31L16 33L18 34L16 35L15 37L14 35L12 34L14 33L15 31Z'/></g></svg>" type="image/svg+xml" />
         <meta name="msapplication-TileColor" content="#FF4C00"/>
         <meta name="theme-color" content="#121212"/>
       </head>
