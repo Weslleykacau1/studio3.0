@@ -20,38 +20,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface ViralToolsViewProps {
   isApiConfigured: boolean;
-  youtubeUrl: string;
-  setYoutubeUrl: (url: string) => void;
-  onAnalyzeVideo: () => void;
-  loadingYouTube: boolean;
   onGenerateViralScript: (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch', cta: string | undefined) => void;
   loadingViralScript: boolean;
   generatedViralScene: Scene | null;
   onLoadToCreator: (scene: Scene) => void;
-  onTranscribeUploadedVideo: (videoDataUri: string) => void;
-  loadingUploadedVideoTranscription: boolean;
-  generatedUploadedVideoTranscription: string;
-  onGenerateScriptFromTranscription: (imageDataUri?: string) => void;
-  loadingScriptFromTranscription: boolean;
-  onGenerateParaphrasedScriptFromTranscription: (imageDataUri?: string) => void;
-  loadingParaphrasedScript: boolean;
-  onClearTranscription: () => void;
 }
 
 export default function ViralToolsView({ 
     isApiConfigured, 
-    youtubeUrl, setYoutubeUrl, onAnalyzeVideo, loadingYouTube,
     onGenerateViralScript, loadingViralScript,
     generatedViralScene,
     onLoadToCreator,
-    onTranscribeUploadedVideo,
-    loadingUploadedVideoTranscription,
-    generatedUploadedVideoTranscription,
-    onGenerateScriptFromTranscription,
-    loadingScriptFromTranscription,
-    onGenerateParaphrasedScriptFromTranscription,
-    loadingParaphrasedScript,
-    onClearTranscription,
 }: ViralToolsViewProps) {
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [mainImageDataUri, setMainImageDataUri] = useState<string | null>(null);
@@ -59,10 +38,6 @@ export default function ViralToolsView({
   const [viralScriptDuration, setViralScriptDuration] = useState('8 seg');
   const [videoType, setVideoType] = useState<'shorts' | 'watch'>('shorts');
   const [copyViralScriptSuccess, setCopyViralScriptSuccess] = useState(false);
-  const [copyUploadedVideoTranscriptionSuccess, setCopyUploadedVideoTranscriptionSuccess] = useState(false);
-  const [uploadedVideoUri, setUploadedVideoUri] = useState<string | null>(null);
-  const [transcriptionScenePhotoPreview, setTranscriptionScenePhotoPreview] = useState<string | null>(null);
-  const [transcriptionScenePhotoDataUri, setTranscriptionScenePhotoDataUri] = useState<string | null>(null);
   
   // State for Viral Script CTA
   const [ctaOption, setCtaOption] = useState('Siga para mais!');
@@ -70,36 +45,10 @@ export default function ViralToolsView({
 
   const { toast } = useToast();
 
-  const handleYoutubeUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setYoutubeUrl(e.target.value);
-  };
-
-  const handleConvertYoutubeUrl = () => {
-    if (youtubeUrl.includes('/shorts/')) {
-        setYoutubeUrl(youtubeUrl.replace('/shorts/', '/watch?v='));
-    }
-  };
-
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
       setMainImagePreview(preview);
       setMainImageDataUri(`data:${type};base64,${base64}`);
-    });
-  };
-  
-  const handleTranscriptionScenePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleImageUploadUtil(e, ({ preview, base64, type }) => {
-      setTranscriptionScenePhotoPreview(preview);
-      setTranscriptionScenePhotoDataUri(`data:${type};base64,${base64}`);
-    });
-  };
-
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleImageUploadUtil(e, ({ preview }) => {
-      setUploadedVideoUri(preview);
-      onClearTranscription();
-      setTranscriptionScenePhotoPreview(null);
-      setTranscriptionScenePhotoDataUri(null);
     });
   };
 
@@ -107,12 +56,6 @@ export default function ViralToolsView({
     if (scriptTheme) {
         const cta = ctaOption === 'personalizado' ? customCta : ctaOption;
         onGenerateViralScript(scriptTheme, mainImageDataUri, viralScriptDuration, videoType, cta);
-    }
-  };
-
-  const handleTranscribeUploadedVideoClick = () => {
-    if (uploadedVideoUri) {
-      onTranscribeUploadedVideo(uploadedVideoUri);
     }
   };
   
@@ -136,19 +79,7 @@ export default function ViralToolsView({
     });
   };
 
-  const handleCopyUploadedVideoTranscription = () => {
-    if (!generatedUploadedVideoTranscription) return;
-    navigator.clipboard.writeText(generatedUploadedVideoTranscription).then(() => {
-        setCopyUploadedVideoTranscriptionSuccess(true);
-        toast({ variant: 'success', title: 'Transcrição copiada!' });
-        setTimeout(() => setCopyUploadedVideoTranscriptionSuccess(false), 2000);
-    }).catch(err => {
-        console.error('Failed to copy transcription text: ', err);
-        toast({ variant: 'destructive', title: 'Erro ao copiar' });
-    });
-  };
-
-  const uploadButton = (id: string, text: string, disabledText: string, handler: (e: React.ChangeEvent<HTMLInputElement>) => void, fileType: 'image/*' | 'video/*') => {
+  const uploadButton = (id: string, text: string, disabledText: string, handler: (e: React.ChangeEvent<HTMLInputElement>) => void) => {
       const buttonContent = (
           <Button asChild variant="outline" size="sm" className="mt-4" disabled={!isApiConfigured}>
               <Label htmlFor={id} className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}>
@@ -159,7 +90,7 @@ export default function ViralToolsView({
       );
       return (
           <>
-              <input id={id} type="file" className="hidden" accept={fileType} onChange={handler} disabled={!isApiConfigured} />
+              <input id={id} type="file" className="hidden" accept="image/*" onChange={handler} disabled={!isApiConfigured} />
               {isApiConfigured ? (
                   buttonContent
               ) : (
@@ -181,163 +112,14 @@ export default function ViralToolsView({
 
   return (
     <div className="space-y-8">
-        <Card className="bg-card/80 backdrop-blur-sm">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-                    <Zap />
-                    Ferramentas de Vídeo Rápido e Viral
-                </CardTitle>
-                <CardDescription>
-                    Um conjunto de ferramentas poderosas para acelerar a sua criação de conteúdo em vídeo.
-                </CardDescription>
-            </CardHeader>
-        </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <Youtube />
-            Utilitário de Vídeo do YouTube
-          </CardTitle>
-          <CardDescription>
-            Cole um URL do YouTube para descarregar o vídeo e usá-lo na secção de transcrição abaixo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="youtube-url">URL do YouTube</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="youtube-url"
-                  value={youtubeUrl}
-                  onChange={handleYoutubeUrlChange}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                />
-                <Button variant="secondary" onClick={handleConvertYoutubeUrl} aria-label="Converter URL de Shorts">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <Button asChild variant="outline" className="mt-4 w-full sm:w-auto">
-              <a href="https://savefrom.in.net/youtube-video-downloader" target="_blank" rel="noopener noreferrer">
-                <Download className="mr-2 h-4 w-4" /> Descarregar Vídeo
-              </a>
-            </Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-            <VideoIcon />
-            Transcrever Vídeo Anexado
-          </CardTitle>
-          <CardDescription>
-            Anexe um ficheiro de vídeo do seu computador para obter a transcrição em português com timestamps.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="video-upload-input" className="flex items-center gap-2 font-medium"><VideoIcon className="h-4 w-4"/> Anexar ficheiro de vídeo</Label>
-                    <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
-                      {uploadedVideoUri ? (
-                        <video src={uploadedVideoUri} controls className="max-h-[250px] w-auto rounded-md" />
-                      ) : (
-                        <div className="space-y-2 py-8 text-muted-foreground">
-                          <VideoIcon className="mx-auto h-10 w-10" />
-                          <p className="text-xs">Formatos suportados: MP4, MOV, WEBM, etc.</p>
-                        </div>
-                      )}
-                      {uploadButton('video-upload-input', uploadedVideoUri ? 'Trocar' : 'Escolher Vídeo', 'Configure a sua chave API para carregar vídeos.', handleVideoUpload, 'video/*')}
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="transcription-scene-photo-upload" className="flex items-center gap-2 font-medium"><ImageIcon className="h-4 w-4" /> Anexar imagem de cena (Opcional)</Label>
-                    <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-center">
-                      {transcriptionScenePhotoPreview ? (
-                        <Image src={transcriptionScenePhotoPreview} alt="Prévia da cena" width={200} height={200} className="max-h-[250px] w-auto rounded-md object-contain" />
-                      ) : (
-                        <div className="space-y-2 py-8 text-muted-foreground">
-                          <ImageIcon className="mx-auto h-10 w-10" />
-                          <p className="text-xs">Isto irá definir o cenário visual do roteiro gerado.</p>
-                        </div>
-                      )}
-                      {uploadButton('transcription-scene-photo-upload', transcriptionScenePhotoPreview ? 'Trocar' : 'Escolher Imagem', 'Configure a sua chave API para carregar imagens.', handleTranscriptionScenePhotoUpload, 'image/*')}
-                    </div>
-                </div>
-            </div>
-          <div className="mt-6 space-y-2">
-            <AiButton
-                onClick={handleTranscribeUploadedVideoClick}
-                loading={loadingUploadedVideoTranscription}
-                isApiConfigured={isApiConfigured}
-                disabled={!uploadedVideoUri}
-                variant="outline"
-            >
-                <FileText className="mr-2 h-4 w-4" />
-                {loadingUploadedVideoTranscription ? 'A transcrever...' : 'Transcrever Vídeo Anexado'}
-            </AiButton>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <AiButton
-                    onClick={() => onGenerateScriptFromTranscription(transcriptionScenePhotoDataUri ?? undefined)}
-                    loading={loadingScriptFromTranscription}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                    <Bot className="mr-2 h-4 w-4" />
-                    {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
-                </AiButton>
-                <AiButton
-                    onClick={() => onGenerateParaphrasedScriptFromTranscription(transcriptionScenePhotoDataUri ?? undefined)}
-                    loading={loadingParaphrasedScript}
-                    isApiConfigured={isApiConfigured}
-                    disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                    variant="secondary"
-                >
-                    <Bot className="mr-2 h-4 w-4" />
-                    {loadingParaphrasedScript ? 'A reescrever...' : 'Gerar com Outras Palavras'}
-                </AiButton>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {generatedUploadedVideoTranscription && (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <FileText />
-                    Transcrição do Vídeo Anexado
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ContentDisplay content={generatedUploadedVideoTranscription} />
-                <Button
-                    onClick={handleCopyUploadedVideoTranscription}
-                    variant="outline"
-                    className={cn(
-                        'mt-4 transition-colors',
-                        copyUploadedVideoTranscriptionSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
-                    )}
-                >
-                    <Copy className="mr-2 h-4 w-4" />
-                    {copyUploadedVideoTranscriptionSuccess ? 'Copiado!' : 'Copiar Transcrição'}
-                </Button>
-            </CardContent>
-        </Card>
-      )}
-
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
               <Pencil />
-              Gerar Roteiro Viral
+              Gerador de Roteiro Viral
             </CardTitle>
             <CardDescription>
-              Escreva um tema, escolha as opções e clique para criar um roteiro. A imagem de referência do Passo 1 é opcional para o roteiro. O resultado será guardado na sua galeria.
+              Escreva um tema, escolha as opções e clique para criar um roteiro. A imagem de referência é opcional. O resultado será guardado na sua galeria.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -352,7 +134,7 @@ export default function ViralToolsView({
                     <p className="text-xs">Carregue a imagem do personagem ou objeto principal</p>
                   </div>
                 )}
-                 {uploadButton('main-image-upload-viral', mainImagePreview ? 'Trocar' : 'Escolher', 'Configure a sua chave API para carregar imagens.', handleMainImageUpload, 'image/*')}
+                 {uploadButton('main-image-upload-viral', mainImagePreview ? 'Trocar' : 'Escolher', 'Configure a sua chave API para carregar imagens.', handleMainImageUpload)}
               </div>
             </div>
 

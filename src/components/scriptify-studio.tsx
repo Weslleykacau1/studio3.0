@@ -2,6 +2,7 @@
 
 
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -38,6 +39,7 @@ import SceneGalleryView from './views/scene-gallery-view';
 import ViralToolsView from './views/viral-tools-view';
 import AdvancedToolsView from './views/advanced-tools-view';
 import ThumbnailGeneratorView from './views/thumbnail-generator-view';
+import TranscribeVideoView from './views/transcribe-video-view';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
@@ -1002,22 +1004,10 @@ export default function ScriptifyStudio() {
             case 'viralTools':
                 return <ViralToolsView
                         isApiConfigured={isApiConfigured}
-                        youtubeUrl={youtubeUrl}
-                        setYoutubeUrl={setYoutubeUrl}
-                        onAnalyzeVideo={handleAnalyzeYouTubeVideo}
-                        loadingYouTube={loadingStates.analyzingYouTube}
                         onGenerateViralScript={handleGenerateViralScript}
                         loadingViralScript={loadingStates.generatingViralScript}
                         generatedViralScene={generatedViralScene}
                         onLoadToCreator={handleLoadViralSceneToCreator}
-                        onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
-                        loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
-                        generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
-                        onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
-                        loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
-                        onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
-                        loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
-                        onClearTranscription={handleClearTranscription}
                     />;
             case 'thumbnailGenerator':
                  return <ThumbnailGeneratorView
@@ -1026,6 +1016,23 @@ export default function ScriptifyStudio() {
                         loadingThumbnail={loadingStates.generatingThumbnail}
                         isApiConfigured={isApiConfigured}
                     />;
+            case 'transcribeVideo':
+                return <TranscribeVideoView
+                    isApiConfigured={isApiConfigured}
+                    youtubeUrl={youtubeUrl}
+                    setYoutubeUrl={setYoutubeUrl}
+                    loadingYouTube={loadingStates.analyzingYouTube}
+                    onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
+                    loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
+                    generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
+                    onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
+                    loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
+                    onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
+                    loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
+                    onClearTranscription={handleClearTranscription}
+                    generatedViralScene={generatedViralScene}
+                    onLoadToCreator={handleLoadViralSceneToCreator}
+                />;
             case 'advancedTools':
                 return <AdvancedToolsView
                         influencers={galleryInfluencers}

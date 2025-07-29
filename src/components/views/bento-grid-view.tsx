@@ -48,10 +48,10 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 title="Transcrever Vídeo"
                 description="Transforme áudio de vídeos em texto para criar novos roteiros e conteúdos."
                 icon={<FileText size={24} />}
-                onClick={() => setView('viralTools')}
+                onClick={() => setView('transcribeVideo')}
             />
              <BentoCard
-                 className="md:col-span-1 lg:col-span-1 lg:row-span-1"
+                 className="md:col-span-1 lg:col-span-1 lg:row-span-2"
                 title="Galeria de Cenas"
                 description="Veja e gira todas as cenas que você criou."
                 icon={<Clapperboard size={24} />}
