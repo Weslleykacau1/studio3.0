@@ -13,6 +13,8 @@
 
 
 
+
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -1187,7 +1189,7 @@ export default function ScriptifyStudio() {
                     </Button>
                      {/* Mobile Floating Back Button */}
                     <Button 
-                        variant="secondary" 
+                        variant="default" 
                         size="icon" 
                         onClick={() => setActiveView('bento')} 
                         className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg block md:hidden"
