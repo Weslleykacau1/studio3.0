@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ActiveView } from '@/types';
-import { BookOpen, Clapperboard, Film, Grid, Image as ImageIcon, LayoutGrid, Palette, Rocket, Users, Video, Zap } from 'lucide-react';
+import { BookOpen, Clapperboard, FileText, Film, Grid, Image as ImageIcon, LayoutGrid, Palette, Rocket, Users, Video, Zap } from 'lucide-react';
 import React from 'react';
 
 interface BentoGridProps {
@@ -45,6 +45,20 @@ export default function BentoGrid({ setView }: BentoGridProps) {
             />
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
+                title="Transcrever Vídeo"
+                description="Transforme áudio de vídeos em texto para criar novos roteiros e conteúdos."
+                icon={<FileText size={24} />}
+                onClick={() => setView('viralTools')}
+            />
+             <BentoCard
+                 className="md:col-span-1 lg:col-span-1 lg:row-span-1"
+                title="Galeria de Cenas"
+                description="Veja e gira todas as cenas que você criou."
+                icon={<Clapperboard size={24} />}
+                onClick={() => setView('sceneGallery')}
+            />
+            <BentoCard
+                className="md:col-span-1 lg:col-span-1"
                 title="Galeria de Personagens"
                 description="Aceda e gira todos os seus personagens guardados."
                 icon={<Users size={24} />}
@@ -56,13 +70,6 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 description="Gere roteiros longos, para web docs, e transforme roteiros prontos em prompts de imagem e vídeo."
                 icon={<Zap size={24} />}
                 onClick={() => setView('advancedTools')}
-            />
-             <BentoCard
-                 className="md:col-span-1 lg:col-span-1 lg:row-span-1"
-                title="Galeria de Cenas"
-                description="Veja e gira todas as cenas que você criou."
-                icon={<Clapperboard size={24} />}
-                onClick={() => setView('sceneGallery')}
             />
         </div>
     );
