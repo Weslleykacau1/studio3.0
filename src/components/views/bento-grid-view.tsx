@@ -55,9 +55,14 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 onClick={() => setView('viralVideo')}
             />
              <BentoCard
-                className="col-span-1 lg:col-span-2"
-                title="Outras Ferramentas de Vídeo"
-                description="Gere roteiros virais, para web docs, vídeos longos e crie thumbnails com IA."
+                title="Gerador de Thumbnails"
+                description="Crie thumbnails virais com base em imagens de referência e estilos pré-definidos."
+                icon={<ImageIcon size={24} />}
+                onClick={() => setView('viralVideo')}
+            />
+            <BentoCard
+                title="Ferramentas de Roteiro Avançadas"
+                description="Gere roteiros virais, para web docs, e transforme roteiros prontos em prompts de imagem."
                 icon={<Zap size={24} />}
                 onClick={() => setView('viralVideo')}
             />
