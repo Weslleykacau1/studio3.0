@@ -22,18 +22,18 @@ export function AppHeader({ isApiConfigured, onOpenLoginModal }: AppHeaderProps)
               xmlns="http://www.w3.org/2000/svg"
               className="h-full w-full"
             >
-              <rect width="52" height="52" rx="14" fill="url(#logo-gradient)" />
+              <rect width="52" height="52" rx="14" fill="url(#logo-gradient-header)" />
               <defs>
                 <linearGradient
-                  id="logo-gradient"
+                  id="logo-gradient-header"
                   x1="0"
                   y1="0"
                   x2="52"
                   y2="52"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stopColor="#A855F7" />
-                  <stop offset="1" stopColor="#E934C3" />
+                  <stop stopColor="#FF4C00" />
+                  <stop offset="1" stopColor="#D97700" />
                 </linearGradient>
               </defs>
               <g fill="white">
