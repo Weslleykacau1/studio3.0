@@ -65,6 +65,13 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 onClick={() => setView('influencerGallery')}
             />
              <BentoCard
+                className="md:col-span-1 lg:col-span-1"
+                title="Gerador de Thumbnail"
+                description="Crie thumbnails chamativas para os seus vídeos usando IA."
+                icon={<ImageIcon size={24} />}
+                onClick={() => setView('viralTools')}
+            />
+            <BentoCard
                 className="md:col-span-2 lg:col-span-2"
                 title="Ferramentas de Roteiro Avançadas"
                 description="Gere roteiros longos, para web docs, e transforme roteiros prontos em prompts de imagem e vídeo."
