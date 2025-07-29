@@ -1,20 +1,5 @@
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -57,7 +42,7 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Undo2 } from 'lucide-react';
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
 
@@ -1184,7 +1169,7 @@ export default function ScriptifyStudio() {
                 <>
                     {/* Desktop Back Button */}
                     <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        <Undo2 className="mr-2 h-4 w-4" />
                         Voltar para o Início
                     </Button>
                      {/* Mobile Floating Back Button */}
@@ -1192,10 +1177,10 @@ export default function ScriptifyStudio() {
                         variant="default" 
                         size="icon" 
                         onClick={() => setActiveView('bento')} 
-                        className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg block md:hidden"
+                        className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg block md:hidden bg-primary hover:bg-primary/90"
                         aria-label="Voltar para o Início"
                     >
-                        <ArrowLeft className="h-6 w-6" />
+                        <Undo2 className="h-6 w-6" />
                     </Button>
                 </>
             )}
