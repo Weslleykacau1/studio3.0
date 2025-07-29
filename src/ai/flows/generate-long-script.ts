@@ -49,7 +49,7 @@ const prompt = ai.definePrompt({
     prompt: `You are an expert screenwriter for long-form YouTube content, specializing in creating professional videos that maximize viewer retention. Your task is to create a complete, engaging video script based on the provided theme and duration. The output MUST be a JSON object containing 'scenes' and 'fullScriptTxt'.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. **Each scene must be designed to last approximately 8 seconds.** The total number of scenes should be appropriate to fill the total target video duration of {{{duration}}}.
+1.  **Structure and Pacing:** The script must be broken down into multiple short scenes. Each scene must be designed to last approximately 8 seconds. The total number of scenes **MUST** be calculated to accurately fill the total target video duration of **{{{duration}}}**. For example, a 5-minute video (300 seconds) would require around 37-38 scenes. You must generate the correct number of scenes to match the requested duration.
 2.  **Professional Video Techniques**: For each scene, you MUST apply professional video marketing and storytelling techniques to keep the audience engaged. This includes:
     - **Mini-Hooks**: Start scenes with something that grabs immediate attention or poses a question.
     - **Visual Storytelling**: Focus on strong, evocative visual descriptions for actions and settings. Show, don't just tell.
