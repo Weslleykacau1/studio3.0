@@ -513,15 +513,15 @@ export default function AdvancedToolsView({
         <CardHeader>
             <CardTitle className="flex items-center gap-3 font-headline text-2xl">
                 <ImageIcon />
-                Gerador de Prompts de Imagem e Vídeo a Partir de Roteiro
+                Gerador de Prompts e Mídia
             </CardTitle>
             <CardDescription>
-                Cole o seu roteiro para a IA criar os prompts de imagem e vídeo para cada cena.
+                Cole um roteiro para que a IA crie prompts de imagem/vídeo para cada cena, gere o SEO e crie ideias de thumbnail.
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui (Seu roteiro completo que vamos gerar o prompt de todas as cenas)</Label>
+                <Label htmlFor="pasted-script" className="flex items-center gap-2">Cole o seu roteiro aqui</Label>
                 <Textarea
                     id="pasted-script"
                     value={pastedScript}
@@ -530,37 +530,34 @@ export default function AdvancedToolsView({
                     className="min-h-[150px] font-mono text-xs"
                 />
             </div>
-            <AiButton
-                onClick={onGeneratePromptsFromScript}
-                loading={loadingImagePrompts}
-                isApiConfigured={isApiConfigured}
-                disabled={!pastedScript.trim()}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-                <Bot className="mr-2 h-5 w-5" />
-                Gerar Prompts de Imagem e Vídeo
-            </AiButton>
+            <div className="flex flex-wrap gap-2">
+                <AiButton
+                    onClick={onGeneratePromptsFromScript}
+                    loading={loadingImagePrompts}
+                    isApiConfigured={isApiConfigured}
+                    disabled={!pastedScript.trim()}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                    <Bot className="mr-2 h-4 w-4" />
+                    Gerar Prompts de Imagem
+                </AiButton>
+                 <AiButton onClick={onGenerateSeoFromScript} loading={loadingSeoFromScript} isApiConfigured={isApiConfigured} variant="secondary" disabled={!pastedScript.trim()}>
+                    <Search className="mr-2 h-4 w-4" /> Gerar SEO
+                </AiButton>
+                <AiButton onClick={onGenerateThumbnailFromScript} loading={loadingThumbnailFromScript} isApiConfigured={isApiConfigured} variant="secondary" disabled={!pastedScript.trim()}>
+                    <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                </AiButton>
+            </div>
         </CardContent>
       </Card>
-
-      {loadingImagePrompts && (
+      
+      {(loadingImagePrompts || loadingSeoFromScript || loadingThumbnailFromScript) && (
           <Card>
               <CardContent className="p-6">
                   <div className="space-y-4 pt-4">
-                      <div className="space-y-2 rounded-lg border p-4">
-                          <Skeleton className="h-6 w-1/4" />
-                          <div className="grid grid-cols-2 gap-4">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                          </div>
-                      </div>
-                      <div className="space-y-2 rounded-lg border p-4">
-                          <Skeleton className="h-6 w-1/4" />
-                          <div className="grid grid-cols-2 gap-4">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                          </div>
-                      </div>
+                      {loadingImagePrompts && <Skeleton className="h-24 w-full" />}
+                      {loadingSeoFromScript && <Skeleton className="mt-4 h-24 w-full" />}
+                      {loadingThumbnailFromScript && <Skeleton className="mt-4 h-48 w-full" />}
                   </div>
               </CardContent>
           </Card>
@@ -573,9 +570,6 @@ export default function AdvancedToolsView({
                       Prompts Gerados por Cena
                   </CardTitle>
                    <div className="flex gap-2">
-                      <AiButton onClick={onGenerateSeoFromScript} loading={loadingSeoFromScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
-                          <Search className="mr-2 h-4 w-4" /> Gerar SEO
-                      </AiButton>
                       <Button onClick={onExportPrompts} variant="outline" size="sm">
                           <Download className="mr-2 h-4 w-4" /> Exportar
                       </Button>
@@ -627,6 +621,45 @@ export default function AdvancedToolsView({
               <CardHeader><CardTitle>SEO Gerado do Roteiro</CardTitle></CardHeader>
               <CardContent>
                   <ContentDisplay content={generatedSeoFromScript} />
+              </CardContent>
+          </Card>
+      )}
+
+      {generatedThumbnailFromScript && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-headline">
+                      <ThumbsUp />
+                      Ideias de Thumbnail Geradas
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 1</h4>
+                        <Image src={generatedThumbnailFromScript.generatedImage1DataUri} alt="Thumbnail gerada 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromScript.generatedImage1DataUri, 'thumbnail_opcao_1.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 1
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 2</h4>
+                        <Image src={generatedThumbnailFromScript.generatedImage2DataUri} alt="Thumbnail gerada 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromScript.generatedImage2DataUri, 'thumbnail_opcao_2.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 2
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 pt-4">
+                      <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromScript.emoji} {generatedThumbnailFromScript.title}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromScript.styleDescription}</p>
+                    </div>
+                </div>
               </CardContent>
           </Card>
       )}

@@ -7,6 +7,7 @@
 
 
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -34,6 +35,7 @@ import { generateLongScript } from '@/ai/flows/generate-long-script';
 import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
+import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -79,6 +81,7 @@ export default function ScriptifyStudio() {
     const [pastedScript, setPastedScript] = useState('');
     const [generatedScenePrompts, setGeneratedScenePrompts] = useState<ScenePrompts[] | null>(null);
     const [generatedSeoFromScript, setGeneratedSeoFromScript] = useState('');
+    const [generatedThumbnailFromScript, setGeneratedThumbnailFromScript] = useState<ThumbnailIdeas | null>(null);
 
 
     const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingImageFromPastedScript: false });
@@ -798,6 +801,25 @@ export default function ScriptifyStudio() {
         }
     };
 
+    const handleGenerateThumbnailFromScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!pastedScript.trim()) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, cole um roteiro para gerar a thumbnail.' });
+        }
+        setLoading('generatingThumbnailFromScript', true);
+        setGeneratedThumbnailFromScript(null);
+        try {
+            const result = await generateThumbnailFromScript({ scriptText: pastedScript });
+            setGeneratedThumbnailFromScript(result);
+            toast({ variant: 'success', title: 'Ideias de thumbnail geradas com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate thumbnail from script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
+        } finally {
+            setLoading('generatingThumbnailFromScript', false);
+        }
+    };
+
     const handleExportPrompts = () => {
         if (!generatedScenePrompts) return;
 
@@ -1026,9 +1048,9 @@ export default function ScriptifyStudio() {
                         onGenerateSeoFromScript={handleGenerateSeoFromScript}
                         loadingSeoFromScript={loadingStates.generatingSeoFromScript}
                         generatedSeoFromScript={generatedSeoFromScript}
-                        onGenerateThumbnailFromScript={() => {}}
+                        onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
                         loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
-                        generatedThumbnailFromScript={null}
+                        generatedThumbnailFromScript={generatedThumbnailFromScript}
                         onExportPrompts={handleExportPrompts}
                         onGenerateThumbnailFromWebDoc={() => {}}
                         loadingThumbnailFromWebDoc={false}
