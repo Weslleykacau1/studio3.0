@@ -640,7 +640,7 @@ export default function ScriptifyStudio() {
         }
     };
 
-    const handleGenerateWebDocScript = async (theme: string, duration: string) => {
+    const handleGenerateWebDocScript = async (theme: string, duration: string, topics?: string) => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
         if (!theme.trim()) {
             return toast({ variant: 'destructive', title: 'Tema em Falta', description: 'Por favor, forneça um tema para o roteiro.' });
@@ -649,7 +649,7 @@ export default function ScriptifyStudio() {
         setGeneratedWebDocScript(null);
         setGeneratedWebDocSeo('');
         try {
-            const result = await generateWebDocScript({ theme, duration });
+            const result = await generateWebDocScript({ theme, duration, topics });
             setGeneratedWebDocScript(result);
             toast({ variant: 'success', title: 'Roteiro para Web Doc gerado com sucesso!' });
         } catch (error: any) {

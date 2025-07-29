@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw, Search, ThumbsUp } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw, Search, ThumbsUp, ListOrdered } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene, ScenePrompts } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -51,7 +51,7 @@ interface ViralVideoViewProps {
   generatedLongScript: { scenes: LongScriptScene[], fullScriptTxt: string } | null;
 
   // Props for Web Doc Generator
-  onGenerateWebDocScript: (theme: string, duration: string) => void;
+  onGenerateWebDocScript: (theme: string, duration: string, topics?: string) => void;
   loadingWebDoc: boolean;
   generatedWebDocScript: WebDocScript | null;
   onExportWebDocScript: () => void;
@@ -166,6 +166,7 @@ export default function ViralVideoView({
 
   // State for Web Doc Generator
   const [webDocTheme, setWebDocTheme] = useState('');
+  const [webDocTopics, setWebDocTopics] = useState('');
   const [webDocDuration, setWebDocDuration] = useState('5 minutes');
   const [copiedWebDocScene, setCopiedWebDocScene] = useState<{ type: 'script' | 'image' | 'video', index: number } | null>(null);
   
@@ -255,7 +256,7 @@ export default function ViralVideoView({
 
   const handleGenerateWebDocClick = () => {
     if (webDocTheme) {
-      onGenerateWebDocScript(webDocTheme, webDocDuration);
+      onGenerateWebDocScript(webDocTheme, webDocDuration, webDocTopics);
     }
   };
   
@@ -411,6 +412,16 @@ export default function ViralVideoView({
                         onChange={(e) => setWebDocTheme(e.target.value)}
                         placeholder="Ex: A ascensão dos impérios digitais, Os segredos do oceano profundo..."
                     />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="webdoc-topics" className="flex items-center gap-2"><ListOrdered />Tópicos a Cobrir (Opcional)</Label>
+                    <Input 
+                        id="webdoc-topics"
+                        value={webDocTopics}
+                        onChange={(e) => setWebDocTopics(e.target.value)}
+                        placeholder="Ex: A origem da internet, As primeiras redes sociais, O futuro da conexão..."
+                    />
+                    <p className="text-xs text-muted-foreground">Separe os tópicos com vírgulas.</p>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="webdoc-duration" className="flex items-center gap-2"><Clock />Duração do Vídeo</Label>

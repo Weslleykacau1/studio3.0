@@ -15,6 +15,7 @@ import {z} from 'genkit';
 const GenerateWebDocScriptInputSchema = z.object({
   theme: z.string().describe('The main theme or topic for the web documentary.'),
   duration: z.string().describe("The target duration for the video (e.g., '5 minutes', '10 minutes')."),
+  topics: z.string().describe('Optional comma-separated topics to be covered in the documentary.').optional(),
 });
 export type GenerateWebDocScriptInput = z.infer<typeof GenerateWebDocScriptInputSchema>;
 
@@ -44,15 +45,23 @@ const prompt = ai.definePrompt({
 
 **CRITICAL INSTRUCTIONS:**
 1.  **Structure and Pacing:** Break down the documentary into a series of short, numbered scenes. The number of scenes should be appropriate for the total target duration of {{{duration}}}.
+{{#if topics}}
+2.  **Topic Guidance:** The script MUST be structured around the following key topics. Ensure they are covered in a logical and engaging order: {{{topics}}}.
+3.  **Multiple Outputs for Each Scene:** For each scene in the 'scenes' array, you MUST generate THREE distinct pieces of content:
+{{else}}
 2.  **Multiple Outputs for Each Scene:** For each scene in the 'scenes' array, you MUST generate THREE distinct pieces of content:
+{{/if}}
     -   **sceneScript:** This is the narrator's script for the scene. It MUST be written in engaging, clear **Brazilian Portuguese**.
     -   **imagePrompt:** This is a detailed, visually rich prompt for a static AI image generator (like Midjourney). It MUST be in **English** and focus on style, lighting, composition, and key elements to create a compelling still image.
     -   **videoPrompt**: A descriptive prompt for a video generator (like Veo). It MUST be in **English** and focus on **action, character movement, camera movement (e.g., 'slow pan'), and the sequence of events** within the scene.
-3.  **Content Cohesion:** The prompts must directly and creatively correspond to the content of the 'sceneScript' for that same scene, creating a cohesive audio-visual experience.
-4.  **Title:** Generate a captivating and relevant title for the documentary in **Brazilian Portuguese**.
+4.  **Content Cohesion:** The prompts must directly and creatively correspond to the content of the 'sceneScript' for that same scene, creating a cohesive audio-visual experience.
+5.  **Title:** Generate a captivating and relevant title for the documentary in **Brazilian Portuguese**.
 
 **Documentary Details:**
 - **Theme:** {{{theme}}}
+{{#if topics}}
+- **Key Topics:** {{{topics}}}
+{{/if}}
 - **Total Target Duration:** {{{duration}}}
 
 Generate a high-quality, well-structured web documentary script following these instructions precisely.
