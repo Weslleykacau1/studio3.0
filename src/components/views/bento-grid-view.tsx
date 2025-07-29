@@ -28,7 +28,7 @@ export default function BentoGrid({ setView }: { setView: (view: ActiveView) => 
     return (
         <div className="bento-grid">
             <BentoCard
-                className="md:col-span-2 lg:col-span-2 lg:row-span-2 bg-accent/30 dark:bg-accent/10"
+                className="md:col-span-2 lg:col-span-2 lg:row-span-2"
                 title="Criador de Personagens e Cenas"
                 description="A ferramenta principal para dar vida às suas ideias. Crie influenciadores e defina as cenas para os seus vídeos."
                 icon={<Palette size={24} />}
