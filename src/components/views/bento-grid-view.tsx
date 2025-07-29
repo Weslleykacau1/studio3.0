@@ -30,44 +30,49 @@ export default function BentoGrid({ setView }: BentoGridProps) {
     return (
         <div className="bento-grid">
             <BentoCard
-                className="col-span-1 lg:col-span-2"
+                className="lg:col-span-2 lg:row-span-2"
                 title="Criador de Personagens e Cenas"
                 description="A ferramenta principal para dar vida às suas ideias. Crie influenciadores e defina as cenas para os seus vídeos."
                 icon={<Palette size={24} />}
                 onClick={() => setView('creator')}
             />
              <BentoCard
+                className="lg:col-span-1"
                 title="Galeria de Personagens"
                 description="Aceda e gira todos os seus personagens guardados."
                 icon={<Users size={24} />}
                 onClick={() => setView('influencerGallery')}
             />
              <BentoCard
+                 className="lg:col-span-1"
                 title="Galeria de Cenas"
                 description="Veja e gira todas as cenas que você criou."
                 icon={<Clapperboard size={24} />}
                 onClick={() => setView('sceneGallery')}
             />
             <BentoCard
+                className="lg:col-span-1"
                 title="Gerador de Roteiro Viral"
                 description="Use a fórmula viral para criar roteiros curtos e de alto impacto para Shorts e TikTok."
                 icon={<Rocket size={24} />}
                 onClick={() => setView('viralTools')}
             />
             <BentoCard
+                 className="lg:col-span-1"
                 title="Transcrever Vídeo"
                 description="Extraia o texto de qualquer vídeo para criar ou re-imaginar roteiros."
                 icon={<FileText size={24} />}
                 onClick={() => setView('viralTools')}
             />
              <BentoCard
+                 className="lg:col-span-1"
                 title="Gerador de Thumbnails"
                 description="Crie thumbnails virais com base em imagens de referência e estilos pré-definidos."
                 icon={<ImageIcon size={24} />}
                 onClick={() => setView('viralTools')}
             />
             <BentoCard
-                className="col-span-1 lg:col-span-2"
+                className="lg:col-span-3"
                 title="Ferramentas de Roteiro Avançadas"
                 description="Gere roteiros longos, para web docs, e transforme roteiros prontos em prompts de imagem e vídeo."
                 icon={<Zap size={24} />}

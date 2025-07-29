@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 270 9% 96%; /* #F4F0F8 - Soft Lavender */
     --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
@@ -13,8 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 262 84% 60%;
-    --primary-foreground: 262 84% 98%;
+    --primary: 257 58% 51%; /* #6C4AB6 - Deep Purple */
+    --primary-foreground: 0 0% 98%;
 
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -22,47 +22,47 @@
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 338 78% 59%;
-    --accent-foreground: 338 78% 98%;
+    --accent: 336 72% 80%; /* #E8A0BF - Dusty Pink */
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 262 84% 60%;
+    --ring: 257 58% 51%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 263 33% 13%;
     --foreground: 0 0% 98%;
 
-    --card: 240 4.8% 8%;
+    --card: 260 27% 17%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.9%;
+    --popover: 263 33% 13%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 262 84% 60%;
-    --primary-foreground: 262 84% 98%;
+    --primary: 257 58% 65%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 260 20% 25%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 3.7% 15.9%;
+    --muted: 260 20% 25%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 338 78% 59%;
-    --accent-foreground: 338 78% 98%;
+    --accent: 336 72% 65%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 262 84% 60%;
+    --border: 260 20% 25%;
+    --input: 260 20% 25%;
+    --ring: 257 58% 65%;
   }
 }
 
@@ -81,18 +81,29 @@
 
 .bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: 240px;
   gap: 1.5rem; /* 24px */
+}
+
+@media (min-width: 768px) { /* md */
+  .bento-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .bento-grid .col-span-1 { grid-column: span 1 / span 1; }
+  .bento-grid .col-span-2 { grid-column: span 2 / span 2; }
+  .bento-grid .col-span-3 { grid-column: span 3 / span 3; }
+  .bento-grid .col-span-4 { grid-column: span 4 / span 4; }
+  .bento-grid .row-span-1 { grid-row: span 1 / span 1; }
+  .bento-grid .row-span-2 { grid-row: span 2 / span 2; }
 }
 
 @media (min-width: 1024px) { /* lg */
   .bento-grid {
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
   }
-  .bento-grid .col-span-2 {
-    grid-column: span 2 / span 2;
-  }
-   .bento-grid .col-span-1 {
-    grid-column: span 1 / span 1;
-  }
+  .bento-grid .lg\\:col-span-1 { grid-column: span 1 / span 1; }
+  .bento-grid .lg\\:col-span-2 { grid-column: span 2 / span 2; }
+  .bento-grid .lg\\:row-span-1 { grid-row: span 1 / span 1; }
+  .bento-grid .lg\\:row-span-2 { grid-row: span 2 / span 2; }
 }
