@@ -38,17 +38,17 @@ export default function BentoGrid({ setView }: BentoGridProps) {
             />
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
-                title="Galeria de Personagens"
-                description="Aceda e gira todos os seus personagens guardados."
-                icon={<Users size={24} />}
-                onClick={() => setView('influencerGallery')}
-            />
-             <BentoCard
-                className="md:col-span-1 lg:col-span-1"
                 title="Gerador de Roteiro Viral"
                 description="Use a fórmula viral para criar roteiros curtos e de alto impacto para Shorts e TikTok."
                 icon={<Rocket size={24} />}
                 onClick={() => setView('viralTools')}
+            />
+             <BentoCard
+                className="md:col-span-1 lg:col-span-1"
+                title="Galeria de Personagens"
+                description="Aceda e gira todos os seus personagens guardados."
+                icon={<Users size={24} />}
+                onClick={() => setView('influencerGallery')}
             />
              <BentoCard
                 className="md:col-span-2 lg:col-span-2"
@@ -58,7 +58,7 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 onClick={() => setView('advancedTools')}
             />
              <BentoCard
-                 className="md:col-span-1 lg:col-span-1 lg:row-span-2"
+                 className="md:col-span-1 lg:col-span-1 lg:row-span-1"
                 title="Galeria de Cenas"
                 description="Veja e gira todas as cenas que você criou."
                 icon={<Clapperboard size={24} />}
