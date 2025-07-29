@@ -47,9 +47,9 @@ const prompt = ai.definePrompt({
 1.  **Structure and Pacing:** Break down the documentary into a series of short, numbered scenes. The number of scenes should be appropriate for the total target duration of {{{duration}}}.
 {{#if topics}}
 2.  **Topic Guidance:** The script MUST be structured around the following key topics. Ensure they are covered in a logical and engaging order: {{{topics}}}.
-3.  **Multiple Outputs for Each Scene:** For each scene in the 'scenes' array, you MUST generate THREE distinct pieces of content:
+3.  **Multiple Outputs for Each Scene:** For **EVERY** scene in the 'scenes' array, you MUST generate THREE distinct pieces of content, without exception. If there are 50 scenes, there must be 50 sets of prompts.
 {{else}}
-2.  **Multiple Outputs for Each Scene:** For each scene in the 'scenes' array, you MUST generate THREE distinct pieces of content:
+2.  **Multiple Outputs for Each Scene:** For **EVERY** scene in the 'scenes' array, you MUST generate THREE distinct pieces of content, without exception. If there are 50 scenes, there must be 50 sets of prompts.
 {{/if}}
     -   **sceneScript:** This is the narrator's script for the scene. It MUST be written in engaging, clear **Brazilian Portuguese**.
     -   **imagePrompt:** This is a detailed, visually rich prompt for a static AI image generator (like Midjourney). It MUST be in **English** and focus on style, lighting, composition, and key elements to create a compelling still image.
