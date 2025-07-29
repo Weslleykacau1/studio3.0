@@ -4,25 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { ActiveView } from '@/types';
 import { BookOpen, Clapperboard, FileText, Film, Grid, Image as ImageIcon, LayoutGrid, Palette, Rocket, Users, Video, Zap } from 'lucide-react';
 import React from 'react';
+import NextImage from 'next/image';
 
-interface BentoGridProps {
-    setView: (view: ActiveView) => void;
-}
-
-const BentoCard = ({ title, description, icon, onClick, className }: { title: string, description: string, icon: React.ReactNode, onClick: () => void, className?: string }) => (
+const BentoCard = ({ title, description, icon, onClick, className, children }: { title: string, description: string, icon: React.ReactNode, onClick: () => void, className?: string, children?: React.ReactNode }) => (
     <Card 
         className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-xl bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20 ${className}`}
         onClick={onClick}
     >
-        <CardHeader>
+        {children}
+        <CardHeader className="relative z-10">
             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 {icon}
             </div>
             <CardTitle className="font-headline text-xl">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <div className="pointer-events-none absolute bottom-0 left-0 h-1/2 w-full bg-gradient-to-t from-black/10 to-transparent" />
-        <div className="pointer-events-none absolute -bottom-1/4 left-0 h-1/2 w-full bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-primary/10 to-transparent transition-all duration-500 group-hover:h-full" />
+        <div className="pointer-events-none absolute bottom-0 left-0 z-0 h-1/2 w-full bg-gradient-to-t from-black/10 to-transparent" />
+        <div className="pointer-events-none absolute -bottom-1/4 left-0 z-0 h-1/2 w-full bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-primary/10 to-transparent transition-all duration-500 group-hover:h-full" />
     </Card>
 );
 
@@ -35,7 +33,16 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 description="A ferramenta principal para dar vida às suas ideias. Crie influenciadores e defina as cenas para os seus vídeos."
                 icon={<Palette size={24} />}
                 onClick={() => setView('creator')}
-            />
+            >
+              <NextImage
+                src="/creator_card_bg.jpg"
+                alt="Um vlogger a gravar-se com gráficos de crescimento ao fundo."
+                layout="fill"
+                className="absolute inset-0 z-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-300 group-hover:opacity-30"
+                data-ai-hint="vlogger influencer"
+              />
+               <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-card via-card/80 to-transparent" />
+            </BentoCard>
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
                 title="Gerador de Roteiro Viral"
