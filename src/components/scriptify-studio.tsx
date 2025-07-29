@@ -1180,7 +1180,7 @@ export default function ScriptifyStudio() {
                         className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg block md:hidden bg-primary hover:bg-primary/90"
                         aria-label="Voltar para o Início"
                     >
-                        <ChevronLeft className="h-6 w-6" />
+                        <ChevronLeft className="h-6 w-6 stroke-[3]" />
                     </Button>
                 </>
             )}
