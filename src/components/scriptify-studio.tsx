@@ -1,16 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -53,7 +41,7 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, Undo2 } from 'lucide-react';
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
 
@@ -1124,7 +1112,7 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
                         loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
                         generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={handleExportPrompts}
+                        onExportPrompts={onExportPrompts}
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
@@ -1177,10 +1165,15 @@ export default function ScriptifyStudio() {
             <PromoBanner hasPurchased={hasPurchased} />
 
             {activeView !== 'bento' && (
-                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Voltar para o Início
-                </Button>
+                 <>
+                    <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
+                        <ChevronLeft className="mr-2 h-4 w-4 stroke-[3]" />
+                        Voltar para o Início
+                    </Button>
+                     <Button variant="default" size="icon" onClick={() => setActiveView('bento')} className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full shadow-lg block md:hidden" aria-label="Voltar para o Início">
+                        <ChevronLeft className="h-6 w-6 stroke-[3]" />
+                    </Button>
+                </>
             )}
 
             <div className="w-full">

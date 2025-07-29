@@ -114,7 +114,7 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                             <UploadCloud className="mr-2 h-4 w-4" /> Carregar
                         </Button>
                         <Button onClick={() => onQuickScene(gal.id!)} variant="outline" className="w-full">
-                            <Sparkles className="mr-2 h-4 w-4" /> Cena Rápida
+                            Cena Rápida
                         </Button>
                     </div>
                     <div className="flex w-full items-center justify-between">
