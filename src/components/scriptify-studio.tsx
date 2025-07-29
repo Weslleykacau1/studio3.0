@@ -1117,7 +1117,6 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
-                        isApiConfigured={isApiConfigured}
                         onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
                         loadingWebDocImage={loadingStates.generatingWebDocImage}
                         onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
@@ -1166,23 +1165,10 @@ export default function ScriptifyStudio() {
             <PromoBanner hasPurchased={hasPurchased} />
 
             {activeView !== 'bento' && (
-                <>
-                    {/* Desktop Back Button */}
-                    <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Voltar para o Início
-                    </Button>
-                     {/* Mobile Floating Back Button */}
-                    <Button 
-                        variant="default" 
-                        size="icon" 
-                        onClick={() => setActiveView('bento')} 
-                        className="fixed bottom-4 right-4 z-50 h-12 w-12 rounded-full shadow-lg block md:hidden bg-primary hover:bg-primary/90"
-                        aria-label="Voltar para o Início"
-                    >
-                        <ChevronLeft className="h-6 w-6 stroke-[3]" />
-                    </Button>
-                </>
+                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Voltar para o Início
+                </Button>
             )}
 
 
