@@ -3,6 +3,9 @@
 
 
 
+
+
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -80,7 +83,7 @@ export default function ScriptifyStudio() {
     const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
 
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false, generatingImageFromPastedScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -739,6 +742,24 @@ export default function ScriptifyStudio() {
             setLoading('generatingWebDocImage', false);
         }
     };
+    
+    const handleGenerateImageFromPastedScript = async (prompt: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        setLoading('generatingImageFromPastedScript', true);
+        setGeneratedImageForPopup(null);
+        setActivePromptForImageGen(prompt);
+        setIsImagePreviewModalOpen(true);
+        try {
+            const result = await generateImageFromPrompt({ prompt });
+            setGeneratedImageForPopup(result.imageDataUri);
+        } catch (error: any) {
+            console.error('Failed to generate image from pasted script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração da Imagem', description: error.message });
+            setIsImagePreviewModalOpen(false); // Close modal on error
+        } finally {
+            setLoading('generatingImageFromPastedScript', false);
+        }
+    };
 
 
     const handleGenerateThumbnailFromWebDoc = async () => {
@@ -1065,6 +1086,8 @@ export default function ScriptifyStudio() {
                         isApiConfigured={isApiConfigured}
                         onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
                         loadingWebDocImage={loadingStates.generatingWebDocImage}
+                        onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
+                        loadingImageFromPastedScript={loadingStates.generatingImageFromPastedScript}
                     />;
             case 'bento':
             default:
@@ -1093,7 +1116,7 @@ export default function ScriptifyStudio() {
                 isOpen={isImagePreviewModalOpen}
                 onClose={() => setIsImagePreviewModalOpen(false)}
                 imageDataUri={generatedImageForPopup}
-                loading={loadingStates.generatingWebDocImage}
+                loading={loadingStates.generatingWebDocImage || loadingStates.generatingImageFromPastedScript}
                 prompt={activePromptForImageGen}
             />
 

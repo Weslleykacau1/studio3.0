@@ -51,6 +51,8 @@ interface AdvancedToolsViewProps {
   generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
   onGenerateImageForWebDoc: (prompt: string) => void;
   loadingWebDocImage: boolean;
+  onGenerateImageFromPastedScript: (prompt: string) => void;
+  loadingImageFromPastedScript: boolean;
 }
 
 export default function AdvancedToolsView({ 
@@ -84,6 +86,8 @@ export default function AdvancedToolsView({
     generatedThumbnailFromWebDoc,
     onGenerateImageForWebDoc,
     loadingWebDocImage,
+    onGenerateImageFromPastedScript,
+    loadingImageFromPastedScript,
 }: AdvancedToolsViewProps) {
   
   // State for Long Script Generator
@@ -635,10 +639,21 @@ export default function AdvancedToolsView({
                                <div className="bg-background p-4">
                                   <Label className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" />Prompt de Imagem (EN)</Label>
                                   <p className="mt-2 font-mono text-xs">{prompt.imagePrompt}</p>
-                                  <Button onClick={() => handleCopyPrompt(prompt.imagePrompt, 'image', index)} variant="ghost" size="sm" className="mt-2">
-                                      <Copy className={cn('mr-2 h-3 w-3', copiedImagePrompt === index && 'text-green-600')} />
-                                      {copiedImagePrompt === index ? 'Copiado!' : 'Copiar'}
-                                  </Button>
+                                  <div className="mt-2 flex gap-2">
+                                    <Button onClick={() => handleCopyPrompt(prompt.imagePrompt, 'image', index)} variant="ghost" size="sm">
+                                        <Copy className={cn('mr-2 h-3 w-3', copiedImagePrompt === index && 'text-green-600')} />
+                                        {copiedImagePrompt === index ? 'Copiado!' : 'Copiar'}
+                                    </Button>
+                                    <AiButton
+                                        onClick={() => onGenerateImageFromPastedScript(prompt.imagePrompt)}
+                                        loading={loadingImageFromPastedScript}
+                                        isApiConfigured={isApiConfigured}
+                                        variant="secondary"
+                                        size="sm"
+                                    >
+                                        <Bot className="mr-2 h-3 w-3" /> Gerar
+                                    </AiButton>
+                                  </div>
                               </div>
                               <div className="bg-background p-4">
                                   <Label className="flex items-center gap-2 text-sm font-semibold"><VideoIcon className="h-4 w-4" />Prompt de Vídeo (EN)</Label>
