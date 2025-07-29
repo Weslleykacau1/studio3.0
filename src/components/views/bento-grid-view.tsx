@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { ActiveView } from '@/types';
-import { BookOpen, Clapperboard, Film, Grid, Image as ImageIcon, LayoutGrid, Palette, Users, Video, Zap } from 'lucide-react';
+import { BookOpen, Clapperboard, Film, Grid, Image as ImageIcon, LayoutGrid, Palette, Users, Video, Zap, FileText } from 'lucide-react';
 import React from 'react';
 
 interface BentoGridProps {
@@ -48,10 +48,16 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 icon={<Clapperboard size={24} />}
                 onClick={() => setView('sceneGallery')}
             />
+            <BentoCard
+                title="Transcrever Vídeo"
+                description="Extraia o texto de qualquer vídeo para criar ou re-imaginar roteiros."
+                icon={<FileText size={24} />}
+                onClick={() => setView('viralVideo')}
+            />
              <BentoCard
-                className="col-span-1 lg:col-span-3"
-                title="Ferramentas de Vídeo"
-                description="Gere roteiros virais, para web docs, vídeos longos, transcreva vídeos e crie thumbnails com IA."
+                className="col-span-1 lg:col-span-2"
+                title="Outras Ferramentas de Vídeo"
+                description="Gere roteiros virais, para web docs, vídeos longos e crie thumbnails com IA."
                 icon={<Zap size={24} />}
                 onClick={() => setView('viralVideo')}
             />
