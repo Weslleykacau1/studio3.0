@@ -27,6 +27,7 @@ import { generateLongScript } from '@/ai/flows/generate-long-script';
 import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
+import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
 import { AppHeader } from './app-header';
 import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
@@ -41,6 +42,7 @@ import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { LoadingScreen } from './loading-screen';
+import { ImagePreviewModal } from './image-preview-modal';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
@@ -73,7 +75,7 @@ export default function ScriptifyStudio() {
     const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
 
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingThumbnailFromWebDoc: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -85,6 +87,11 @@ export default function ScriptifyStudio() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isApiConfigured, setIsApiConfigured] = useState(false);
     const [hasPurchased, setHasPurchased] = useState(false);
+    
+    // State for image preview modal
+    const [isImagePreviewModalOpen, setIsImagePreviewModalOpen] = useState(false);
+    const [generatedImageForPopup, setGeneratedImageForPopup] = useState<string | null>(null);
+    const [activePromptForImageGen, setActivePromptForImageGen] = useState('');
 
     
     // Load data from cookies when component mounts on the client
@@ -709,6 +716,25 @@ export default function ScriptifyStudio() {
             setLoading('generatingWebDocSeo', false);
         }
     };
+    
+    const handleGenerateImageForWebDoc = async (prompt: string) => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        setLoading('generatingWebDocImage', true);
+        setGeneratedImageForPopup(null);
+        setActivePromptForImageGen(prompt);
+        setIsImagePreviewModalOpen(true);
+        try {
+            const result = await generateImageFromPrompt({ prompt });
+            setGeneratedImageForPopup(result.imageDataUri);
+        } catch (error: any) {
+            console.error('Failed to generate image for web doc:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração da Imagem', description: error.message });
+            setIsImagePreviewModalOpen(false); // Close modal on error
+        } finally {
+            setLoading('generatingWebDocImage', false);
+        }
+    };
+
 
     const handleGenerateThumbnailFromWebDoc = async () => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
@@ -1023,6 +1049,8 @@ export default function ScriptifyStudio() {
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
                         isApiConfigured={isApiConfigured}
+                        onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
+                        loadingWebDocImage={loadingStates.generatingWebDocImage}
                     />;
             case 'bento':
             default:
@@ -1047,6 +1075,14 @@ export default function ScriptifyStudio() {
                 loading={loadingStates.generatingQuickScene}
                 isApiConfigured={isApiConfigured}
             />
+            <ImagePreviewModal
+                isOpen={isImagePreviewModalOpen}
+                onClose={() => setIsImagePreviewModalOpen(false)}
+                imageDataUri={generatedImageForPopup}
+                loading={loadingStates.generatingWebDocImage}
+                prompt={activePromptForImageGen}
+            />
+
 
             <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
             

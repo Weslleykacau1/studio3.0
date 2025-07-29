@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -48,6 +49,8 @@ interface AdvancedToolsViewProps {
   onGenerateThumbnailFromWebDoc: () => void;
   loadingThumbnailFromWebDoc: boolean;
   generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
+  onGenerateImageForWebDoc: (prompt: string) => void;
+  loadingWebDocImage: boolean;
 }
 
 export default function AdvancedToolsView({ 
@@ -79,6 +82,8 @@ export default function AdvancedToolsView({
     onGenerateThumbnailFromWebDoc,
     loadingThumbnailFromWebDoc,
     generatedThumbnailFromWebDoc,
+    onGenerateImageForWebDoc,
+    loadingWebDocImage,
 }: AdvancedToolsViewProps) {
   
   // State for Long Script Generator
@@ -262,7 +267,7 @@ export default function AdvancedToolsView({
                   loading={loadingLongScript}
                   isApiConfigured={isApiConfigured}
                   disabled={!longScriptTheme.trim()}
-                  className="w-full bg-gradient-to-r from-blue-500 to-teal-500 text-white shadow-lg transition-transform hover:scale-105"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                   <Bot className="mr-2 h-5 w-5" />
                   Gerar Roteiro Longo
@@ -368,7 +373,7 @@ export default function AdvancedToolsView({
                 loading={loadingWebDoc}
                 isApiConfigured={isApiConfigured}
                 disabled={!webDocTheme.trim()}
-                className="w-full bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg transition-transform hover:scale-105"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
                 <Bot className="mr-2 h-5 w-5" />
                 Gerar Roteiro de Web Doc
@@ -442,12 +447,23 @@ export default function AdvancedToolsView({
                                 <div className="bg-background p-4">
                                     <Label className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" />Prompt de Imagem (EN)</Label>
                                     <p className="mt-2 font-mono text-xs">{scene.imagePrompt}</p>
-                                    <Button
-                                        onClick={() => handleCopyWebDocScenePart(scene.imagePrompt, 'image', index)}
-                                        variant="ghost" size="sm" className="mt-2">
-                                        <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index && 'text-green-600')} />
-                                        {copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar'}
-                                    </Button>
+                                    <div className="mt-2 flex gap-2">
+                                        <Button
+                                            onClick={() => handleCopyWebDocScenePart(scene.imagePrompt, 'image', index)}
+                                            variant="ghost" size="sm">
+                                            <Copy className={cn('mr-2 h-3 w-3', copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index && 'text-green-600')} />
+                                            {copiedWebDocScene?.type === 'image' && copiedWebDocScene?.index === index ? 'Copiado!' : 'Copiar'}
+                                        </Button>
+                                         <AiButton
+                                            onClick={() => onGenerateImageForWebDoc(scene.imagePrompt)}
+                                            loading={loadingWebDocImage}
+                                            isApiConfigured={isApiConfigured}
+                                            variant="secondary"
+                                            size="sm"
+                                        >
+                                            <Bot className="mr-2 h-3 w-3" /> Gerar
+                                        </AiButton>
+                                    </div>
                                 </div>
                                 <div className="bg-background p-4">
                                     <Label className="flex items-center gap-2 text-sm font-semibold"><VideoIcon className="h-4 w-4" />Prompt de Vídeo (EN)</Label>
@@ -560,7 +576,7 @@ export default function AdvancedToolsView({
                 loading={loadingImagePrompts}
                 isApiConfigured={isApiConfigured}
                 disabled={!pastedScript.trim()}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg transition-transform hover:scale-105"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
                 <Bot className="mr-2 h-5 w-5" />
                 Gerar Prompts de Imagem e Vídeo
