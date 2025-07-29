@@ -24,24 +24,19 @@ const BentoCard = ({ title, description, icon, onClick, className, children }: {
     </Card>
 );
 
-export default function BentoGrid({ setView }: BentoGridProps) {
+export default function BentoGrid({ setView }: { setView: (view: ActiveView) => void; }) {
     return (
         <div className="bento-grid">
             <BentoCard
-                className="md:col-span-2 lg:col-span-2 lg:row-span-2"
+                className="md:col-span-2 lg:col-span-2 lg:row-span-2 bg-accent/30 dark:bg-accent/10"
                 title="Criador de Personagens e Cenas"
                 description="A ferramenta principal para dar vida às suas ideias. Crie influenciadores e defina as cenas para os seus vídeos."
                 icon={<Palette size={24} />}
                 onClick={() => setView('creator')}
             >
-              <NextImage
-                src="/creator_card_bg.jpg"
-                alt="Um vlogger a gravar-se com gráficos de crescimento ao fundo."
-                layout="fill"
-                className="absolute inset-0 z-0 h-full w-full object-cover object-center opacity-20 transition-opacity duration-300 group-hover:opacity-30"
-                data-ai-hint="vlogger influencer"
-              />
-               <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-card via-card/80 to-transparent" />
+              <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                  <Palette className="h-64 w-64 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+              </div>
             </BentoCard>
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
@@ -87,4 +82,9 @@ export default function BentoGrid({ setView }: BentoGridProps) {
             />
         </div>
     );
+}
+
+// Add setView prop to BentoGridProps
+interface BentoGridProps {
+  setView: (view: ActiveView) => void;
 }
