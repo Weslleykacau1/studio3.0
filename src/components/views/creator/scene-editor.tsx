@@ -106,7 +106,7 @@ export default function SceneEditor({
                   )}
                 {currentScene.scenarioImagePreview && <Image src={currentScene.scenarioImagePreview} alt="Prévia do cenário" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />}
             </div>
-            {currentScene.scenarioImagePreview && <AiButton onClick={handlers.analyzeScenarioImageAndFill} loading={loadingStates.analyzingScenario} isApiConfigured={isApiConfigured} className="bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700 text-white"><Bot className="mr-2 h-5 w-5"/>Analisar Cenário</AiButton>}
+            {currentScene.scenarioImagePreview && <AiButton onClick={handlers.analyzeScenarioImageAndFill} loading={loadingStates.analyzingScenario} isApiConfigured={isApiConfigured} className="bg-gradient-to-r from-blue-500 to-teal-500 text-white shadow-lg transition-transform hover:scale-105"><Bot className="mr-2 h-5 w-5"/>Analisar Cenário</AiButton>}
         </div>
 
         <div>
@@ -265,7 +265,7 @@ export default function SceneEditor({
                     )}
                     {currentScene.productImagePreview && <Image src={currentScene.productImagePreview} alt="Prévia do produto" width={40} height={40} className="h-10 w-10 rounded-md object-cover" />}
                  </div>
-                {currentScene.productImagePreview && <div className="mt-4"><AiButton onClick={handlers.analyzeAndDescribeProduct} loading={loadingStates.analyzingProduct} isApiConfigured={isApiConfigured} className="bg-green-600 hover:bg-green-700 text-white"><Bot className="mr-2 h-5 w-5"/>Analisar Produto</AiButton></div>}
+                {currentScene.productImagePreview && <div className="mt-4"><AiButton onClick={handlers.analyzeAndDescribeProduct} loading={loadingStates.analyzingProduct} isApiConfigured={isApiConfigured} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg transition-transform hover:scale-105"><Bot className="mr-2 h-5 w-5"/>Analisar Produto</AiButton></div>}
             </div>
             <div><Label>Descrição do Produto</Label><Textarea name="productDescription" value={currentScene.productDescription} onChange={handleInputChange} placeholder="Descrição detalhada do produto..."/></div>
             <div className="flex items-center space-x-2"><Checkbox id="isPartnership" name="isPartnership" checked={currentScene.isPartnership} onCheckedChange={(checked) => setCurrentScene(p => ({...p, isPartnership: !!checked}))} /><Label htmlFor="isPartnership">É uma parceria / conteúdo patrocinado.</Label></div>

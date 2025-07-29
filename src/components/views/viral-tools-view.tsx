@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -342,7 +340,7 @@ export default function ViralToolsView({
                     loading={loadingScriptFromTranscription}
                     isApiConfigured={isApiConfigured}
                     disabled={!generatedUploadedVideoTranscription || loadingUploadedVideoTranscription}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                 >
                     <Bot className="mr-2 h-4 w-4" />
                     {loadingScriptFromTranscription ? 'A gerar...' : 'Gerar Roteiro da Transcrição'}
@@ -462,7 +460,7 @@ export default function ViralToolsView({
               loading={loadingThumbnail}
               isApiConfigured={isApiConfigured}
               disabled={!mainImagePreview || !videoTheme.trim()}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105"
             >
               <Bot className="mr-2 h-5 w-5" />
               {loadingThumbnail ? 'A gerar ideias...' : (backgroundImagePreview ? 'Combinar Imagens e Gerar' : 'Gerar Ideias para Thumbnail')}

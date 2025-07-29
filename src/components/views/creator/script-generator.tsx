@@ -111,7 +111,7 @@ export default function ScriptGenerator({
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-start gap-2">
-            <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
               {loading ? 'A gerar...' : 'Gerar Roteiro'}
             </AiButton>
             <AiButton 
@@ -120,7 +120,6 @@ export default function ScriptGenerator({
               isApiConfigured={isApiConfigured} 
               disabled={isGenerationDisabled}
               variant="secondary"
-              className="border border-purple-300 bg-purple-50 text-purple-800 hover:bg-purple-100 dark:border-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
             >
               <Video className="mr-2 h-4 w-4" />
               {loadingVeo ? 'A gerar para Veo...' : 'Gerar Prompt para Veo'}
