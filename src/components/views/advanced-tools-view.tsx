@@ -49,10 +49,17 @@ interface AdvancedToolsViewProps {
   onGenerateThumbnailFromWebDoc: () => void;
   loadingThumbnailFromWebDoc: boolean;
   generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
+  isApiConfigured: boolean;
   onGenerateImageForWebDoc: (prompt: string) => void;
   loadingWebDocImage: boolean;
   onGenerateImageFromPastedScript: (prompt: string) => void;
   loadingImageFromPastedScript: boolean;
+  onGenerateSeoFromLongScript: () => void;
+  loadingSeoFromLongScript: boolean;
+  generatedSeoFromLongScript: string | null;
+  onGenerateThumbnailFromLongScript: () => void;
+  loadingThumbnailFromLongScript: boolean;
+  generatedThumbnailFromLongScript: ThumbnailIdeas | null;
 }
 
 export default function AdvancedToolsView({ 
@@ -88,6 +95,12 @@ export default function AdvancedToolsView({
     loadingWebDocImage,
     onGenerateImageFromPastedScript,
     loadingImageFromPastedScript,
+    onGenerateSeoFromLongScript,
+    loadingSeoFromLongScript,
+    generatedSeoFromLongScript,
+    onGenerateThumbnailFromLongScript,
+    loadingThumbnailFromLongScript,
+    generatedThumbnailFromLongScript,
 }: AdvancedToolsViewProps) {
   
   // State for Long Script Generator
@@ -296,12 +309,22 @@ export default function AdvancedToolsView({
       {generatedLongScript && !loadingLongScript && (
           <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center justify-between gap-2 font-headline">
-                      <span>Roteiro Gerado</span>
-                      <Button onClick={handleExportFullScript} variant="outline" size="sm">
-                          <Download className="mr-2 h-4 w-4" /> Exportar para TXT
-                      </Button>
-                  </CardTitle>
+                  <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <CardTitle className="font-headline">
+                        Roteiro Gerado
+                    </CardTitle>
+                    <div className="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                        <AiButton onClick={onGenerateSeoFromLongScript} loading={loadingSeoFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                            <Bot className="mr-2 h-4 w-4" /> Gerar SEO
+                        </AiButton>
+                        <AiButton onClick={onGenerateThumbnailFromLongScript} loading={loadingThumbnailFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                            <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                        </AiButton>
+                        <Button onClick={handleExportFullScript} variant="outline" size="sm">
+                            <Download className="mr-2 h-4 w-4" /> Exportar para TXT
+                        </Button>
+                    </div>
+                  </div>
               </CardHeader>
               <CardContent className="space-y-4">
                   {generatedLongScript.scenes.map((scene, index) => (
@@ -324,6 +347,54 @@ export default function AdvancedToolsView({
                           </CardContent>
                       </Card>
                   ))}
+              </CardContent>
+          </Card>
+      )}
+
+       {generatedSeoFromLongScript && (
+          <Card>
+              <CardHeader><CardTitle>SEO Gerado do Roteiro Longo</CardTitle></CardHeader>
+              <CardContent>
+                  <ContentDisplay content={generatedSeoFromLongScript} />
+              </CardContent>
+          </Card>
+      )}
+
+      {generatedThumbnailFromLongScript && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-headline">
+                      <ThumbsUp />
+                      Ideias de Thumbnail Geradas
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 1</h4>
+                        <Image src={generatedThumbnailFromLongScript.generatedImage1DataUri} alt="Thumbnail gerada 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromLongScript.generatedImage1DataUri, 'thumbnail_opcao_1.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 1
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 2</h4>
+                        <Image src={generatedThumbnailFromLongScript.generatedImage2DataUri} alt="Thumbnail gerada 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromLongScript.generatedImage2DataUri, 'thumbnail_opcao_2.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 2
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 pt-4">
+                      <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromLongScript.emoji} {generatedThumbnailFromLongScript.title}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromLongScript.styleDescription}</p>
+                    </div>
+                </div>
               </CardContent>
           </Card>
       )}

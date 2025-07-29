@@ -9,6 +9,7 @@
 
 
 
+
 export interface Influencer {
     id: string | null;
     name: string;
@@ -90,6 +91,8 @@ export type LoadingStates = {
     generatingImageFromPastedScript: boolean;
     generatingThumbnailFromWebDoc: boolean;
     generatingWebDocImage: boolean;
+    loadingSeoFromLongScript: boolean;
+    loadingThumbnailFromLongScript: boolean;
 };
 
 export type ThumbnailStyle =

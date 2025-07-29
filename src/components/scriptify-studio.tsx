@@ -10,6 +10,7 @@
 
 
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -85,9 +86,11 @@ export default function ScriptifyStudio() {
     const [generatedSeoFromScript, setGeneratedSeoFromScript] = useState('');
     const [generatedThumbnailFromScript, setGeneratedThumbnailFromScript] = useState<ThumbnailIdeas | null>(null);
     const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
+    const [generatedSeoFromLongScript, setGeneratedSeoFromLongScript] = useState<string | null>(null);
+    const [generatedThumbnailFromLongScript, setGeneratedThumbnailFromLongScript] = useState<ThumbnailIdeas | null>(null);
 
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingImageFromPastedScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false });
+    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingImageFromPastedScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false, loadingSeoFromLongScript: false, loadingThumbnailFromLongScript: false });
     const [pastedText, setPastedText] = useState('');
     const [youtubeUrl, setYoutubeUrl] = useState('');
     const { toast } = useToast();
@@ -635,6 +638,8 @@ export default function ScriptifyStudio() {
         }
         setLoading('generatingLongScript', true);
         setGeneratedLongScript(null);
+        setGeneratedSeoFromLongScript(null);
+        setGeneratedThumbnailFromLongScript(null);
         try {
             const influencerContext = galleryInfluencers.find(i => i.id === influencerId);
             const sceneContext = scenes.find(s => s.id === sceneId);
@@ -661,6 +666,45 @@ export default function ScriptifyStudio() {
             setLoading('generatingLongScript', false);
         }
     };
+
+    const handleGenerateSeoFromLongScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!generatedLongScript?.fullScriptTxt) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro longo primeiro.' });
+        }
+        setLoading('loadingSeoFromLongScript', true);
+        setGeneratedSeoFromLongScript(null);
+        try {
+            const result = await generateSeoFromScript({ scriptText: generatedLongScript.fullScriptTxt });
+            setGeneratedSeoFromLongScript(result);
+            toast({ variant: 'success', title: 'SEO para o roteiro longo gerado com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate SEO from long script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
+        } finally {
+            setLoading('loadingSeoFromLongScript', false);
+        }
+    };
+
+    const handleGenerateThumbnailFromLongScript = async () => {
+        if (!isApiConfigured) return setIsLoginModalOpen(true);
+        if (!generatedLongScript?.fullScriptTxt) {
+            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro longo primeiro.' });
+        }
+        setLoading('loadingThumbnailFromLongScript', true);
+        setGeneratedThumbnailFromLongScript(null);
+        try {
+            const result = await generateThumbnailFromScript({ scriptText: generatedLongScript.fullScriptTxt });
+            setGeneratedThumbnailFromLongScript(result);
+            toast({ variant: 'success', title: 'Ideias de thumbnail para o roteiro longo geradas com sucesso!' });
+        } catch (error: any) {
+            console.error('Failed to generate thumbnail from long script:', error);
+            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
+        } finally {
+            setLoading('loadingThumbnailFromLongScript', false);
+        }
+    };
+
 
     const handleGenerateWebDocScript = async (theme: string, duration: string, topics?: string) => {
         if (!isApiConfigured) return setIsLoginModalOpen(true);
@@ -1089,6 +1133,12 @@ export default function ScriptifyStudio() {
                         loadingWebDocImage={loadingStates.generatingWebDocImage}
                         onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
                         loadingImageFromPastedScript={loadingStates.generatingImageFromPastedScript}
+                        onGenerateSeoFromLongScript={handleGenerateSeoFromLongScript}
+                        loadingSeoFromLongScript={loadingStates.loadingSeoFromLongScript}
+                        generatedSeoFromLongScript={generatedSeoFromLongScript}
+                        onGenerateThumbnailFromLongScript={handleGenerateThumbnailFromLongScript}
+                        loadingThumbnailFromLongScript={loadingStates.loadingThumbnailFromLongScript}
+                        generatedThumbnailFromLongScript={generatedThumbnailFromLongScript}
                     />;
             case 'bento':
             default:
