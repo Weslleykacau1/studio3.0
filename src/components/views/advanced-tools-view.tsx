@@ -492,7 +492,7 @@ export default function AdvancedToolsView({
               <CardHeader>
                   <CardTitle className="flex items-center gap-2 font-headline">
                       <ThumbsUp />
-                      Ideias de Thumbnail Geradas
+                      Ideias de Thumbnail Geradas (Web Doc)
                   </CardTitle>
               </CardHeader>
               <CardContent>
