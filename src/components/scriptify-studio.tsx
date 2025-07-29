@@ -1165,12 +1165,11 @@ export default function ScriptifyStudio() {
             <PromoBanner hasPurchased={hasPurchased} />
 
             {activeView !== 'bento' && (
-                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
+                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Voltar para o Início
                 </Button>
             )}
-
 
             <div className="w-full">
                 {renderContent()}
