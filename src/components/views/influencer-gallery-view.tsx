@@ -117,12 +117,12 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                             <Sparkles className="mr-2 h-4 w-4" /> Cena Rápida
                         </Button>
                     </div>
-                    <div className="grid w-full grid-cols-[1fr_auto] gap-2">
+                    <div className="grid w-full grid-cols-2 gap-2">
                         <Button onClick={() => exportInfluencerAsTxt(gal)} variant="secondary" className="w-full">
                           <FileText className="mr-2 h-4 w-4" /> Exportar
                         </Button>
-                        <Button onClick={() => onDelete(gal.id!)} variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                        <Button onClick={() => onDelete(gal.id!)} variant="destructive" className="w-full">
+                          <Trash2 className="mr-2 h-4 w-4" /> Excluir
                         </Button>
                     </div>
                 </CardFooter>
