@@ -44,42 +44,66 @@ export default function BentoGrid({ setView }: { setView: (view: ActiveView) => 
                 description="Use a fórmula viral para criar roteiros curtos e de alto impacto para Shorts e TikTok."
                 icon={<Rocket size={24} />}
                 onClick={() => setView('viralTools')}
-            />
+            >
+                <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <Rocket className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
                 title="Transcrever Vídeo"
                 description="Transforme áudio de vídeos em texto para criar novos roteiros e conteúdos."
                 icon={<FileText size={24} />}
                 onClick={() => setView('transcribeVideo')}
-            />
+            >
+                 <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <FileText className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
              <BentoCard
                  className="md:col-span-1 lg:col-span-1 lg:row-span-2"
                 title="Galeria de Cenas"
                 description="Veja e gira todas as cenas que você criou."
                 icon={<Clapperboard size={24} />}
                 onClick={() => setView('sceneGallery')}
-            />
+            >
+                 <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <Clapperboard className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
             <BentoCard
                 className="md:col-span-1 lg:col-span-1"
                 title="Galeria de Personagens"
                 description="Aceda e gira todos os seus personagens guardados."
                 icon={<Users size={24} />}
                 onClick={() => setView('influencerGallery')}
-            />
+            >
+                <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <Users className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
              <BentoCard
                 className="md:col-span-1 lg:col-span-1"
                 title="Gerador de Thumbnail"
                 description="Crie thumbnails chamativas para os seus vídeos usando IA."
                 icon={<ImageIcon size={24} />}
                 onClick={() => setView('thumbnailGenerator')}
-            />
+            >
+                <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <ImageIcon className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
             <BentoCard
                 className="md:col-span-2 lg:col-span-2"
                 title="Ferramentas de Roteiro Avançadas"
                 description="Gere roteiros longos, para web docs, e transforme roteiros prontos em prompts de imagem e vídeo."
                 icon={<Zap size={24} />}
                 onClick={() => setView('advancedTools')}
-            />
+            >
+                 <div className="pointer-events-none absolute bottom-0 right-0 z-0 translate-x-1/4 translate-y-1/4 transform">
+                    <Zap className="h-48 w-48 text-foreground/5 opacity-50 transition-all duration-300 group-hover:scale-110" />
+                </div>
+            </BentoCard>
         </div>
     );
 }
