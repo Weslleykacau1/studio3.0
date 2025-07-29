@@ -1,9 +1,10 @@
+
 'use client';
 import type { Scene } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UploadCloud, FileText, Trash2, LayoutGrid, Plus, Download } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, LayoutGrid, Plus, Download, Clapperboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { convertJsonToCsv } from '@/lib/utils';
 
@@ -56,12 +57,12 @@ export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew }:
     };
 
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <CardTitle className="flex items-center gap-3 font-headline text-2xl">
-                    <LayoutGrid />
+                    <Clapperboard />
                     Galeria de Cenas
                 </CardTitle>
                 <CardDescription className="mt-1">
@@ -80,19 +81,26 @@ export default function SceneGalleryView({ scenes, onLoad, onDelete, onAddNew }:
       </CardHeader>
       <CardContent>
         {scenes.length === 0 ? (
-          <p className="py-10 text-center text-muted-foreground italic">A sua galeria está vazia. Crie uma nova cena para começar.</p>
+           <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/20 py-12 text-center">
+            <Clapperboard className="h-12 w-12 text-muted-foreground/50" />
+            <p className="mt-4 text-muted-foreground">A sua galeria de cenas está vazia.</p>
+            <p className="text-sm text-muted-foreground/80">Crie uma nova cena para começar.</p>
+            <Button onClick={onAddNew} className="mt-4">
+                <Plus className="mr-2 h-4 w-4" /> Criar Cena
+            </Button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {scenes.map((scene) => (
-              <Card key={scene.id} className="flex flex-col justify-between transition-shadow hover:shadow-md">
+              <Card key={scene.id} className="flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
                 <CardHeader>
                   <CardTitle className="truncate">{scene.title || 'Cena Sem Título'}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-grow">
                   <p className="line-clamp-3 h-[60px] text-sm text-muted-foreground">{scene.setting}</p>
                    <Badge variant="secondary" className="mt-2">{scene.duration}</Badge>
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2">
+                <CardFooter className="flex flex-col gap-2 border-t pt-4">
                     <Button onClick={() => onLoad(scene.id!)} className="w-full">
                         <UploadCloud className="mr-2 h-4 w-4" /> Carregar
                     </Button>

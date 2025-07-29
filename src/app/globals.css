@@ -4,65 +4,65 @@
 
 @layer base {
   :root {
-    --background: 270 43% 97%; /* #F4F0F8 Soft Lavender */
-    --foreground: 259 44% 20%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 259 44% 20%;
+    --card: 240 4.8% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 259 44% 20%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 259 44% 51%; /* #6C4AB6 Deep Purple */
-    --primary-foreground: 0 0% 100%;
+    --primary: 262 84% 60%; /* Vibrant Purple */
+    --primary-foreground: 262 84% 98%;
 
-    --secondary: 270 43% 90%; /* Lighter lavender */
-    --secondary-foreground: 259 44% 30%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 270 43% 90%;
-    --muted-foreground: 259 44% 45%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 338 58% 77%; /* #E8A0BF Dusty Pink */
-    --accent-foreground: 338 58% 15%;
+    --accent: 338 78% 59%; /* Vibrant Pink */
+    --accent-foreground: 338 78% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 270 43% 88%;
-    --input: 270 43% 92%;
-    --ring: 259 44% 51%; /* Deep Purple for focus rings */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 262 84% 60%; /* Vibrant Purple for focus rings */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 259 44% 10%;
-    --foreground: 270 43% 95%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 259 44% 12%;
-    --card-foreground: 270 43% 95%;
+    --card: 240 4.8% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 259 44% 10%;
-    --popover-foreground: 270 43% 95%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 338 58% 77%; /* Dusty Pink as primary in dark mode */
-    --primary-foreground: 338 58% 10%;
+    --primary: 262 84% 60%;
+    --primary-foreground: 262 84% 98%;
 
-    --secondary: 259 44% 20%;
-    --secondary-foreground: 270 43% 95%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 259 44% 20%;
-    --muted-foreground: 270 43% 70%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 259 44% 30%;
-    --accent-foreground: 270 43% 95%;
+    --accent: 338 78% 59%;
+    --accent-foreground: 338 78% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 259 44% 25%;
-    --input: 259 44% 25%;
-    --ring: 338 58% 77%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 262 84% 60%;
   }
 }
 
@@ -76,5 +76,23 @@
   .prose p {
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
+  }
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem; /* 24px */
+}
+
+@media (min-width: 1024px) { /* lg */
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .bento-grid .col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+   .bento-grid .col-span-1 {
+    grid-column: span 1 / span 1;
   }
 }

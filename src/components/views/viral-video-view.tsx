@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw, Search, ThumbsUp, ListOrdered } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Sparkles, Pencil, Palette as PaletteIcon, Youtube, Download, Video as VideoIcon, Copy, Wand, FileText, Combine, BookOpen, User, Film, Clock, Camera, AlertTriangle, MessageSquareQuote, RefreshCw, Search, ThumbsUp, ListOrdered, Zap } from 'lucide-react';
 import type { ThumbnailIdeas, Scene, ThumbnailStyle, Influencer, LongScriptScene, WebDocScript, WebDocScene, ScenePrompts } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
@@ -388,6 +388,18 @@ export default function ViralVideoView({
 
   return (
     <div className="space-y-8">
+        <Card className="bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+                    <Zap />
+                    Ferramentas de Vídeo
+                </CardTitle>
+                <CardDescription>
+                    Um conjunto de ferramentas poderosas para acelerar a sua criação de conteúdo em vídeo.
+                </CardDescription>
+            </CardHeader>
+        </Card>
+
         <Alert variant="default" className="border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
           <AlertTriangle className="h-4 w-4 text-blue-500" />
           <AlertTitle className="text-blue-800 dark:text-blue-300">Como usar o Gerador de Roteiro para Web Doc</AlertTitle>

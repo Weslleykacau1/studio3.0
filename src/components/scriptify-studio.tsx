@@ -33,11 +33,12 @@ import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import ViralVideoView from './views/viral-video-view';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Film, Palette, LayoutGrid, Zap } from 'lucide-react';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
+import BentoGrid from './views/bento-grid-view';
+import { Button } from './ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
@@ -48,7 +49,7 @@ const COOKIE_KEY_API_KEY = 'gemini_api_key';
 const COOKIE_KEY_PURCHASE = 'has_purchased';
 
 export default function ScriptifyStudio() {
-    const [activeView, setActiveView] = useState<ActiveView>('creator');
+    const [activeView, setActiveView] = useState<ActiveView>('bento');
     
     const [influencer, setInfluencer] = useState<Influencer>(getInitialInfluencerState());
     const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
@@ -918,46 +919,10 @@ export default function ScriptifyStudio() {
     }
 
 
-    return (
-        <div suppressHydrationWarning>
-             <LoginModal
-                isOpen={isLoginModalOpen}
-                onClose={() => setIsLoginModalOpen(false)}
-                onSave={handleApiKeySave}
-            />
-            <QuickSceneModal
-                isOpen={isQuickSceneModalOpen}
-                onClose={() => setIsQuickSceneModalOpen(false)}
-                influencer={selectedInfluencerForQuickScene}
-                onGenerate={handleGenerateQuickScene}
-                onSave={handleSaveAndLoadQuickScene}
-                generatedScene={generatedQuickScene}
-                loading={loadingStates.generatingQuickScene}
-                isApiConfigured={isApiConfigured}
-            />
-
-            <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
-
-            <PromoBanner hasPurchased={hasPurchased} />
-
-            <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ActiveView)} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-primary/10">
-                    <TabsTrigger value="creator"><Film className="mr-2 h-4 w-4 hidden sm:inline-block" />Criador</TabsTrigger>
-                    <TabsTrigger value="influencerGallery">
-                        <Palette className="mr-2 h-4 w-4 hidden sm:inline-block" />
-                        <span className='sm:hidden'>Influenciadores</span>
-                        <span className='hidden sm:inline'>Galeria de Influenciadores</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="sceneGallery">
-                        <LayoutGrid className="mr-2 h-4 w-4 hidden sm:inline-block" />
-                        <span className='sm:hidden'>Cenas</span>
-                        <span className='hidden sm:inline'>Galeria de Cenas</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="viralVideo"><Zap className="mr-2 h-4 w-4 hidden sm:inline-block" />Vídeo Viral</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="creator" className="mt-6">
-                    <CreatorView
+    const renderContent = () => {
+        switch (activeView) {
+            case 'creator':
+                return <CreatorView
                         influencer={influencer}
                         setInfluencer={setInfluencer}
                         currentScene={currentScene}
@@ -987,27 +952,24 @@ export default function ScriptifyStudio() {
                             resetInfluencer: () => setInfluencer(getInitialInfluencerState()),
                             resetScene: () => setCurrentScene(initialSceneState),
                         }}
-                    />
-                </TabsContent>
-                <TabsContent value="influencerGallery" className="mt-6">
-                    <InfluencerGalleryView
+                    />;
+            case 'influencerGallery':
+                 return <InfluencerGalleryView
                         influencers={galleryInfluencers}
                         onLoad={loadInfluencer}
                         onDelete={deleteInfluencerHandler}
                         onAddNew={handleAddNewInfluencer}
                         onQuickScene={handleOpenQuickSceneModal}
-                    />
-                </TabsContent>
-                <TabsContent value="sceneGallery" className="mt-6">
-                    <SceneGalleryView
+                    />;
+            case 'sceneGallery':
+                return <SceneGalleryView
                         scenes={scenes}
                         onLoad={loadScene}
                         onDelete={deleteSceneHandler}
                         onAddNew={handleAddNewScene}
-                    />
-                </TabsContent>
-                <TabsContent value="viralVideo" className="mt-6">
-                    <ViralVideoView
+                    />;
+            case 'viralVideo':
+                return <ViralVideoView
                         onGenerate={handleGenerateThumbnailIdeas}
                         generatedIdeas={generatedThumbnailIdeas}
                         loading={loadingStates.generatingThumbnail}
@@ -1055,9 +1017,45 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
-                    />
-                </TabsContent>
-            </Tabs>
+                    />;
+            case 'bento':
+            default:
+                return <BentoGrid setView={setActiveView} />;
+        }
+    }
+
+    return (
+        <div suppressHydrationWarning>
+             <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+                onSave={handleApiKeySave}
+            />
+            <QuickSceneModal
+                isOpen={isQuickSceneModalOpen}
+                onClose={() => setIsQuickSceneModalOpen(false)}
+                influencer={selectedInfluencerForQuickScene}
+                onGenerate={handleGenerateQuickScene}
+                onSave={handleSaveAndLoadQuickScene}
+                generatedScene={generatedQuickScene}
+                loading={loadingStates.generatingQuickScene}
+                isApiConfigured={isApiConfigured}
+            />
+
+            <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
+            
+            <PromoBanner hasPurchased={hasPurchased} />
+
+            {activeView !== 'bento' && (
+                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Voltar para o Início
+                </Button>
+            )}
+
+            <div className="w-full">
+                {renderContent()}
+            </div>
         </div>
     );
 }
