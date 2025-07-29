@@ -32,8 +32,8 @@ export function AppHeader({ isApiConfigured, onOpenLoginModal }: AppHeaderProps)
                   y2="52"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stopColor="#FF4C00" />
-                  <stop offset="1" stopColor="#D97700" />
+                  <stop stopColor="#7C3AED" />
+                  <stop offset="1" stopColor="#A259FF" />
                 </linearGradient>
               </defs>
               <g fill="white">
@@ -45,7 +45,7 @@ export function AppHeader({ isApiConfigured, onOpenLoginModal }: AppHeaderProps)
         </div>
         <div>
           <h1 className="font-headline text-2xl font-bold text-primary sm:text-3xl">
-            Scriptify Studio 2.1
+            Scriptify Studio
           </h1>
           <p className="text-sm text-muted-foreground sm:text-base">
             Crie influenciadores e gere roteiros para vídeo.

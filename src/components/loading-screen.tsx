@@ -24,8 +24,8 @@ export function LoadingScreen() {
                     y2="52"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop stopColor="#FF4C00" />
-                    <stop offset="1" stopColor="#D97700" />
+                    <stop stopColor="#7C3AED" />
+                    <stop offset="1" stopColor="#A259FF" />
                 </linearGradient>
                 </defs>
                 <g fill="white">

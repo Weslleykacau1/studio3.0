@@ -4,65 +4,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 0 0% 11.8%; /* #1E1E1E */
+    --background: 257 100% 99%; /* #F9F8FF */
+    --foreground: 249 39% 14%; /* #1A162E */
 
-    --card: 0 0% 95.7%; /* #F4F4F4 */
-    --card-foreground: 0 0% 11.8%; /* #1E1E1E */
+    --card: 252 67% 95%; /* #EDE9F9 */
+    --card-foreground: 249 39% 14%; /* #1A162E */
 
-    --popover: 0 0% 95.7%; /* #F4F4F4 */
-    --popover-foreground: 0 0% 11.8%; /* #1E1E1E */
+    --popover: 252 67% 95%; /* #EDE9F9 */
+    --popover-foreground: 249 39% 14%; /* #1A162E */
+    
+    --primary: 260 84% 59%; /* #7C3AED */
+    --primary-foreground: 257 100% 99%; /* Light text for primary buttons */
 
-    --primary: 18 100% 50%; /* #FF4C00 */
-    --primary-foreground: 0 0% 100%;
+    --secondary: 252 67% 95%; /* #EDE9F9 */
+    --secondary-foreground: 249 39% 14%; /* #1A162E */
 
-    --secondary: 0 0% 95.7%; /* #F4F4F4 */
-    --secondary-foreground: 0 0% 11.8%; /* #1E1E1E */
+    --muted: 252 67% 95%; /* #EDE9F9 */
+    --muted-foreground: 252 19% 45%; /* #5E5778 */
 
-    --muted: 0 0% 95.7%; /* #F4F4F4 */
-    --muted-foreground: 0 0% 40%; /* #666666 */
+    --accent: 258 87% 95%; /* #DDD6FE */
+    --accent-foreground: 249 39% 14%;
 
-    --accent: 33 100% 42.5%; /* #D97700 */
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 4 90% 41.2%; /* #D92D20 */
+    --destructive: 0 84% 60%; /* #EF4444 */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 87.8%; /* #E0E0E0 */
-    --input: 0 0% 87.8%; /* #E0E0E0 */
-    --ring: 18 100% 50%; /* #FF4C00 */
+    --border: 252 28% 88%; /* #D1CDE8 */
+    --input: 252 28% 88%; /* #D1CDE8 */
+    --ring: 260 84% 59%; /* #7C3AED */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 7.1%; /* #121212 */
-    --foreground: 0 0% 98%; /* #FFFFFF */
+    --background: 248 41% 9%; /* #0D0B1A */
+    --foreground: 240 100% 98%; /* #F5F5FF */
 
-    --card: 0 0% 11.8%; /* #1E1E1E */
-    --card-foreground: 0 0% 98%; /* #FFFFFF */
+    --card: 249 39% 14%; /* #1A162E */
+    --card-foreground: 240 100% 98%; /* #F5F5FF */
+    
+    --popover: 249 39% 14%; /* #1A162E */
+    --popover-foreground: 240 100% 98%; /* #F5F5FF */
 
-    --popover: 0 0% 11.8%; /* #1E1E1E */
-    --popover-foreground: 0 0% 98%; /* #FFFFFF */
+    --primary: 267 100% 67%; /* #A259FF */
+    --primary-foreground: 249 39% 14%; /* Dark text for primary buttons */
 
-    --primary: 18 100% 50%; /* #FF4C00 */
-    --primary-foreground: 0 0% 100%;
+    --secondary: 249 39% 14%; /* #1A162E */
+    --secondary-foreground: 240 100% 98%; /* #F5F5FF */
+    
+    --muted: 249 39% 14%; /* #1A162E */
+    --muted-foreground: 250 26% 76%; /* #B8B2D1 */
 
-    --secondary: 0 0% 11.8%; /* #1E1E1E */
-    --secondary-foreground: 0 0% 98%; /* #FFFFFF */
+    --accent: 269 100% 87%; /* #E0BBFF */
+    --accent-foreground: 249 39% 14%;
 
-    --muted: 0 0% 11.8%; /* #1E1E1E */
-    --muted-foreground: 0 0% 70.2%; /* #B3B3B3 */
-
-    --accent: 36 92% 73.3%; /* #F8C07E */
-    --accent-foreground: 0 0% 11.8%;
-
-    --destructive: 0 100% 65.3%; /* #FF4E4E */
+    --destructive: 352 100% 71%; /* #FF6B81 */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 17.3%; /* #2C2C2C */
-    --input: 0 0% 17.3%; /* #2C2C2C */
-    --ring: 18 100% 50%; /* #FF4C00 */
+    --border: 246 31% 22%; /* #2B2549 */
+    --input: 246 31% 22%; /* #2B2549 */
+    --ring: 267 100% 67%; /* #A259FF */
   }
 }
 
@@ -87,15 +87,12 @@
 
 @media (min-width: 768px) { /* md */
   .bento-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
-  .bento-grid .col-span-1 { grid-column: span 1 / span 1; }
-  .bento-grid .col-span-2 { grid-column: span 2 / span 2; }
-  .bento-grid .col-span-3 { grid-column: span 3 / span 3; }
-  .bento-grid .col-span-4 { grid-column: span 4 / span 4; }
-  .bento-grid .row-span-1 { grid-row: span 1 / span 1; }
-  .bento-grid .row-span-2 { grid-row: span 2 / span 2; }
+  .bento-grid .md\\:col-span-1 { grid-column: span 1 / span 1; }
+  .bento-grid .md\\:col-span-2 { grid-column: span 2 / span 2; }
 }
+
 
 @media (min-width: 1024px) { /* lg */
   .bento-grid {
@@ -104,6 +101,7 @@
   }
   .bento-grid .lg\\:col-span-1 { grid-column: span 1 / span 1; }
   .bento-grid .lg\\:col-span-2 { grid-column: span 2 / span 2; }
+  .bento-grid .lg\\:col-span-3 { grid-column: span 3 / span 3; }
   .bento-grid .lg\\:row-span-1 { grid-row: span 1 / span 1; }
   .bento-grid .lg\\:row-span-2 { grid-row: span 2 / span 2; }
 }
