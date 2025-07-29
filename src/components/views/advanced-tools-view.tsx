@@ -421,6 +421,9 @@ export default function AdvancedToolsView({
                         <AiButton onClick={onGenerateWebDocSeo} loading={loadingWebDocSeo} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
                             <Bot className="mr-2 h-4 w-4" /> Gerar SEO
                         </AiButton>
+                        <AiButton onClick={onGenerateThumbnailFromWebDoc} loading={loadingThumbnailFromWebDoc} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                            <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                        </AiButton>
                         <Button onClick={onExportWebDocScript} variant="outline" size="sm">
                             <Download className="mr-2 h-4 w-4" /> Exportar para TXT
                         </Button>
@@ -484,6 +487,45 @@ export default function AdvancedToolsView({
           </Card>
       )}
       
+      {generatedThumbnailFromWebDoc && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-headline">
+                      <ThumbsUp />
+                      Ideias de Thumbnail Geradas
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 1</h4>
+                        <Image src={generatedThumbnailFromWebDoc.generatedImage1DataUri} alt="Thumbnail gerada 1" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromWebDoc.generatedImage1DataUri, 'thumbnail_opcao_1.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 1
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold">Opção 2</h4>
+                        <Image src={generatedThumbnailFromWebDoc.generatedImage2DataUri} alt="Thumbnail gerada 2" width={400} height={225} className="w-full rounded-md border object-contain" />
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleDownloadImage(generatedThumbnailFromWebDoc.generatedImage2DataUri, 'thumbnail_opcao_2.png')}>
+                            <Download className="mr-2 h-4 w-4" /> Baixar Opção 2
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1 pt-4">
+                      <h4 className="flex items-center gap-2 font-semibold"><Pencil className="h-4 w-4 text-muted-foreground" /> Título Sugerido</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromWebDoc.emoji} {generatedThumbnailFromWebDoc.title}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="flex items-center gap-2 font-semibold"><PaletteIcon className="h-4 w-4 text-muted-foreground" /> Estilo Visual</h4>
+                      <p className="rounded-md border bg-secondary/30 p-3">{generatedThumbnailFromWebDoc.styleDescription}</p>
+                    </div>
+                </div>
+              </CardContent>
+          </Card>
+      )}
+
       {generatedWebDocSeo && (
         <Card>
             <CardHeader>
