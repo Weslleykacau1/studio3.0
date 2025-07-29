@@ -69,7 +69,7 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 title="Gerador de Thumbnail"
                 description="Crie thumbnails chamativas para os seus vídeos usando IA."
                 icon={<ImageIcon size={24} />}
-                onClick={() => setView('viralTools')}
+                onClick={() => setView('thumbnailGenerator')}
             />
             <BentoCard
                 className="md:col-span-2 lg:col-span-2"

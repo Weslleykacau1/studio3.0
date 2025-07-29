@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -35,6 +36,7 @@ import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
 import ViralToolsView from './views/viral-tools-view';
 import AdvancedToolsView from './views/advanced-tools-view';
+import ThumbnailGeneratorView from './views/thumbnail-generator-view';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
@@ -998,9 +1000,6 @@ export default function ScriptifyStudio() {
                     />;
             case 'viralTools':
                 return <ViralToolsView
-                        onGenerateThumbnail={handleGenerateThumbnailIdeas}
-                        generatedThumbnailIdeas={generatedThumbnailIdeas}
-                        loadingThumbnail={loadingStates.generatingThumbnail}
                         isApiConfigured={isApiConfigured}
                         youtubeUrl={youtubeUrl}
                         setYoutubeUrl={setYoutubeUrl}
@@ -1018,6 +1017,13 @@ export default function ScriptifyStudio() {
                         onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
                         loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
                         onClearTranscription={handleClearTranscription}
+                    />;
+            case 'thumbnailGenerator':
+                 return <ThumbnailGeneratorView
+                        onGenerateThumbnail={handleGenerateThumbnailIdeas}
+                        generatedThumbnailIdeas={generatedThumbnailIdeas}
+                        loadingThumbnail={loadingStates.generatingThumbnail}
+                        isApiConfigured={isApiConfigured}
                     />;
             case 'advancedTools':
                 return <AdvancedToolsView
@@ -1044,7 +1050,7 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
                         loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
                         generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={handleExportPrompts}
+                        onExportPrompts={onExportPrompts}
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}

@@ -3,6 +3,7 @@
 
 
 
+
 export interface Influencer {
     id: string | null;
     name: string;
@@ -53,7 +54,7 @@ export interface ThumbnailIdeas {
     generatedImage2DataUri: string;
 }
 
-export type ActiveView = 'bento' | 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralTools' | 'advancedTools';
+export type ActiveView = 'bento' | 'creator' | 'influencerGallery' | 'sceneGallery' | 'viralTools' | 'advancedTools' | 'thumbnailGenerator';
 
 export type LoadingStates = {
     savingInfluencer: boolean;
