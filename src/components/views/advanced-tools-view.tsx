@@ -201,6 +201,7 @@ export default function AdvancedToolsView({
       <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+                <BookOpen />
                 Gerador de Roteiro de Vídeo Longo
               </CardTitle>
               <CardDescription>

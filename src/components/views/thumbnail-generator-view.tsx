@@ -7,15 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AiButton } from '@/components/ai-button';
 import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { UploadCloud, Bot, Image as ImageIcon, Pencil, Palette as PaletteIcon, Download, Combine } from 'lucide-react';
+import { UploadCloud, Bot, Image as ImageIcon, Pencil, Palette as PaletteIcon, Download, Combine, AspectRatio } from 'lucide-react';
 import type { ThumbnailIdeas, ThumbnailStyle } from '@/types';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ThumbnailGeneratorViewProps {
-  onGenerateThumbnail: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => void;
+  onGenerateThumbnail: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle, aspectRatio: '16:9' | '9:16') => void;
   generatedThumbnailIdeas: ThumbnailIdeas | null;
   loadingThumbnail: boolean;
   isApiConfigured: boolean;
@@ -54,6 +55,7 @@ export default function ThumbnailGeneratorView({
   const [backgroundImageDataUri, setBackgroundImageDataUri] = useState<string | null>(null);
   const [videoTheme, setVideoTheme] = useState('');
   const [thumbnailStyle, setThumbnailStyle] = useState<ThumbnailStyle>('default');
+  const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16'>('16:9');
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleImageUploadUtil(e, ({ preview, base64, type }) => {
@@ -72,7 +74,7 @@ export default function ThumbnailGeneratorView({
   const handleGenerateClick = () => {
     if (mainImageDataUri && videoTheme) {
       const selectedStyleDescription = thumbnailStyleOptions.find(opt => opt.value === thumbnailStyle)?.description || '';
-      onGenerateThumbnail(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme, selectedStyleDescription as ThumbnailStyle);
+      onGenerateThumbnail(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme, selectedStyleDescription as ThumbnailStyle, aspectRatio);
     }
   };
 
@@ -170,6 +172,20 @@ export default function ThumbnailGeneratorView({
                 />
             </div>
             
+            <div className="space-y-2">
+                <Label className="flex items-center gap-2"><AspectRatio className="h-4 w-4"/> Proporção</Label>
+                <RadioGroup value={aspectRatio} onValueChange={(v) => setAspectRatio(v as '16:9' | '9:16')} className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="16:9" id="ratio-16-9" />
+                    <Label htmlFor="ratio-16-9" className="font-normal">16:9 (Horizontal)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="9:16" id="ratio-9-16" />
+                    <Label htmlFor="ratio-9-16" className="font-normal">9:16 (Vertical)</Label>
+                  </div>
+                </RadioGroup>
+            </div>
+
             <div className="space-y-2">
                 <Label htmlFor="thumbnail-style" className="flex items-center gap-2"><PaletteIcon className="h-4 w-4"/> Estilo da Thumbnail</Label>
                  <Select value={thumbnailStyle} onValueChange={(v) => setThumbnailStyle(v as ThumbnailStyle)}>
