@@ -41,7 +41,6 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
-import { ArrowLeft, ChevronLeft, Undo2 } from 'lucide-react';
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
 
@@ -1112,7 +1111,7 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
                         loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
                         generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={onExportPrompts}
+                        onExportPrompts={handleExportPrompts}
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
@@ -1165,17 +1164,12 @@ export default function ScriptifyStudio() {
             <PromoBanner hasPurchased={hasPurchased} />
 
             {activeView !== 'bento' && (
-                 <>
-                    <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6 hidden md:inline-flex">
-                        <ChevronLeft className="mr-2 h-4 w-4 stroke-[3]" />
-                        Voltar para o Início
-                    </Button>
-                     <Button variant="default" size="icon" onClick={() => setActiveView('bento')} className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full shadow-lg block md:hidden" aria-label="Voltar para o Início">
-                        <ChevronLeft className="h-6 w-6 stroke-[3]" />
-                    </Button>
-                </>
+                 <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Voltar para o Início
+                </Button>
             )}
-
+            
             <div className="w-full">
                 {renderContent()}
             </div>
