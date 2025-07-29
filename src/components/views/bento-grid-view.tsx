@@ -52,26 +52,26 @@ export default function BentoGrid({ setView }: BentoGridProps) {
                 title="Gerador de Roteiro Viral"
                 description="Use a fórmula viral para criar roteiros curtos e de alto impacto para Shorts e TikTok."
                 icon={<Rocket size={24} />}
-                onClick={() => setView('viralVideo')}
+                onClick={() => setView('viralTools')}
             />
             <BentoCard
                 title="Transcrever Vídeo"
                 description="Extraia o texto de qualquer vídeo para criar ou re-imaginar roteiros."
                 icon={<FileText size={24} />}
-                onClick={() => setView('viralVideo')}
+                onClick={() => setView('viralTools')}
             />
              <BentoCard
                 title="Gerador de Thumbnails"
                 description="Crie thumbnails virais com base em imagens de referência e estilos pré-definidos."
                 icon={<ImageIcon size={24} />}
-                onClick={() => setView('viralVideo')}
+                onClick={() => setView('viralTools')}
             />
             <BentoCard
                 className="col-span-1 lg:col-span-2"
                 title="Ferramentas de Roteiro Avançadas"
                 description="Gere roteiros longos, para web docs, e transforme roteiros prontos em prompts de imagem e vídeo."
                 icon={<Zap size={24} />}
-                onClick={() => setView('viralVideo')}
+                onClick={() => setView('advancedTools')}
             />
         </div>
     );

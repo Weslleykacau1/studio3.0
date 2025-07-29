@@ -32,7 +32,8 @@ import { QuickSceneModal } from './quick-scene-modal';
 import CreatorView from './views/creator-view';
 import InfluencerGalleryView from './views/influencer-gallery-view';
 import SceneGalleryView from './views/scene-gallery-view';
-import ViralVideoView from './views/viral-video-view';
+import ViralToolsView from './views/viral-tools-view';
+import AdvancedToolsView from './views/advanced-tools-view';
 import { LoginModal } from './login-modal';
 import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
@@ -968,11 +969,11 @@ export default function ScriptifyStudio() {
                         onDelete={deleteSceneHandler}
                         onAddNew={handleAddNewScene}
                     />;
-            case 'viralVideo':
-                return <ViralVideoView
-                        onGenerate={handleGenerateThumbnailIdeas}
-                        generatedIdeas={generatedThumbnailIdeas}
-                        loading={loadingStates.generatingThumbnail}
+            case 'viralTools':
+                return <ViralToolsView
+                        onGenerateThumbnail={handleGenerateThumbnailIdeas}
+                        generatedThumbnailIdeas={generatedThumbnailIdeas}
+                        loadingThumbnail={loadingStates.generatingThumbnail}
                         isApiConfigured={isApiConfigured}
                         youtubeUrl={youtubeUrl}
                         setYoutubeUrl={setYoutubeUrl}
@@ -990,6 +991,9 @@ export default function ScriptifyStudio() {
                         onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
                         loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
                         onClearTranscription={handleClearTranscription}
+                    />;
+            case 'advancedTools':
+                return <AdvancedToolsView
                         influencers={galleryInfluencers}
                         scenes={scenes}
                         onGenerateLongScript={handleGenerateLongScript}
@@ -1017,6 +1021,7 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
+                        isApiConfigured={isApiConfigured}
                     />;
             case 'bento':
             default:
