@@ -16,7 +16,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ThumbnailGeneratorViewProps {
-  onGenerateThumbnail: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle, aspectRatio: '16:9' | '9:16') => void;
+  onGenerateThumbnail: (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => void;
   generatedThumbnailIdeas: ThumbnailIdeas | null;
   loadingThumbnail: boolean;
   isApiConfigured: boolean;
@@ -74,7 +74,7 @@ export default function ThumbnailGeneratorView({
   const handleGenerateClick = () => {
     if (mainImageDataUri && videoTheme) {
       const selectedStyleDescription = thumbnailStyleOptions.find(opt => opt.value === thumbnailStyle)?.description || '';
-      onGenerateThumbnail(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme, selectedStyleDescription as ThumbnailStyle, aspectRatio);
+      onGenerateThumbnail(mainImageDataUri, backgroundImageDataUri ?? undefined, videoTheme, selectedStyleDescription as ThumbnailStyle);
     }
   };
 
