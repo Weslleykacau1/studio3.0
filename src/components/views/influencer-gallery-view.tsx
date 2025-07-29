@@ -109,7 +109,7 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                     </CardContent>
                 </div>
                 <CardFooter className="relative z-10 flex flex-col gap-2 border-t pt-4">
-                    <div className="grid w-full grid-cols-2 gap-2">
+                    <div className="flex w-full gap-2">
                         <Button onClick={() => onLoad(gal.id!)} className="w-full">
                             <UploadCloud className="mr-2 h-4 w-4" /> Carregar
                         </Button>
@@ -117,12 +117,12 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
                             <Sparkles className="mr-2 h-4 w-4" /> Cena Rápida
                         </Button>
                     </div>
-                    <div className="grid w-full grid-cols-2 gap-2">
-                        <Button onClick={() => exportInfluencerAsTxt(gal)} variant="secondary" className="w-full">
+                    <div className="flex w-full items-center justify-between">
+                        <Button onClick={() => exportInfluencerAsTxt(gal)} variant="ghost" className="text-muted-foreground">
                           <FileText className="mr-2 h-4 w-4" /> Exportar
                         </Button>
-                        <Button onClick={() => onDelete(gal.id!)} variant="destructive" className="w-full">
-                          <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                        <Button onClick={() => onDelete(gal.id!)} variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                     </div>
                 </CardFooter>
