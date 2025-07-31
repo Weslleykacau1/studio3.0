@@ -74,7 +74,7 @@ export default function InfluencerEditor({
                           <div className='w-full'>{uploadButton}</div>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Configure a sua chave API para carregar imagens.</p>
+                          <p>Instale a chave API para utilizar a ferramenta</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
