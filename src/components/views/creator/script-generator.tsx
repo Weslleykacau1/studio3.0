@@ -101,6 +101,34 @@ export default function ScriptGenerator({
 
   return (
     <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+            <Bot />
+            3. Gere o Roteiro Detalhado
+          </CardTitle>
+          <CardDescription>Use o influenciador e a cena definidos para gerar um roteiro detalhado para um vídeo.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex flex-wrap items-start gap-2">
+            <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
+              {loading ? 'A gerar...' : 'Gerar Roteiro'}
+            </AiButton>
+            <AiButton 
+              onClick={onGenerateVeoPrompt} 
+              loading={loadingVeo} 
+              isApiConfigured={isApiConfigured} 
+              disabled={isGenerationDisabled}
+              variant="secondary"
+            >
+              <Video className="mr-2 h-4 w-4" />
+              {loadingVeo ? 'A gerar para Veo...' : 'Gerar Prompt para Veo'}
+            </AiButton>
+          </div>
+          {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
+        </CardContent>
+      </Card>
+      
       {generatedContent && (
         <Card className="mt-8">
           <CardHeader>
