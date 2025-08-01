@@ -44,12 +44,6 @@ export default function InfluencerEditor({
   const handleSelectChange = (name: keyof Influencer, value: string) => {
     setInfluencer(prev => ({ ...prev, [name]: value }));
   };
-  
-  const uploadButton = (
-    <Button asChild variant="outline" className="w-full" disabled={!isApiConfigured}>
-        <Label htmlFor="imageUpload" className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}><FileIcon className="h-4 w-4"/>Escolher</Label>
-    </Button>
-  );
 
   return (
     <Card>
@@ -66,20 +60,9 @@ export default function InfluencerEditor({
             <div className="flex flex-col items-start gap-4 sm:flex-row">
               <div className="w-full space-y-2 sm:w-1/3">
                 <input type="file" id="imageUpload" accept="image/*" onChange={(e) => handlers.handleImageUpload(e, 'influencer')} className="hidden" disabled={!isApiConfigured} />
-                 {isApiConfigured ? (
-                    uploadButton
-                  ) : (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className='w-full'>{uploadButton}</div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Configure a sua chave API para carregar imagens.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
+                <Button asChild variant="outline" className="w-full" disabled={!isApiConfigured}>
+                  <Label htmlFor="imageUpload" className={`cursor-pointer gap-2 ${!isApiConfigured ? 'cursor-not-allowed' : ''}`}><FileIcon className="h-4 w-4"/>Escolher</Label>
+                </Button>
                  {influencer.imagePreview ? (
                     <Image src={influencer.imagePreview} alt="Prévia" width={100} height={100} className="h-24 w-full rounded-lg object-cover shadow-md" />
                  ) : (

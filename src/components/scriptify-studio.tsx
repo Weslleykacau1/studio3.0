@@ -1,4 +1,8 @@
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 259a6081f5027d42479590c7054e129c867bf4e5
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -41,6 +45,10 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
+<<<<<<< HEAD
+=======
+import { ChevronLeft } from 'lucide-react';
+>>>>>>> 259a6081f5027d42479590c7054e129c867bf4e5
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
 import { ChevronLeft } from 'lucide-react';
@@ -1116,7 +1124,6 @@ export default function ScriptifyStudio() {
                         onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
                         loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
                         generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
-                        isApiConfigured={isApiConfigured}
                         onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
                         loadingWebDocImage={loadingStates.generatingWebDocImage}
                         onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
