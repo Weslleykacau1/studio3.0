@@ -49,7 +49,6 @@ interface AdvancedToolsViewProps {
   onGenerateThumbnailFromWebDoc: () => void;
   loadingThumbnailFromWebDoc: boolean;
   generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
-  isApiConfigured: boolean;
   onGenerateImageForWebDoc: (prompt: string) => void;
   loadingWebDocImage: boolean;
   onGenerateImageFromPastedScript: (prompt: string) => void;

@@ -47,7 +47,6 @@ import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-fro
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
 import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
-import { generateThumbnailFromWebDoc } from '@/ai/flows/generate-thumbnail-from-script';
 
 const createEmptyInfluencer = (): Influencer => ({
   id: null,
@@ -769,7 +768,7 @@ export default function ScriptifyStudio() {
     
     setLoadingState('generatingWebDocSeo', true);
     try {
-      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\\n\\n');
       const result = await generateSeoFromScript({ scriptText: fullScript });
       setGeneratedWebDocSeo(result);
       toast({ variant: 'success', title: 'SEO gerado!', description: 'O SEO foi criado para o web doc.' });
@@ -784,13 +783,13 @@ export default function ScriptifyStudio() {
   const exportWebDocScriptHandler = () => {
     if (!generatedWebDocScript) return;
     
-    let content = `# ${generatedWebDocScript.title}\n\n`;
+    let content = `# ${generatedWebDocScript.title}\\n\\n`;
     generatedWebDocScript.scenes.forEach((scene, index) => {
-      content += `## Cena ${scene.sceneNumber}\n\n`;
-      content += `**Roteiro:** ${scene.sceneScript}\n\n`;
-      content += `**Prompt de Imagem:** ${scene.imagePrompt}\n\n`;
-      content += `**Prompt de Vídeo:** ${scene.videoPrompt}\n\n`;
-      if (index < generatedWebDocScript.scenes.length - 1) content += '---\n\n';
+      content += `## Cena ${scene.sceneNumber}\\n\\n`;
+      content += `**Roteiro:** ${scene.sceneScript}\\n\\n`;
+      content += `**Prompt de Imagem:** ${scene.imagePrompt}\\n\\n`;
+      content += `**Prompt de Vídeo:** ${scene.videoPrompt}\\n\\n`;
+      if (index < generatedWebDocScript.scenes.length - 1) content += '---\\n\\n';
     });
     
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -809,12 +808,12 @@ export default function ScriptifyStudio() {
   const handleExportPrompts = () => {
     if (!generatedScenePrompts) return;
     
-    let content = '# Prompts de Imagem e Vídeo por Cena\n\n';
+    let content = '# Prompts de Imagem e Vídeo por Cena\\n\\n';
     generatedScenePrompts.forEach((prompt, index) => {
-      content += `## Cena ${prompt.sceneNumber}\n\n`;
-      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\n\n`;
-      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\n\n`;
-      if (index < generatedScenePrompts.length - 1) content += '---\n\n';
+      content += `## Cena ${prompt.sceneNumber}\\n\\n`;
+      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\\n\\n`;
+      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\\n\\n`;
+      if (index < generatedScenePrompts.length - 1) content += '---\\n\\n';
     });
     
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -882,8 +881,8 @@ export default function ScriptifyStudio() {
     
     setLoadingState('generatingThumbnailFromWebDoc', true);
     try {
-      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
-      const result = await generateThumbnailFromWebDoc({ scriptText: fullScript });
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\\n\\n');
+      const result = await generateThumbnailFromScript({ scriptText: fullScript });
       setGeneratedThumbnailFromWebDoc(result);
       toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada para o web doc.' });
     } catch (error) {
