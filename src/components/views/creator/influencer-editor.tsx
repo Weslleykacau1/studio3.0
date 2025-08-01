@@ -11,7 +11,6 @@ import { AiButton } from '@/components/ai-button';
 import Image from 'next/image';
 import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon, RefreshCw } from 'lucide-react';
 import React from 'react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface InfluencerEditorProps {
   influencer: Influencer;
@@ -44,7 +43,7 @@ export default function InfluencerEditor({
   const handleSelectChange = (name: keyof Influencer, value: string) => {
     setInfluencer(prev => ({ ...prev, [name]: value }));
   };
-
+  
   return (
     <Card>
       <CardHeader>
@@ -145,3 +144,5 @@ export default function InfluencerEditor({
     </Card>
   )
 }
+
+    

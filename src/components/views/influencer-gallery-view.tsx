@@ -3,7 +3,7 @@
 import type { Influencer } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UploadCloud, FileText, Trash2, Palette, Plus, Sparkles, Download } from 'lucide-react';
+import { UploadCloud, FileText, Trash2, Palette, Plus, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { convertJsonToCsv } from '@/lib/utils';
 import Image from 'next/image';
@@ -134,3 +134,5 @@ export default function InfluencerGalleryView({ influencers, onLoad, onDelete, o
     </Card>
   );
 }
+
+    

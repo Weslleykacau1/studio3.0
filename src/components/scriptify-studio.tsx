@@ -1,8 +1,4 @@
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 259a6081f5027d42479590c7054e129c867bf4e5
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -45,13 +41,8 @@ import { nanoid } from 'nanoid';
 import { PromoBanner } from './promo-banner';
 import BentoGrid from './views/bento-grid-view';
 import { Button } from './ui/button';
-<<<<<<< HEAD
-=======
-import { ChevronLeft } from 'lucide-react';
->>>>>>> 259a6081f5027d42479590c7054e129c867bf4e5
 import { LoadingScreen } from './loading-screen';
 import { ImagePreviewModal } from './image-preview-modal';
-import { ChevronLeft } from 'lucide-react';
 
 const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
 const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
@@ -1097,6 +1088,7 @@ export default function ScriptifyStudio() {
                 />;
             case 'advancedTools':
                 return <AdvancedToolsView
+                        isApiConfigured={isApiConfigured}
                         influencers={galleryInfluencers}
                         scenes={scenes}
                         onGenerateLongScript={handleGenerateLongScript}
@@ -1171,16 +1163,11 @@ export default function ScriptifyStudio() {
             
             <PromoBanner hasPurchased={hasPurchased} />
 
-            {activeView !== 'bento' && (
-                <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
-                    <ChevronLeft className="mr-2 h-4 w-4" />
-                    Voltar para o Início
-                </Button>
-            )}
-
             <div className="w-full">
                 {renderContent()}
             </div>
         </div>
     );
 }
+
+    
