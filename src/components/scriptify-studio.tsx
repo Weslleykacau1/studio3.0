@@ -46,28 +46,7 @@ import { generateWebDocScript } from '@/ai/flows/generate-web-doc-script';
 import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
-<<<<<<< HEAD
-import { AppHeader } from './app-header';
-import { QuickSceneModal } from './quick-scene-modal';
-import CreatorView from './views/creator-view';
-import InfluencerGalleryView from './views/influencer-gallery-view';
-import SceneGalleryView from './views/scene-gallery-view';
-import ViralToolsView from './views/viral-tools-view';
-import AdvancedToolsView from './views/advanced-tools-view';
-import ThumbnailGeneratorView from './views/thumbnail-generator-view';
-import TranscribeVideoView from './views/transcribe-video-view';
-import { LoginModal } from './login-modal';
-import { nanoid } from 'nanoid';
-import { PromoBanner } from './promo-banner';
-import BentoGrid from './views/bento-grid-view';
-import { Button } from './ui/button';
-import { LoadingScreen } from './loading-screen';
-import { ImagePreviewModal } from './image-preview-modal';
-import { Undo2 } from 'lucide-react';
-=======
 import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
-import { generateThumbnailFromWebDoc } from '@/ai/flows/generate-thumbnail-from-script';
->>>>>>> 90e83209c879abbac202337a2d41cd81e2d4edab
 
 const createEmptyInfluencer = (): Influencer => ({
   id: null,
@@ -226,139 +205,9 @@ export default function ScriptifyStudio() {
     }
   }, [influencers]);
 
-<<<<<<< HEAD
-
-    const renderContent = () => {
-        switch (activeView) {
-            case 'creator':
-                return <CreatorView
-                        influencer={influencer}
-                        setInfluencer={setInfluencer}
-                        currentScene={currentScene}
-                        setCurrentScene={setCurrentScene}
-                        pastedText={pastedText}
-                        setPastedText={setPastedText}
-                        generatedContent={generatedContent}
-                        setGeneratedContent={setGeneratedContent}
-                        generatedSeoContent={generatedSeoContent}
-                        generatedVeoPrompt={generatedVeoPrompt}
-                        loadingStates={loadingStates}
-                        isApiConfigured={isApiConfigured}
-                        handlers={{
-                            analyzeAndFillFromText,
-                            analyzeInfluencerImageAndFill,
-                            analyzeScenarioImageAndFill,
-                            analyzeAndDescribeProduct,
-                            generateSceneContent,
-                            generateVeoPrompt: generateVeoPromptHandler,
-                            generateDialogueSeo,
-                            generateSceneAction: generateSceneActionHandler,
-                            generateSceneTitle: generateSceneTitleHandler,
-                            generateSceneDialogue: generateSceneDialogueHandler,
-                            saveOrUpdateInfluencer,
-                            handleAddUpdateScene,
-                            handleImageUpload,
-                            resetInfluencer: () => setInfluencer(getInitialInfluencerState()),
-                            resetScene: () => setCurrentScene(initialSceneState),
-                        }}
-                    />;
-            case 'influencerGallery':
-                 return <InfluencerGalleryView
-                        influencers={galleryInfluencers}
-                        onLoad={loadInfluencer}
-                        onDelete={deleteInfluencerHandler}
-                        onAddNew={handleAddNewInfluencer}
-                        onQuickScene={handleOpenQuickSceneModal}
-                    />;
-            case 'sceneGallery':
-                return <SceneGalleryView
-                        scenes={scenes}
-                        onLoad={loadScene}
-                        onDelete={deleteSceneHandler}
-                        onAddNew={handleAddNewScene}
-                    />;
-            case 'viralTools':
-                return <ViralToolsView
-                        isApiConfigured={isApiConfigured}
-                        onGenerateViralScript={handleGenerateViralScript}
-                        loadingViralScript={loadingStates.generatingViralScript}
-                        generatedViralScene={generatedViralScene}
-                        onLoadToCreator={handleLoadViralSceneToCreator}
-                    />;
-            case 'thumbnailGenerator':
-                 return <ThumbnailGeneratorView
-                        onGenerateThumbnail={handleGenerateThumbnailIdeas}
-                        generatedThumbnailIdeas={generatedThumbnailIdeas}
-                        loadingThumbnail={loadingStates.generatingThumbnail}
-                        isApiConfigured={isApiConfigured}
-                    />;
-            case 'transcribeVideo':
-                return <TranscribeVideoView
-                    isApiConfigured={isApiConfigured}
-                    youtubeUrl={youtubeUrl}
-                    setYoutubeUrl={setYoutubeUrl}
-                    loadingYouTube={loadingStates.analyzingYouTube}
-                    onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
-                    loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
-                    generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
-                    onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
-                    loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
-                    onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
-                    loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
-                    onClearTranscription={handleClearTranscription}
-                    generatedViralScene={generatedViralScene}
-                    onLoadToCreator={handleLoadViralSceneToCreator}
-                />;
-            case 'advancedTools':
-                return <AdvancedToolsView
-                        isApiConfigured={isApiConfigured}
-                        influencers={galleryInfluencers}
-                        scenes={scenes}
-                        onGenerateLongScript={handleGenerateLongScript}
-                        loadingLongScript={loadingStates.generatingLongScript}
-                        generatedLongScript={generatedLongScript}
-                        onGenerateWebDocScript={handleGenerateWebDocScript}
-                        loadingWebDoc={loadingStates.generatingWebDoc}
-                        generatedWebDocScript={generatedWebDocScript}
-                        onExportWebDocScript={handleExportWebDocScript}
-                        onGenerateWebDocSeo={handleGenerateWebDocSeo}
-                        loadingWebDocSeo={loadingStates.generatingWebDocSeo}
-                        generatedWebDocSeo={generatedWebDocSeo}
-                        pastedScript={pastedScript}
-                        setPastedText={setPastedScript}
-                        onGeneratePromptsFromScript={handleGeneratePromptsFromScript}
-                        loadingImagePrompts={loadingStates.generatingImagePrompts}
-                        generatedScenePrompts={generatedScenePrompts}
-                        onGenerateSeoFromScript={handleGenerateSeoFromScript}
-                        loadingSeoFromScript={loadingStates.generatingSeoFromScript}
-                        generatedSeoFromScript={generatedSeoFromScript}
-                        onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
-                        loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
-                        generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={handleExportPrompts}
-                        onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
-                        loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
-                        generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
-                        onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
-                        loadingWebDocImage={loadingStates.generatingWebDocImage}
-                        onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
-                        loadingImageFromPastedScript={loadingStates.generatingImageFromPastedScript}
-                        onGenerateSeoFromLongScript={handleGenerateSeoFromLongScript}
-                        loadingSeoFromLongScript={loadingStates.loadingSeoFromLongScript}
-                        generatedSeoFromLongScript={generatedSeoFromLongScript}
-                        onGenerateThumbnailFromLongScript={handleGenerateThumbnailFromLongScript}
-                        loadingThumbnailFromLongScript={loadingStates.loadingThumbnailFromLongScript}
-                        generatedThumbnailFromLongScript={generatedThumbnailFromLongScript}
-                    />;
-            case 'bento':
-            default:
-                return <BentoGrid setView={setActiveView} />;
-        }
-=======
   useEffect(() => {
     if (scenes.length > 0) {
       localStorage.setItem('scriptify_scenes', JSON.stringify(scenes));
->>>>>>> 90e83209c879abbac202337a2d41cd81e2d4edab
     }
   }, [scenes]);
 
@@ -378,24 +227,6 @@ export default function ScriptifyStudio() {
     });
   };
 
-<<<<<<< HEAD
-            <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
-            
-            {activeView !== 'bento' && (
-                <div className="mb-4">
-                    <Button variant="outline" onClick={() => setActiveView('bento')}>
-                        <Undo2 className="mr-2 h-4 w-4" />
-                        Voltar para o Início
-                    </Button>
-                </div>
-            )}
-
-            <PromoBanner hasPurchased={hasPurchased} />
-
-            <div className="w-full">
-                {renderContent()}
-            </div>
-=======
   // AI Analysis Functions
   const analyzeAndFillFromText = async () => {
     if (!pastedText.trim()) return;
@@ -1051,7 +882,7 @@ export default function ScriptifyStudio() {
     setLoadingState('generatingThumbnailFromWebDoc', true);
     try {
       const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
-      const result = await generateThumbnailFromWebDoc({ scriptText: fullScript });
+      const result = await generateThumbnailFromScript({ scriptText: fullScript });
       setGeneratedThumbnailFromWebDoc(result);
       toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada para o web doc.' });
     } catch (error) {
@@ -1202,7 +1033,6 @@ export default function ScriptifyStudio() {
             <ChevronLeft className="mr-2 h-4 w-4" />
             Voltar para o Início
           </Button>
->>>>>>> 90e83209c879abbac202337a2d41cd81e2d4edab
         </div>
       )}
 

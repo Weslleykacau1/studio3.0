@@ -32,7 +32,7 @@ export default function Home() {
           className="inline-flex items-center gap-2 transition-colors hover:text-primary"
         >
           <Instagram className="h-4 w-4" />
-          By Weslley Athila
+          by Weslley Athila
         </a>
       </footer>
     </main>
