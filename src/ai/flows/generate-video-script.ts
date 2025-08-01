@@ -35,68 +35,62 @@ const VideoScriptInputSchema = z.object({
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-const VideoScriptOutputSchema = z.string().describe('The generated video script prompt, in Markdown format.');
+const VideoScriptOutputSchema = z.string().describe('The generated video script, in Markdown format.');
 export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
-
-const MarkdownOutputInternalSchema = z.object({
-  markdownPrompt: z.string().describe("A detailed prompt in Markdown format for a screenwriter AI. This prompt should incorporate all the user's specifications and instruct the AI on how to structure the final script.")
-});
 
 export async function generateVideoScript(input: VideoScriptInput): Promise<VideoScriptOutput> {
   return generateVideoScriptFlow(input);
 }
 
-const promptBase = `You are an expert prompt engineer. Your task is to create a detailed prompt that will be given to a powerful AI to generate a video script.
-
-The final output should be a single block of text, which can be directly used as a prompt for the script-generating AI.
-
-Here are the specifications to include in the prompt you generate:
-
-**1. Influencer:**
-- Name: {{{influencerName}}}
-- Personality: {{{influencerPersonality}}}
-- Appearance: {{{influencerAppearance}}}
-- Niche: {{{influencerNiche}}}
-- Seed: {{{influencerSeed}}}
-
-**2. Scene Details:**
-- Title: {{{sceneTitle}}}
-- Setting: {{{sceneSetting}}}
-- Action: {{{sceneAction}}}
-{{#if sceneDialogue}}
-- Main Dialogue Idea: {{{sceneDialogue}}}
-{{/if}}
-
-**3. Product Integration (if applicable):**
-{{#if productName}}
-- Product Name: {{{productName}}}
-{{/if}}
-{{#if productBrand}}
-- Product Brand: {{{productBrand}}}
-{{/if}}
-{{#if productDescription}}
-- Product Description: {{{productDescription}}}
-{{/if}}
-{{#if isPartnership}}
-- Partnership: Yes
-{{/if}}
-
-**4. Technical Details:**
-- Camera Angle: {{{sceneCameraAngle}}}
-- Duration: {{{sceneDuration}}}
-- Video Format: {{{sceneVideoFormat}}}
-- Digital Text Allowed: {{#if allowDigitalText}}Yes{{else}}No{{/if}}
-- Only Physical Text Allowed: {{#if onlyPhysicalText}}Yes{{else}}No{{/if}}
-
-**Output Instructions for the Prompt You Are Generating:**`;
-
-const markdownPromptInstructions = `Your task is to generate the content for the 'markdownPrompt' field. This content should be a comprehensive and detailed prompt in **Markdown format** for a screenwriter AI. This prompt must instruct the AI to create a video script using Markdown headings, lists, and bold/italic text for structure, detailing the scene **second by second**. If a 'Main Dialogue Idea' is provided, you MUST adapt and pace that dialogue to fit perfectly within the specified duration, ensuring the core message and comedic timing are preserved, and the final scene feels complete. The prompt must incorporate all the specifications provided in the context above. For each second, detail the visuals, dialogue, and SFX. The dialogue in the final script must be in **Brazilian Portuguese**, matching the influencer's accent: {{{influencerAccent}}}. O diálogo deve ser direto ao ponto, sem necessidade de o influenciador se apresentar. **Crucially, the dialogue should include emotional cues in English (e.g., in parentheses) and emphasize key words or phrases.** For example: "(gasping) Eu não posso acreditar que finalmente consegui!". All other descriptive parts of the script, like visual descriptions, should be in English.`;
-
-const generateMarkdownPrompt = ai.definePrompt({
-    name: 'generateMarkdownVideoScriptPrompt',
+const generateScriptPrompt = ai.definePrompt({
+    name: 'generateFinalVideoScriptPrompt',
     input: {schema: VideoScriptInputSchema},
-    output: {schema: MarkdownOutputInternalSchema},
-    prompt: `${promptBase}\n\n${markdownPromptInstructions}`
+    output: {format: 'text'},
+    prompt: `Você é um roteirista de IA especialista. Sua tarefa é criar um roteiro de vídeo detalhado em formato **Markdown**, com base nas especificações a seguir. O roteiro deve ser estruturado **segundo a segundo** para preencher a duração exata da cena.
+
+**CRÍTICO: Incorpore CADA detalhe do influenciador e da cena no roteiro. Não omita nenhuma informação.**
+
+**Estrutura do Roteiro (use títulos Markdown):**
+- **Título:** {{{sceneTitle}}}
+- **Personagem Principal:** {{{influencerName}}}
+- **Resumo da Cena:** Uma breve descrição da cena.
+- **Roteiro Segundo a Segundo:**
+
+---
+
+### Roteiro Detalhado
+
+**Duração Total:** {{{sceneDuration}}}
+
+**Formato:** {{{sceneVideoFormat}}}
+
+**0s-1s:**
+- **Visual:** [Descreva o que aparece, o enquadramento, o ângulo da câmara: **{{{sceneCameraAngle}}}**. A aparência do personagem DEVE ser: **{{{influencerAppearance}}}**]
+- **Áudio/SFX:** [Descreva os sons ambientes ou efeitos sonoros]
+
+**1s-2s:**
+- **Visual:** [Continue a descrever a ação: **{{{sceneAction}}}**. Mantenha a consistência do personagem e do cenário: **{{{sceneSetting}}}**]
+{{#if sceneDialogue}}
+- **Diálogo ({{influencerName}}}):** [Adapte esta ideia de diálogo para o tempo: **{{{sceneDialogue}}}**. O diálogo DEVE estar em Português do Brasil com o sotaque **{{{influencerAccent}}}** e incluir dicas de emoção em inglês, como (surpreso) ou (animado).]
+{{/if}}
+
+... continue a detalhar segundo a segundo até atingir a duração total de **{{{sceneDuration}}}**.
+
+{{#if productName}}
+**Integração do Produto:**
+- O produto **{{{productName}}}** da marca **{{{productBrand}}}** deve ser apresentado de forma natural.
+- **Descrição do produto a ser usada:** {{{productDescription}}}.
+- {{#if isPartnership}}Esta é uma parceria paga, mencione isso se apropriado.{{/if}}
+{{/if}}
+
+**Estilo e Tom:**
+- O roteiro deve refletir a personalidade do influenciador: **{{{influencerPersonality}}}**.
+- O nicho é **{{{influencerNiche}}}**, então o conteúdo deve ser relevante.
+
+**Restrições de Texto:**
+- Textos digitais na tela: {{#if allowDigitalText}}Sim{{else}}Não{{/if}}.
+- Apenas textos físicos (placas, etc.): {{#if onlyPhysicalText}}Sim{{else}}No{{/if}}.
+`
 });
 
 
@@ -108,17 +102,17 @@ const generateVideoScriptFlow = ai.defineFlow(
   },
   async input => {
     // Create a mutable copy of the input
-    const processedInput = { ...input };
+    let processedInput = { ...input };
 
     // Check for the dynamic camera option and replace it with a detailed instruction for the AI.
     if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
       processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
     }
 
-    const {output} = await generateMarkdownPrompt(processedInput);
-    if (!output || !output.markdownPrompt) {
-        throw new Error("A geração do prompt em Markdown falhou ao não retornar dados. Tente novamente.");
+    const {text} = await generateScriptPrompt(processedInput);
+    if (!text) {
+        throw new Error("A geração do roteiro falhou ao não retornar dados. Tente novamente.");
     }
-    return output.markdownPrompt;
+    return text;
   }
 );
