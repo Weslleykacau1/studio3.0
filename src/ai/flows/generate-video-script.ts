@@ -53,43 +53,27 @@ const generateScriptPrompt = ai.definePrompt({
 **Estrutura do Roteiro (use títulos Markdown):**
 - **Título:** {{{sceneTitle}}}
 - **Personagem Principal:** {{{influencerName}}}
-- **Resumo da Cena:** Uma breve descrição da cena.
-- **Roteiro Segundo a Segundo:**
+- **Resumo da Cena:** Uma breve descrição da cena, incorporando a ação principal.
 
 ---
 
 ### Roteiro Detalhado
 
 **Duração Total:** {{{sceneDuration}}}
-
 **Formato:** {{{sceneVideoFormat}}}
 
-**0s-1s:**
-- **Visual:** [Descreva o que aparece, o enquadramento, o ângulo da câmara: **{{{sceneCameraAngle}}}**. A aparência do personagem DEVE ser: **{{{influencerAppearance}}}**]
-- **Áudio/SFX:** [Descreva os sons ambientes ou efeitos sonoros]
+---
 
-**1s-2s:**
-- **Visual:** [Continue a descrever a ação: **{{{sceneAction}}}**. Mantenha a consistência do personagem e do cenário: **{{{sceneSetting}}}**]
-{{#if sceneDialogue}}
-- **Diálogo ({{influencerName}}}):** [Adapte esta ideia de diálogo para o tempo: **{{{sceneDialogue}}}**. O diálogo DEVE estar em Português do Brasil com o sotaque **{{{influencerAccent}}}** e incluir dicas de emoção em inglês, como (surpreso) ou (animado).]
-{{/if}}
-
-... continue a detalhar segundo a segundo até atingir a duração total de **{{{sceneDuration}}}**.
-
+{{! Loop para cada segundo da duração. Esta é uma representação conceitual, a IA deve expandir isso. }}
+**0s - Fim:**
+- **Visual:** [Descreva o que aparece, o enquadramento e o ângulo da câmera: **{{{sceneCameraAngle}}}**. A aparência COMPLETA do personagem (**{{{influencerName}}}**) DEVE ser: **{{{influencerAppearance}}}**. O cenário DEVE ser exatamente como descrito: **{{{sceneSetting}}}**. A ação principal que se desenrola durante a cena é: **{{{sceneAction}}}**.]
+- **Diálogo ({{influencerName}}}):** [{{#if sceneDialogue}}O diálogo DEVE ser: **{{{sceneDialogue}}}**.{{else}}Nenhum diálogo especificado.{{/if}} O diálogo DEVE estar em Português do Brasil com o sotaque **{{{influencerAccent}}}** e incluir dicas de emoção em inglês, como (surpreso) ou (animado).]
+- **Áudio/SFX:** [Descreva os sons ambientes ou efeitos sonoros que complementam a cena e a ação.]
 {{#if productName}}
-**Integração do Produto:**
-- O produto **{{{productName}}}** da marca **{{{productBrand}}}** deve ser apresentado de forma natural.
-- **Descrição do produto a ser usada:** {{{productDescription}}}.
-- {{#if isPartnership}}Esta é uma parceria paga, mencione isso se apropriado.{{/if}}
+- **Integração do Produto:** [O produto **{{{productName}}}** da marca **{{{productBrand}}}** deve ser apresentado de forma proeminente e natural durante a cena. A descrição completa do produto é: {{{productDescription}}}. A ação deve mostrar o uso ou a interação com este produto.{{#if isPartnership}} A natureza da parceria paga deve ser subtilmente indicada, se apropriado.{{/if}}]
 {{/if}}
-
-**Estilo e Tom:**
-- O roteiro deve refletir a personalidade do influenciador: **{{{influencerPersonality}}}**.
-- O nicho é **{{{influencerNiche}}}**, então o conteúdo deve ser relevante.
-
-**Restrições de Texto:**
-- Textos digitais na tela: {{#if allowDigitalText}}Sim{{else}}Não{{/if}}.
-- Apenas textos físicos (placas, etc.): {{#if onlyPhysicalText}}Sim{{else}}No{{/if}}.
+- **Estilo e Tom:** [O tom do roteiro deve refletir a personalidade do influenciador: **{{{influencerPersonality}}}**. O conteúdo deve ser relevante para o nicho de **{{{influencerNiche}}}**.]
+- **Restrições de Texto:** [Textos digitais na tela: {{#if allowDigitalText}}Sim{{else}}Não{{/if}}. Apenas textos físicos (placas, etc.): {{#if onlyPhysicalText}}Sim{{else}}Não{{/if}}.]
 `
 });
 
