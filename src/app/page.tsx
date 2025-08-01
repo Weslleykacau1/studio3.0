@@ -2,6 +2,7 @@
 'use client'
 import ScriptifyStudio from "@/components/scriptify-studio";
 import { Inter, Space_Grotesk } from 'next/font/google';
+import { Instagram } from 'lucide-react';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,7 +25,15 @@ export default function Home() {
         <ScriptifyStudio />
       </div>
       <footer className="py-4 text-center text-sm text-muted-foreground">
-        By Weslley Athila
+        <a 
+          href="https://www.instagram.com/weslleyathila.dev" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 transition-colors hover:text-primary"
+        >
+          <Instagram className="h-4 w-4" />
+          By Weslley Athila
+        </a>
       </footer>
     </main>
   );
