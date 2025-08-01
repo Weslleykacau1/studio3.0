@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -1109,6 +1110,8 @@ export default function ScriptifyStudio() {
             handleImageUpload: handleImageUploadHandler,
             resetInfluencer,
             resetScene,
+            openInfluencerGallery: () => setActiveView('influencerGallery'),
+            openSceneGallery: () => setActiveView('sceneGallery'),
           }}
         />
       )}

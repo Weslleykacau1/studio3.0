@@ -37,6 +37,7 @@ interface CreatorViewProps {
     resetInfluencer: () => void;
     resetScene: () => void;
     openInfluencerGallery: () => void;
+    openSceneGallery: () => void;
   };
 }
 
@@ -55,6 +56,9 @@ export default function CreatorView({
   isApiConfigured,
   handlers,
 }: CreatorViewProps) {
+
+  const isGenerationDisabled = !influencer.id || !currentScene.setting;
+
   return (
     <div className="space-y-8">
       <InfluencerEditor
@@ -64,14 +68,7 @@ export default function CreatorView({
         setPastedText={setPastedText}
         loadingStates={loadingStates}
         isApiConfigured={isApiConfigured}
-        handlers={{
-          analyzeAndFillFromText: handlers.analyzeAndFillFromText,
-          analyzeInfluencerImageAndFill: handlers.analyzeInfluencerImageAndFill,
-          handleImageUpload: handlers.handleImageUpload,
-          saveOrUpdateInfluencer: handlers.saveOrUpdateInfluencer,
-          resetInfluencer: handlers.resetInfluencer,
-          openInfluencerGallery: handlers.openInfluencerGallery,
-        }}
+        handlers={handlers}
       />
 
       <SceneEditor
@@ -79,17 +76,23 @@ export default function CreatorView({
         setCurrentScene={setCurrentScene}
         loadingStates={loadingStates}
         isApiConfigured={isApiConfigured}
-        handlers={{
-          analyzeScenarioImageAndFill: handlers.analyzeScenarioImageAndFill,
-          analyzeAndDescribeProduct: handlers.analyzeAndDescribeProduct,
-          generateDialogueSeo: handlers.generateDialogueSeo,
-          generateSceneAction: handlers.generateSceneAction,
-          generateSceneTitle: handlers.generateSceneTitle,
-          generateSceneDialogue: handlers.generateSceneDialogue,
-          handleAddUpdateScene: handlers.handleAddUpdateScene,
-          handleImageUpload: handlers.handleImageUpload,
-          resetScene: handlers.resetScene,
-        }}
+        isGenerationDisabled={isGenerationDisabled}
+        handlers={handlers}
+      />
+      
+      <ScriptGenerator
+        generatedContent={generatedContent}
+        setGeneratedContent={setGeneratedContent}
+        generatedSeoContent={generatedSeoContent}
+        generatedVeoPrompt={generatedVeoPrompt}
+        loading={loadingStates.generatingScript}
+        loadingVeo={loadingStates.generatingVeoPrompt}
+        isApiConfigured={isApiConfigured}
+        isGenerationDisabled={isGenerationDisabled}
+        influencerId={influencer.id}
+        sceneSetting={currentScene.setting}
+        onGenerate={() => handlers.generateSceneContent(currentScene)}
+        onGenerateVeoPrompt={handlers.generateVeoPrompt}
       />
     </div>
   );

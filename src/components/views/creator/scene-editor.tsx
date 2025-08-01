@@ -1,3 +1,4 @@
+
 'use client';
 import type { Scene, LoadingStates } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +11,7 @@ import { AiButton } from '@/components/ai-button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Image from 'next/image';
-import { Film, UploadCloud, Bot, Package, Save, Plus, File as FileIcon, Type } from 'lucide-react';
+import { Film, UploadCloud, Bot, Package, Save, Plus, File as FileIcon, Type, Library } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SceneEditorProps {
@@ -30,6 +31,7 @@ interface SceneEditorProps {
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
     generateSceneContent: () => Promise<void>;
+    openSceneGallery: () => void;
   };
 }
 
@@ -275,13 +277,10 @@ export default function SceneEditor({
 
         <div className="mt-8 flex flex-wrap gap-4 border-t-2 pt-6">
             <Button variant="outline" onClick={handlers.resetScene}><Plus className="mr-2 h-4 w-4"/>Nova Cena</Button>
+            <Button variant="outline" onClick={handlers.openSceneGallery}><Library className="mr-2 h-4 w-4"/>Carregar da Galeria</Button>
             <Button onClick={handlers.handleAddUpdateScene} disabled={loadingStates.savingScene}>
                 <Save className="mr-2 h-4 w-4"/>{loadingStates.savingScene ? 'A guardar...' : (currentScene.id ? 'Atualizar Cena' : 'Guardar Cena')}
             </Button>
-            <AiButton onClick={handlers.generateSceneContent} loading={loadingStates.generatingScript} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
-                <Bot className="mr-2 h-5 w-5"/>
-                Gerar Roteiro
-            </AiButton>
         </div>
       </CardContent>
     </Card>
