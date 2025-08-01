@@ -99,5 +99,83 @@ export default function ScriptGenerator({
     });
   };
 
-  return null;
+  return (
+    <>
+      {generatedContent && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="font-headline">Roteiro Detalhado Gerado</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ContentDisplay content={generatedContent} />
+            <Button
+              onClick={handleCopy}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copySuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              {copySuccess ? 'Copiado!' : 'Copiar Roteiro'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedVeoPrompt && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-headline">
+              <Video />
+              Prompt Gerado para Veo
+            </CardTitle>
+            <CardDescription>Este prompt conciso pode ser usado em plataformas de vídeo generativo como o Veo.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentDisplay content={generatedVeoPrompt} />
+            <Button
+              onClick={handleCopyVeo}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copyVeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              {copyVeoSuccess ? 'Copiado!' : 'Copiar Prompt Veo'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedSeoContent && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 font-headline text-2xl">
+              <Bot />
+              SEO Gerado para Diálogo
+            </CardTitle>
+            <CardDescription>
+              Sugestões de títulos, descrições e hashtags para impulsionar seu vídeo.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ContentDisplay content={generatedSeoContent} />
+            <Button
+              onClick={handleCopySeo}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copySeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              {copySeoSuccess ? 'Copiado!' : 'Copiar SEO'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </>
+  );
 }

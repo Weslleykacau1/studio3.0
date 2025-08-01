@@ -207,11 +207,19 @@ export default function ScriptifyStudio() {
         localStorage.setItem('scriptify_influencers', JSON.stringify(influencersToSave));
       } catch (error) {
         console.error('Error saving influencers to localStorage:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Erro ao Salvar',
-          description: 'Não foi possível salvar os influenciadores. O armazenamento pode estar cheio.',
-        });
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          toast({
+            variant: 'destructive',
+            title: 'Erro de Armazenamento',
+            description: 'Não foi possível salvar os influenciadores. O armazenamento local está cheio.',
+          });
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Erro ao Salvar',
+            description: 'Não foi possível salvar os influenciadores.',
+          });
+        }
       }
     }
   }, [influencers, toast]);
@@ -223,11 +231,19 @@ export default function ScriptifyStudio() {
         localStorage.setItem('scriptify_scenes', JSON.stringify(scenesToSave));
       } catch (error) {
         console.error('Error saving scenes to localStorage:', error);
-         toast({
-          variant: 'destructive',
-          title: 'Erro ao Salvar',
-          description: 'Não foi possível salvar as cenas. O armazenamento pode estar cheio.',
-        });
+         if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+            toast({
+              variant: 'destructive',
+              title: 'Erro de Armazenamento',
+              description: 'Não foi possível salvar as cenas. O armazenamento local está cheio.',
+            });
+         } else {
+            toast({
+              variant: 'destructive',
+              title: 'Erro ao Salvar',
+              description: 'Não foi possível salvar as cenas.',
+            });
+         }
       }
     }
   }, [scenes, toast]);
@@ -1071,6 +1087,10 @@ export default function ScriptifyStudio() {
           setCurrentScene={setCurrentScene}
           pastedText={pastedText}
           setPastedText={setPastedText}
+          generatedContent={generatedContent}
+          setGeneratedContent={setGeneratedContent}
+          generatedSeoContent={generatedSeoContent}
+          generatedVeoPrompt={generatedVeoPrompt}
           loadingStates={loadingStates}
           isApiConfigured={isApiConfigured}
           handlers={{
@@ -1078,6 +1098,8 @@ export default function ScriptifyStudio() {
             analyzeInfluencerImageAndFill,
             analyzeScenarioImageAndFill,
             analyzeAndDescribeProduct,
+            generateSceneContent,
+            generateVeoPrompt: generateVeoPromptHandler,
             generateDialogueSeo,
             generateSceneAction: generateSceneActionHandler,
             generateSceneTitle: generateSceneTitleHandler,

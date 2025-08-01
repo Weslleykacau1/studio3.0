@@ -18,6 +18,7 @@ interface SceneEditorProps {
   setCurrentScene: (scene: Scene | ((prev: Scene) => Scene)) => void;
   loadingStates: LoadingStates;
   isApiConfigured: boolean;
+  isGenerationDisabled: boolean;
   handlers: {
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
@@ -28,11 +29,12 @@ interface SceneEditorProps {
     handleAddUpdateScene: () => void;
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'scenario' | 'product') => void;
     resetScene: () => void;
+    generateSceneContent: () => Promise<void>;
   };
 }
 
 export default function SceneEditor({
-  currentScene, setCurrentScene, loadingStates, isApiConfigured, handlers
+  currentScene, setCurrentScene, loadingStates, isApiConfigured, handlers, isGenerationDisabled
 }: SceneEditorProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -276,6 +278,10 @@ export default function SceneEditor({
             <Button onClick={handlers.handleAddUpdateScene} disabled={loadingStates.savingScene}>
                 <Save className="mr-2 h-4 w-4"/>{loadingStates.savingScene ? 'A guardar...' : (currentScene.id ? 'Atualizar Cena' : 'Guardar Cena')}
             </Button>
+            <AiButton onClick={handlers.generateSceneContent} loading={loadingStates.generatingScript} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
+                <Bot className="mr-2 h-5 w-5"/>
+                Gerar Roteiro
+            </AiButton>
         </div>
       </CardContent>
     </Card>
