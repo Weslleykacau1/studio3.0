@@ -1,14 +1,30 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import type { Influencer, Scene, ActiveView, LoadingStates, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts } from '@/types';
-import { useToast } from "@/hooks/use-toast";
-import { handleImageUpload as handleImageUploadUtil } from '@/lib/utils';
-import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
+import { useState, useEffect, useCallback } from 'react';
+import { nanoid } from 'nanoid';
+import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import { AppHeader } from './app-header';
+import { LoginModal } from './login-modal';
+import { QuickSceneModal } from './quick-scene-modal';
+import { ImagePreviewModal } from './image-preview-modal';
+import { LoadingScreen } from './loading-screen';
+import { PromoBanner } from './promo-banner';
+import BentoGrid from './views/bento-grid-view';
+import CreatorView from './views/creator-view';
+import InfluencerGalleryView from './views/influencer-gallery-view';
+import SceneGalleryView from './views/scene-gallery-view';
+import ViralToolsView from './views/viral-tools-view';
+import AdvancedToolsView from './views/advanced-tools-view';
+import ThumbnailGeneratorView from './views/thumbnail-generator-view';
+import TranscribeVideoView from './views/transcribe-video-view';
+import { handleImageUpload } from '@/lib/utils';
+
+// AI Flow imports
 import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
+import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
 import { generateVideoScript } from '@/ai/flows/generate-video-script';
 import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
@@ -18,1161 +34,1167 @@ import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
 import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
-import { generateWebDocScript } from '@/ai/flows/generate-web-doc-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
 import { generateScriptFromTranscription } from '@/ai/flows/generate-script-from-transcription';
 import { generateParaphrasedScriptFromTranscription } from '@/ai/flows/generate-paraphrased-script-from-transcription';
 import { generateLongScript } from '@/ai/flows/generate-long-script';
+import { generateWebDocScript } from '@/ai/flows/generate-web-doc-script';
 import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-from-script';
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
-import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
-import { AppHeader } from './app-header';
-import { QuickSceneModal } from './quick-scene-modal';
-import CreatorView from './views/creator-view';
-import InfluencerGalleryView from './views/influencer-gallery-view';
-import SceneGalleryView from './views/scene-gallery-view';
-import ViralToolsView from './views/viral-tools-view';
-import AdvancedToolsView from './views/advanced-tools-view';
-import ThumbnailGeneratorView from './views/thumbnail-generator-view';
-import TranscribeVideoView from './views/transcribe-video-view';
-import { LoginModal } from './login-modal';
-import { nanoid } from 'nanoid';
-import { PromoBanner } from './promo-banner';
-import BentoGrid from './views/bento-grid-view';
-import { Button } from './ui/button';
-import { LoadingScreen } from './loading-screen';
-import { ImagePreviewModal } from './image-preview-modal';
+import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
+import { generateThumbnailFromWebDoc } from '@/ai/flows/generate-thumbnail-from-script';
 
-const getInitialInfluencerState = (): Influencer => ({ id: null, name: '', niche: '', personality: '', appearance: '', clothing: '', bio: '', uniqueTrait: '', negativePrompt: '', age: '', gender: '', accent: '', imagePreview: '', seed: Math.floor(Math.random() * 1000000) });
-const initialSceneState: Scene = { id: null, title: '', setting: '', action: '', dialogue: '', cameraAngle: 'Câmera Dinâmica (Criatividade da IA)', duration: '5 seg', videoFormat: '9:16 (Vertical)', productName: '', productBrand: '', productDescription: '', productImagePreview: '', productImageType: '', isPartnership: false, scenarioImagePreview: '', scenarioImageType: '', allowDigitalText: false, onlyPhysicalText: false, markdownScript: '' };
+const createEmptyInfluencer = (): Influencer => ({
+  id: null,
+  name: '',
+  niche: '',
+  personality: '',
+  appearance: '',
+  clothing: '',
+  bio: '',
+  uniqueTrait: '',
+  negativePrompt: '',
+  age: '',
+  gender: '',
+  accent: 'Standard Brazilian Portuguese',
+  seed: Math.floor(Math.random() * 1000000),
+  imagePreview: '',
+});
 
-const COOKIE_KEY_INFLUENCERS = 'scriptify_influencers';
-const COOKIE_KEY_SCENES = 'scriptify_scenes';
-const COOKIE_KEY_API_KEY = 'gemini_api_key';
-const COOKIE_KEY_PURCHASE = 'has_purchased';
+const createEmptyScene = (): Scene => ({
+  id: null,
+  title: '',
+  setting: '',
+  action: '',
+  dialogue: '',
+  cameraAngle: 'Câmera Dinâmica (Criatividade da IA)',
+  duration: '8 seg',
+  videoFormat: '9:16 (Vertical)',
+  productName: '',
+  productBrand: '',
+  productDescription: '',
+  productImagePreview: '',
+  productImageType: '',
+  isPartnership: false,
+  scenarioImagePreview: '',
+  scenarioImageType: '',
+  allowDigitalText: false,
+  onlyPhysicalText: false,
+});
 
 export default function ScriptifyStudio() {
-    const [activeView, setActiveView] = useState<ActiveView>('bento');
-    
-    const [influencer, setInfluencer] = useState<Influencer>(getInitialInfluencerState());
-    const [galleryInfluencers, setGalleryInfluencers] = useState<Influencer[]>([]);
-    const [scenes, setScenes] = useState<Scene[]>([]);
-    const [currentScene, setCurrentScene] = useState<Scene>(initialSceneState);
-    const [generatedContent, setGeneratedContent] = useState('');
-    const [generatedSeoContent, setGeneratedSeoContent] = useState('');
-    const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
-    const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
-    const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
-    const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
-    const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
-    const [generatedWebDocScript, setGeneratedWebDocScript] = useState<WebDocScript | null>(null);
-    const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
-    const [pastedScript, setPastedScript] = useState('');
-    const [generatedScenePrompts, setGeneratedScenePrompts] = useState<ScenePrompts[] | null>(null);
-    const [generatedSeoFromScript, setGeneratedSeoFromScript] = useState('');
-    const [generatedThumbnailFromScript, setGeneratedThumbnailFromScript] = useState<ThumbnailIdeas | null>(null);
-    const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
-    const [generatedSeoFromLongScript, setGeneratedSeoFromLongScript] = useState<string | null>(null);
-    const [generatedThumbnailFromLongScript, setGeneratedThumbnailFromLongScript] = useState<ThumbnailIdeas | null>(null);
+  // Check if API is configured from environment variable
+  const [isApiConfigured, setIsApiConfigured] = useState(!!process.env.NEXT_PUBLIC_GEMINI_API_KEY);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isQuickSceneModalOpen, setIsQuickSceneModalOpen] = useState(false);
+  const [isImagePreviewModalOpen, setIsImagePreviewModalOpen] = useState(false);
+  const [imagePreviewData, setImagePreviewData] = useState<{ url: string; prompt: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeView, setActiveView] = useState<ActiveView>('bento');
+  const [hasPurchased] = useState(false);
 
+  // Data states
+  const [influencer, setInfluencer] = useState<Influencer>(createEmptyInfluencer);
+  const [currentScene, setCurrentScene] = useState<Scene>(createEmptyScene);
+  const [influencers, setInfluencers] = useState<Influencer[]>([]);
+  const [scenes, setScenes] = useState<Scene[]>([]);
+  const [pastedText, setPastedText] = useState('');
+  const [generatedContent, setGeneratedContent] = useState('');
+  const [generatedSeoContent, setGeneratedSeoContent] = useState('');
+  const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
+  const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
+  const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
+  const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [generatedUploadedVideoTranscription, setGeneratedUploadedVideoTranscription] = useState('');
+  const [generatedLongScript, setGeneratedLongScript] = useState<{ scenes: LongScriptScene[], fullScriptTxt: string } | null>(null);
+  const [generatedWebDocScript, setGeneratedWebDocScript] = useState<WebDocScript | null>(null);
+  const [generatedWebDocSeo, setGeneratedWebDocSeo] = useState('');
+  const [pastedScript, setPastedScript] = useState('');
+  const [generatedScenePrompts, setGeneratedScenePrompts] = useState<ScenePrompts[] | null>(null);
+  const [generatedSeoFromScript, setGeneratedSeoFromScript] = useState('');
+  const [generatedThumbnailFromScript, setGeneratedThumbnailFromScript] = useState<ThumbnailIdeas | null>(null);
+  const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
+  const [generatedSeoFromLongScript, setGeneratedSeoFromLongScript] = useState<string | null>(null);
+  const [generatedThumbnailFromLongScript, setGeneratedThumbnailFromLongScript] = useState<ThumbnailIdeas | null>(null);
 
-    const [loadingStates, setLoadingStates] = useState<LoadingStates>({ savingInfluencer: false, savingScene: false, analyzingInfluencer: false, analyzingScenario: false, analyzingProduct: false, generatingScript: false, analyzingFromText: false, generatingSeo: false, generatingAction: false, generatingTitle: false, generatingDialogue: false, generatingQuickScene: false, generatingVeoPrompt: false, analyzingYouTube: false, generatingThumbnail: false, generatingViralScript: false, transcribingUploadedVideo: false, generatingScriptFromTranscription: false, generatingParaphrasedScriptFromTranscription: false, generatingLongScript: false, generatingWebDoc: false, generatingWebDocSeo: false, generatingImagePrompts: false, generatingSeoFromScript: false, generatingThumbnailFromScript: false, generatingImageFromPastedScript: false, generatingThumbnailFromWebDoc: false, generatingWebDocImage: false, loadingSeoFromLongScript: false, loadingThumbnailFromLongScript: false });
-    const [pastedText, setPastedText] = useState('');
-    const [youtubeUrl, setYoutubeUrl] = useState('');
-    const { toast } = useToast();
-    const [hasMounted, setHasMounted] = useState(false);
-    
-    const [isQuickSceneModalOpen, setIsQuickSceneModalOpen] = useState(false);
-    const [selectedInfluencerForQuickScene, setSelectedInfluencerForQuickScene] = useState<Influencer | null>(null);
-    const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [isApiConfigured, setIsApiConfigured] = useState(false);
-    const [hasPurchased, setHasPurchased] = useState(false);
-    
-    // State for image preview modal
-    const [isImagePreviewModalOpen, setIsImagePreviewModalOpen] = useState(false);
-    const [generatedImageForPopup, setGeneratedImageForPopup] = useState<string | null>(null);
-    const [activePromptForImageGen, setActivePromptForImageGen] = useState('');
+  // Loading states
+  const [loadingStates, setLoadingStates] = useState<LoadingStates>({
+    savingInfluencer: false,
+    savingScene: false,
+    analyzingInfluencer: false,
+    analyzingScenario: false,
+    analyzingProduct: false,
+    generatingScript: false,
+    analyzingFromText: false,
+    generatingSeo: false,
+    generatingAction: false,
+    generatingTitle: false,
+    generatingDialogue: false,
+    generatingQuickScene: false,
+    generatingVeoPrompt: false,
+    analyzingYouTube: false,
+    generatingThumbnail: false,
+    generatingViralScript: false,
+    transcribingUploadedVideo: false,
+    generatingScriptFromTranscription: false,
+    generatingParaphrasedScriptFromTranscription: false,
+    generatingLongScript: false,
+    generatingWebDoc: false,
+    generatingWebDocSeo: false,
+    generatingImagePrompts: false,
+    generatingSeoFromScript: false,
+    generatingThumbnailFromScript: false,
+    generatingImageFromPastedScript: false,
+    generatingThumbnailFromWebDoc: false,
+    generatingWebDocImage: false,
+    loadingSeoFromLongScript: false,
+    loadingThumbnailFromLongScript: false,
+  });
 
-    
-    // Load data from cookies when component mounts on the client
-    useEffect(() => {
-        setHasMounted(true);
-        
-        // Check for purchase status in URL first
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('purchase_success') === 'true') {
-            document.cookie = `${COOKIE_KEY_PURCHASE}=true;path=/;max-age=31536000;samesite=strict`;
-            setHasPurchased(true);
-             // Remove query params from URL without reloading
-            window.history.replaceState({}, document.title, window.location.pathname);
+  const { toast } = useToast();
+
+  // Initialize app
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Check if API key is configured from environment
+        if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+          setIsApiConfigured(true);
         } else {
-            // Then check cookie
-            const purchaseCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_PURCHASE}=`));
-            if (purchaseCookie && purchaseCookie.split('=')[1] === 'true') {
-                setHasPurchased(true);
-            }
+          // Check for cookie-based API key (existing functionality)
+          const cookie = document.cookie.split('; ').find(row => row.startsWith('gemini_api_key='));
+          if (cookie) {
+            setIsApiConfigured(true);
+          }
         }
 
-        try {
-            const influencersCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_INFLUENCERS}=`));
-            if (influencersCookie) {
-                const decoded = decodeURIComponent(influencersCookie.split('=')[1]);
-                setGalleryInfluencers(JSON.parse(decoded));
-            }
-        } catch (e) {
-            console.error("Failed to parse influencers from cookies:", e);
+        // Load data from localStorage
+        const savedInfluencers = localStorage.getItem('scriptify_influencers');
+        const savedScenes = localStorage.getItem('scriptify_scenes');
+        
+        if (savedInfluencers) {
+          setInfluencers(JSON.parse(savedInfluencers));
         }
-
-        try {
-            const scenesCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_SCENES}=`));
-            if (scenesCookie) {
-                 const decoded = decodeURIComponent(scenesCookie.split('=')[1]);
-                setScenes(JSON.parse(decoded));
-            }
-        } catch (e) {
-             console.error("Failed to parse scenes from cookies:", e);
+        if (savedScenes) {
+          setScenes(JSON.parse(savedScenes));
         }
-
-        const apiKeyCookie = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY_API_KEY}=`));
-        if (apiKeyCookie) {
-            const key = apiKeyCookie.split('=')[1];
-            if (key && key.trim() !== '') {
-                setIsApiConfigured(true);
-            }
-        }
-
-    }, []);
-    
-    // Save data to cookies whenever it changes
-    useEffect(() => {
-        if (hasMounted) {
-            document.cookie = `${COOKIE_KEY_INFLUENCERS}=${encodeURIComponent(JSON.stringify(galleryInfluencers))};path=/;max-age=31536000;samesite=strict`;
-        }
-    }, [galleryInfluencers, hasMounted]);
-
-    useEffect(() => {
-        if (hasMounted) {
-            document.cookie = `${COOKIE_KEY_SCENES}=${encodeURIComponent(JSON.stringify(scenes))};path=/;max-age=31536000;samesite=strict`;
-        }
-    }, [scenes, hasMounted]);
-
-
-    const handleApiKeySave = (apiKey: string) => {
-        document.cookie = `${COOKIE_KEY_API_KEY}=${apiKey};path=/;max-age=31536000;samesite=strict`;
-        setIsApiConfigured(true);
-        setIsLoginModalOpen(false);
-    };
-
-    const setLoading = (key: keyof LoadingStates, value: boolean) => {
-        setLoadingStates(prev => ({ ...prev, [key]: value }));
-    };
-
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, imageType: 'influencer' | 'scenario' | 'product') => {
-        handleImageUploadUtil(e, ({ preview, base64, type, file }) => {
-            switch(imageType) {
-                case 'influencer':
-                    setInfluencer(inf => ({ ...inf, imagePreview: preview }));
-                    break;
-                case 'scenario':
-                    setCurrentScene(cs => ({ ...cs, scenarioImagePreview: preview, scenarioImageType: type }));
-                    break;
-                case 'product':
-                    setCurrentScene(cs => ({ ...cs, productImagePreview: preview, productImageType: type }));
-                    break;
-            }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro de Inicialização',
+          description: 'Ocorreu um erro ao carregar os dados salvos.',
         });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    // AI Handlers
-    const analyzeAndFillFromText = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!pastedText.trim()) return toast({ variant: 'destructive', title: "Texto em falta", description: "Cole algum texto para analisar." });
-        setLoading('analyzingFromText', true);
-        try {
-            const result = await analyzeTextProfile({ pastedText });
-            setInfluencer(prev => ({ ...prev, ...result, seed: getInitialInfluencerState().seed }));
-            toast({ variant: 'success', title: "Características preenchidas a partir do texto!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-        } finally {
-            setLoading('analyzingFromText', false);
-        }
-    };
-    
-    const analyzeInfluencerImageAndFill = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!influencer.imagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem para analisar." });
-        
-        const photoDataUri = influencer.imagePreview;
+    initializeApp();
+  }, [toast]);
 
-        setLoading('analyzingInfluencer', true);
-        try {
-            const result = await analyzeInfluencerImage({ photoDataUri });
-            setInfluencer(prev => ({ ...prev, ...result, imagePreview: photoDataUri, seed: getInitialInfluencerState().seed }));
-            toast({ variant: 'success', title: "Características preenchidas com detalhe!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-        } finally {
-            setLoading('analyzingInfluencer', false);
-        }
-    };
-
-    const analyzeScenarioImageAndFill = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!currentScene.scenarioImagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem de cenário." });
-        setLoading('analyzingScenario', true);
-        try {
-            const result = await analyzeSceneBackground({
-                scenarioImageBase64: currentScene.scenarioImagePreview,
-                scenarioImageType: currentScene.scenarioImageType,
-            });
-            setCurrentScene(prev => ({ ...prev, setting: result.settingDescription || '' }));
-            toast({ variant: 'success', title: "Cenário preenchido com base na imagem!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-        } finally {
-            setLoading('analyzingScenario', false);
-        }
-    };
-    
-    const generateSceneActionHandler = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "Escreva uma descrição do cenário para gerar uma ação." });
-        
-        setLoading('generatingAction', true);
-        try {
-            const result = await generateSceneAction({
-                sceneSetting: currentScene.setting,
-            });
-            setCurrentScene(prev => ({ ...prev, action: result.sceneAction || '' }));
-            toast({ variant: 'success', title: "Ação principal gerada com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração da Ação", description: error.message });
-        } finally {
-            setLoading('generatingAction', false);
-        }
-    };
-    
-    const generateSceneTitleHandler = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um título." });
-        
-        setLoading('generatingTitle', true);
-        try {
-            const result = await generateSceneTitle({
-                sceneSetting: currentScene.setting,
-                sceneAction: currentScene.action,
-            });
-            setCurrentScene(prev => ({ ...prev, title: result.sceneTitle || '' }));
-            toast({ variant: 'success', title: "Título da cena gerado com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração do Título", description: error.message });
-        } finally {
-            setLoading('generatingTitle', false);
-        }
-    };
-
-    const generateSceneDialogueHandler = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue um influenciador primeiro." });
-        if (!currentScene.setting || !currentScene.action) return toast({ variant: 'destructive', title: "Dados em falta", description: "Escreva uma descrição do cenário e da ação para gerar um diálogo." });
-        
-        setLoading('generatingDialogue', true);
-        try {
-            const result = await generateSceneDialogue({
-                influencerPersonality: influencer.personality,
-                influencerAccent: influencer.accent,
-                sceneSetting: currentScene.setting,
-                sceneAction: currentScene.action,
-                sceneDuration: currentScene.duration,
-            });
-            setCurrentScene(prev => ({ ...prev, dialogue: result.dialogue || '' }));
-            toast({ variant: 'success', title: "Diálogo gerado com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração do Diálogo", description: error.message });
-        } finally {
-            setLoading('generatingDialogue', false);
-        }
-    };
-
-    const analyzeAndDescribeProduct = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!currentScene.productImagePreview) return toast({ variant: 'destructive', title: "Imagem em falta", description: "Selecione uma imagem de produto." });
-        setLoading('analyzingProduct', true);
-        try {
-            const result = await analyzeProductImage({
-                productImageDataUri: currentScene.productImagePreview,
-            });
-            setCurrentScene(prev => ({ 
-                ...prev, 
-                productName: result.productName ?? prev.productName,
-                productBrand: result.productBrand ?? prev.productBrand,
-                productDescription: result.productDescription || '' 
-            }));
-            toast({ variant: 'success', title: "Análise do produto concluída!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Análise", description: error.message });
-        } finally {
-            setLoading('analyzingProduct', false);
-        }
-    };
-
-    const generateSceneContent = async (sceneToGenerate: Scene) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
-        if (!sceneToGenerate.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
-        
-        setLoading('generatingScript', true);
-        setGeneratedContent('');
-        
-        try {
-            const fullAppearance = `${influencer.appearance} Clothing: ${influencer.clothing}`;
-            const responseText = await generateVideoScript({
-                influencerName: influencer.name,
-                influencerPersonality: influencer.personality,
-                influencerAppearance: fullAppearance,
-                influencerNiche: influencer.niche,
-                influencerSeed: influencer.seed,
-                influencerAccent: influencer.accent,
-                sceneTitle: sceneToGenerate.title,
-                sceneSetting: sceneToGenerate.setting,
-                sceneAction: sceneToGenerate.action,
-                sceneDialogue: sceneToGenerate.dialogue,
-                sceneCameraAngle: sceneToGenerate.cameraAngle,
-                sceneDuration: sceneToGenerate.duration,
-                sceneVideoFormat: sceneToGenerate.videoFormat,
-                productName: sceneToGenerate.productName,
-                productBrand: sceneToGenerate.productBrand,
-                productDescription: sceneToGenerate.productDescription,
-                isPartnership: sceneToGenerate.isPartnership,
-                allowDigitalText: sceneToGenerate.allowDigitalText,
-                onlyPhysicalText: sceneToGenerate.onlyPhysicalText,
-            });
-            
-            setGeneratedContent(responseText);
-            
-            toast({ variant: 'success', title: "Roteiro em Markdown gerado com sucesso!" });
-        } catch (error: any) {
-            setGeneratedContent(`**Falha ao gerar roteiro:**\n\n${error.message}`);
-            toast({ variant: 'destructive', title: "Erro na Geração do Roteiro", description: error.message });
-        } finally {
-            setLoading('generatingScript', false);
-        }
-    };
-    
-    const generateVeoPromptHandler = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!influencer.id) return toast({ variant: 'destructive', title: "Influenciador em falta", description: "Carregue ou crie e guarde um influenciador primeiro." });
-        if (!currentScene.setting) return toast({ variant: 'destructive', title: "Cenário em falta", description: "O campo 'Cenário' é obrigatório na cena." });
-        
-        setLoading('generatingVeoPrompt', true);
-        setGeneratedVeoPrompt('');
-        try {
-            const fullAppearance = `${influencer.appearance} Clothing: ${influencer.clothing}`;
-            const result = await generateVeoPrompt({
-                influencerAppearance: fullAppearance,
-                sceneSetting: currentScene.setting,
-                sceneAction: currentScene.action,
-                sceneDialogue: currentScene.dialogue,
-                sceneCameraAngle: currentScene.cameraAngle,
-                videoFormat: currentScene.videoFormat,
-            });
-            
-            setGeneratedVeoPrompt(result.veoPrompt);
-            toast({ variant: 'success', title: "Prompt para Veo gerado com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração do Prompt Veo", description: error.message });
-        } finally {
-            setLoading('generatingVeoPrompt', false);
-        }
-    };
-
-    const generateDialogueSeo = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!currentScene.dialogue) return toast({ variant: 'destructive', title: "Diálogo em falta", description: "Escreva um diálogo na cena para gerar o SEO." });
-        
-        setLoading('generatingSeo', true);
-        setGeneratedSeoContent('');
-        try {
-            const responseText = await generateSeoForPlatforms({
-                dialogue: currentScene.dialogue,
-            });
-            setGeneratedSeoContent(responseText);
-            toast({ variant: 'success', title: "SEO gerado com sucesso!" });
-        } catch (error: any) {
-            setGeneratedSeoContent(`**Falha ao gerar SEO:**\n\n${error.message}`);
-            toast({ variant: 'destructive', title: "Erro na Geração de SEO", description: error.message });
-        } finally {
-            setLoading('generatingSeo', false);
-        }
-    };
-
-    const handleAnalyzeYouTubeVideo = async () => {
-        // This functionality is temporarily disabled as it relies on a more complex backend setup
-        toast({ variant: 'destructive', title: "Funcionalidade Indisponível", description: "A análise de vídeos do YouTube está temporariamente desativada." });
-    };
-
-    const handleTranscribeUploadedVideo = async (videoDataUri: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!videoDataUri) return toast({ variant: 'destructive', title: "Ficheiro em falta", description: "Por favor, anexe um ficheiro de vídeo." });
-
-        setLoading('transcribingUploadedVideo', true);
-        setGeneratedUploadedVideoTranscription('');
-        setGeneratedViralScene(null);
-        try {
-            const result = await transcribeUploadedVideo({ videoDataUri });
-            setGeneratedUploadedVideoTranscription(result.transcription);
-            toast({ variant: 'success', title: "Transcrição concluída com sucesso!" });
-        } catch (error: any) {
-            console.error("Failed to transcribe uploaded video:", error);
-            toast({ variant: 'destructive', title: "Erro na Transcrição", description: error.message });
-        } finally {
-            setLoading('transcribingUploadedVideo', false);
-        }
-    };
-
-    const handleGenerateScriptFromTranscription = async (imageDataUri?: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
-
-        setLoading('generatingScriptFromTranscription', true);
-        setGeneratedViralScene(null);
-        try {
-            const result = await generateScriptFromTranscription({ 
-                transcription: generatedUploadedVideoTranscription,
-                imageDataUri: imageDataUri
-            });
-            const newScene: Scene = {
-                ...initialSceneState,
-                ...result,
-                id: nanoid(),
-                duration: '8 seg', // Default duration as it's not known from transcription alone
-            };
-
-            setScenes(prev => [newScene, ...prev]);
-            setGeneratedViralScene(newScene);
-            
-            toast({ variant: 'success', title: "Roteiro criado a partir da transcrição!", description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.` });
-
-        } catch (error: any) {
-            console.error("Failed to generate script from transcription:", error);
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
-        } finally {
-            setLoading('generatingScriptFromTranscription', false);
-        }
-    };
-
-    const handleGenerateParaphrasedScriptFromTranscription = async (imageDataUri?: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedUploadedVideoTranscription) return toast({ variant: 'destructive', title: "Transcrição em falta", description: "Primeiro, transcreva um vídeo." });
-
-        setLoading('generatingParaphrasedScriptFromTranscription', true);
-        setGeneratedViralScene(null);
-        try {
-            const result = await generateParaphrasedScriptFromTranscription({ 
-                transcription: generatedUploadedVideoTranscription,
-                imageDataUri: imageDataUri,
-            });
-            const newScene: Scene = {
-                ...initialSceneState,
-                ...result,
-                id: nanoid(),
-                duration: '8 seg', // Default duration
-            };
-
-            setScenes(prev => [newScene, ...prev]);
-            setGeneratedViralScene(newScene);
-            
-            toast({ variant: 'success', title: "Roteiro reescrito com sucesso!", description: `A nova cena "${newScene.title}" foi gerada e guardada na sua galeria.` });
-
-        } catch (error: any) {
-            console.error("Failed to generate paraphrased script:", error);
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
-        } finally {
-            setLoading('generatingParaphrasedScriptFromTranscription', false);
-        }
-    };
-
-    const handleGenerateThumbnailIdeas = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!mainImageDataUri || !videoTheme) {
-            return toast({ variant: 'destructive', title: "Informação em falta", description: "Por favor, carregue la imagem principal e preencha o tema do vídeo." });
-        }
-        
-        setLoading('generatingThumbnail', true);
-        setGeneratedThumbnailIdeas(null);
-        try {
-            const result = await generateThumbnailIdeas({ mainImageDataUri, backgroundImageDataUri, videoTheme, thumbnailStyle });
-            setGeneratedThumbnailIdeas(result);
-            toast({ variant: 'success', title: "Ideias para thumbnail geradas!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
-        } finally {
-            setLoading('generatingThumbnail', false);
-        }
-    };
-
-    // Quick Scene Handlers
-    const handleOpenQuickSceneModal = (id: string) => {
-        const influencerToLoad = galleryInfluencers.find(inf => inf.id === id);
-        if (influencerToLoad) {
-            setSelectedInfluencerForQuickScene(influencerToLoad);
-            setGeneratedQuickScene(null); // Reset previous generation
-            setIsQuickSceneModalOpen(true);
-        }
-    };
-
-    const handleGenerateQuickScene = async (jokeTheme: string, scenarioSuggestion?: string, imageReferenceDataUri?: string) => {
-        if (!selectedInfluencerForQuickScene) return;
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        setLoading('generatingQuickScene', true);
-        setGeneratedQuickScene(null);
-        try {
-            const result = await generateQuickScene({
-                influencerPersonality: selectedInfluencerForQuickScene.personality,
-                influencerNiche: selectedInfluencerForQuickScene.niche,
-                influencerAppearance: selectedInfluencerForQuickScene.appearance,
-                negativePrompt: selectedInfluencerForQuickScene.negativePrompt,
-                jokeTheme: jokeTheme,
-                scenarioSuggestion: scenarioSuggestion,
-                imageReferenceDataUri: imageReferenceDataUri,
-            });
-            const newScene: Scene = {
-                ...initialSceneState, // use initial state for other fields
-                ...result,
-                duration: '8 seg',
-            };
-            setGeneratedQuickScene(newScene);
-            toast({ variant: 'success', title: "Cena rápida gerada com sucesso!" });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erro ao gerar cena", description: error.message });
-        } finally {
-            setLoading('generatingQuickScene', false);
-        }
-    };
-
-    const handleSaveAndLoadQuickScene = async () => {
-        if (!generatedQuickScene || !selectedInfluencerForQuickScene) return;
-        
-        const sceneToSave = { ...generatedQuickScene, id: nanoid() };
-        setScenes(prev => [sceneToSave, ...prev]);
-
-        setInfluencer(selectedInfluencerForQuickScene);
-        setCurrentScene(sceneToSave);
-        
-        setActiveView('creator');
-        setIsQuickSceneModalOpen(false);
-        toast({ variant: 'info', title: "Cena salva e carregada no editor!" });
-    };
-
-    const handleGenerateViralScript = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch', cta: string | undefined) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!videoTitle.trim()) return toast({ variant: 'destructive', title: "Informação em falta", description: "É preciso um tema para o roteiro." });
-
-        setLoading('generatingViralScript', true);
-        setGeneratedViralScene(null);
-        try {
-            const result = await generateViralScript({ 
-                videoTitle, 
-                imageDataUri: imageDataUri || undefined,
-                duration, 
-                videoType,
-                cta,
-            });
-
-            const newScene: Scene = {
-                ...initialSceneState,
-                ...result,
-                id: nanoid(),
-                duration: duration,
-            };
-
-            setScenes(prev => [newScene, ...prev]);
-            setGeneratedViralScene(newScene);
-
-            toast({ 
-                variant: 'success',
-                title: "Roteiro viral gerado!", 
-                description: `A cena "${newScene.title}" foi gerada abaixo e guardada na sua galeria.`,
-            });
-
-        } catch (error: any) {
-            console.error("Failed to generate viral script:", error);
-            toast({ variant: 'destructive', title: "Erro na Geração", description: error.message });
-        } finally {
-            setLoading('generatingViralScript', false);
-        }
-    };
-    
-    const handleLoadViralSceneToCreator = (scene: Scene) => {
-        if (scene) {
-            setCurrentScene(scene);
-            setActiveView('creator');
-            toast({ 
-                variant: 'info',
-                title: `Cena "${scene.title || 'sem título'}" carregada!`, 
-                description: "A cena está pronta para ser editada ou usada para gerar um roteiro.",
-            });
-        }
-    };
-
-    const handleGenerateLongScript = async (videoTheme: string, duration: string, cameraAngle: string, influencerId?: string, sceneId?: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!videoTheme.trim()) {
-            return toast({ variant: 'destructive', title: 'Tema em Falta', description: 'Por favor, forneça um tema para o roteiro.' });
-        }
-        setLoading('generatingLongScript', true);
-        setGeneratedLongScript(null);
-        setGeneratedSeoFromLongScript(null);
-        setGeneratedThumbnailFromLongScript(null);
-        try {
-            const influencerContext = galleryInfluencers.find(i => i.id === influencerId);
-            const sceneContext = scenes.find(s => s.id === sceneId);
-
-            const fullAppearance = influencerContext ? `${influencerContext.appearance} Clothing: ${influencerContext.clothing}` : undefined;
-            
-            const result = await generateLongScript({
-                videoTheme,
-                duration,
-                influencerAppearance: fullAppearance,
-                influencerAccent: influencerContext?.accent,
-                influencerPersonality: influencerContext?.personality,
-                influencerUniqueTrait: influencerContext?.uniqueTrait,
-                influencerNegativePrompt: influencerContext?.negativePrompt,
-                sceneSetting: sceneContext?.setting,
-                sceneCameraAngle: cameraAngle,
-            });
-            setGeneratedLongScript(result);
-            toast({ variant: 'success', title: 'Roteiro longo gerado com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate long script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração', description: error.message });
-        } finally {
-            setLoading('generatingLongScript', false);
-        }
-    };
-
-    const handleGenerateSeoFromLongScript = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedLongScript?.fullScriptTxt) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro longo primeiro.' });
-        }
-        setLoading('loadingSeoFromLongScript', true);
-        setGeneratedSeoFromLongScript(null);
-        try {
-            const result = await generateSeoFromScript({ scriptText: generatedLongScript.fullScriptTxt });
-            setGeneratedSeoFromLongScript(result);
-            toast({ variant: 'success', title: 'SEO para o roteiro longo gerado com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate SEO from long script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
-        } finally {
-            setLoading('loadingSeoFromLongScript', false);
-        }
-    };
-
-    const handleGenerateThumbnailFromLongScript = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedLongScript?.fullScriptTxt) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro longo primeiro.' });
-        }
-        setLoading('loadingThumbnailFromLongScript', true);
-        setGeneratedThumbnailFromLongScript(null);
-        try {
-            const result = await generateThumbnailFromScript({ scriptText: generatedLongScript.fullScriptTxt });
-            setGeneratedThumbnailFromLongScript(result);
-            toast({ variant: 'success', title: 'Ideias de thumbnail para o roteiro longo geradas com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate thumbnail from long script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
-        } finally {
-            setLoading('loadingThumbnailFromLongScript', false);
-        }
-    };
-
-
-    const handleGenerateWebDocScript = async (theme: string, duration: string, topics?: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!theme.trim()) {
-            return toast({ variant: 'destructive', title: 'Tema em Falta', description: 'Por favor, forneça um tema para o roteiro.' });
-        }
-        setLoading('generatingWebDoc', true);
-        setGeneratedWebDocScript(null);
-        setGeneratedWebDocSeo('');
-        setGeneratedThumbnailFromWebDoc(null);
-        try {
-            const result = await generateWebDocScript({ theme, duration, topics });
-            setGeneratedWebDocScript(result);
-            toast({ variant: 'success', title: 'Roteiro para Web Doc gerado com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate web doc script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração', description: error.message });
-        } finally {
-            setLoading('generatingWebDoc', false);
-        }
-    };
-    
-    const handleExportWebDocScript = () => {
-        if (!generatedWebDocScript) return;
-
-        let content = `Title: ${generatedWebDocScript.title}\n\n`;
-        content += generatedWebDocScript.scenes
-            .map(scene => `----------\nSCENE ${scene.sceneNumber}\n\nSCRIPT (PT-BR):\n${scene.sceneScript}\n\nIMAGE PROMPT (EN):\n${scene.imagePrompt}\n\nVIDEO PROMPT (EN):\n${scene.videoPrompt}\n`)
-            .join('\n');
-        
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const fileName = `${generatedWebDocScript.title.replace(/ /g, '_')}_webdoc.txt`;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        toast({ variant: 'success', title: `'${fileName}' exportado com sucesso!` });
-    };
-
-    const handleGenerateWebDocSeo = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedWebDocScript) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Gere um roteiro para o Web Doc primeiro.' });
-        }
-
-        const fullDialogue = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n');
-        
-        if (!fullDialogue.trim()) {
-            return toast({ variant: 'destructive', title: 'Conteúdo em Falta', description: 'O roteiro gerado não tem diálogo para ser analisado.' });
-        }
-        
-        setLoading('generatingWebDocSeo', true);
-        setGeneratedWebDocSeo('');
-        try {
-            const seoResult = await generateSeoForPlatforms({ dialogue: fullDialogue });
-            setGeneratedWebDocSeo(seoResult);
-            toast({ variant: 'success', title: 'SEO para o Web Doc gerado com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate web doc SEO:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
-        } finally {
-            setLoading('generatingWebDocSeo', false);
-        }
-    };
-    
-    const handleGenerateImageForWebDoc = async (prompt: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        setLoading('generatingWebDocImage', true);
-        setGeneratedImageForPopup(null);
-        setActivePromptForImageGen(prompt);
-        setIsImagePreviewModalOpen(true);
-        try {
-            const result = await generateImageFromPrompt({ prompt });
-            setGeneratedImageForPopup(result.imageDataUri);
-        } catch (error: any) {
-            console.error('Failed to generate image for web doc:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração da Imagem', description: error.message });
-            setIsImagePreviewModalOpen(false); // Close modal on error
-        } finally {
-            setLoading('generatingWebDocImage', false);
-        }
-    };
-    
-    const handleGenerateImageFromPastedScript = async (prompt: string) => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        setLoading('generatingImageFromPastedScript', true);
-        setGeneratedImageForPopup(null);
-        setActivePromptForImageGen(prompt);
-        setIsImagePreviewModalOpen(true);
-        try {
-            const result = await generateImageFromPrompt({ prompt });
-            setGeneratedImageForPopup(result.imageDataUri);
-        } catch (error: any) {
-            console.error('Failed to generate image from pasted script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração da Imagem', description: error.message });
-            setIsImagePreviewModalOpen(false); // Close modal on error
-        } finally {
-            setLoading('generatingImageFromPastedScript', false);
-        }
-    };
-
-    const handleGeneratePromptsFromScript = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!pastedScript.trim()) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, cole um roteiro para gerar os prompts.' });
-        }
-        setLoading('generatingImagePrompts', true);
-        setGeneratedScenePrompts(null);
-        setGeneratedSeoFromScript('');
-        try {
-            const result = await generatePromptsFromScript({ scriptText: pastedScript });
-            setGeneratedScenePrompts(result.prompts);
-            toast({ variant: 'success', title: 'Prompts de imagem gerados com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate image prompts from script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração', description: error.message });
-        } finally {
-            setLoading('generatingImagePrompts', false);
-        }
-    };
-
-    const handleGenerateSeoFromScript = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!pastedScript.trim()) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'O roteiro precisa estar colado para gerar o SEO.' });
-        }
-        setLoading('generatingSeoFromScript', true);
-        setGeneratedSeoFromScript('');
-        try {
-            const result = await generateSeoFromScript({ scriptText: pastedScript });
-            setGeneratedSeoFromScript(result);
-            toast({ variant: 'success', title: 'SEO gerado a partir do roteiro!' });
-        } catch (error: any) {
-            console.error('Failed to generate SEO from script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração de SEO', description: error.message });
-        } finally {
-            setLoading('generatingSeoFromScript', false);
-        }
-    };
-
-    const handleGenerateThumbnailFromScript = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!pastedScript.trim()) {
-            return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, cole um roteiro para gerar a thumbnail.' });
-        }
-        setLoading('generatingThumbnailFromScript', true);
-        setGeneratedThumbnailFromScript(null);
-        try {
-            const result = await generateThumbnailFromScript({ scriptText: pastedScript });
-            setGeneratedThumbnailFromScript(result);
-            toast({ variant: 'success', title: 'Ideias de thumbnail geradas com sucesso!' });
-        } catch (error: any) {
-            console.error('Failed to generate thumbnail from script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
-        } finally {
-            setLoading('generatingThumbnailFromScript', false);
-        }
-    };
-
-    const handleGenerateThumbnailFromWebDoc = async () => {
-        if (!isApiConfigured) return setIsLoginModalOpen(true);
-        if (!generatedWebDocScript) {
-             return toast({ variant: 'destructive', title: 'Roteiro em Falta', description: 'Por favor, gere um roteiro para Web Doc primeiro.' });
-        }
-
-        const fullScript = generatedWebDocScript.scenes.map(s => s.sceneScript).join('\n\n');
-        if (!fullScript.trim()) {
-             return toast({ variant: 'destructive', title: 'Roteiro Vazio', description: 'O roteiro gerado não tem conteúdo para criar uma thumbnail.' });
-        }
-
-        setLoading('generatingThumbnailFromWebDoc', true);
-        setGeneratedThumbnailFromWebDoc(null);
-        try {
-            const result = await generateThumbnailFromScript({ scriptText: fullScript });
-            setGeneratedThumbnailFromWebDoc(result);
-            toast({ variant: 'success', title: 'Ideias de thumbnail geradas com sucesso para o Web Doc!' });
-        } catch (error: any) {
-            console.error('Failed to generate thumbnail from web doc script:', error);
-            toast({ variant: 'destructive', title: 'Erro na Geração da Thumbnail', description: error.message });
-        } finally {
-            setLoading('generatingThumbnailFromWebDoc', false);
-        }
-    };
-
-    const handleExportPrompts = () => {
-        if (!generatedScenePrompts) return;
-
-        let content = "Prompts Gerados a partir do Roteiro\n\n";
-        content += generatedScenePrompts.map(p => 
-            `----------\nSCENE ${p.sceneNumber}\n\nIMAGE PROMPT:\n${p.imagePrompt}\n\nVIDEO PROMPT:\n${p.videoPrompt}\n`
-        ).join('\n');
-        
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'prompts_de_cena.txt';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        toast({ variant: 'success', title: 'Prompts exportados com sucesso!' });
-    };
-
-    // DB Handlers (now local state handlers)
-    const saveOrUpdateInfluencer = () => {
-        const requiredFields: Array<keyof Influencer> = ['name', 'niche', 'personality', 'appearance', 'clothing', 'bio', 'uniqueTrait', 'age', 'gender', 'accent'];
-        
-        const missingFields = requiredFields.filter(field => {
-            const value = influencer[field];
-            return typeof value === 'string' ? !value.trim() : !value;
-        });
-
-        if (missingFields.length > 0) {
-            toast({
-                variant: 'destructive',
-                title: 'Campos em Falta',
-                description: `Por favor, preencha os seguintes campos: ${missingFields.join(', ')}.`
-            });
-            return;
-        }
-
-        setLoading('savingInfluencer', true);
-        
-        if (influencer.id) {
-            const updatedInfluencer = { ...influencer, created_at: new Date().toISOString() };
-            setGalleryInfluencers(prev => prev.map(inf => inf.id === updatedInfluencer.id ? updatedInfluencer : inf));
-            toast({ variant: 'success', title: "Influenciador atualizado!" });
-        } else {
-            const newInfluencer = { ...influencer, id: nanoid(), created_at: new Date().toISOString() };
-            setGalleryInfluencers(prev => [newInfluencer, ...prev]);
-            setInfluencer(newInfluencer);
-            toast({ variant: 'success', title: "Influenciador adicionado à galeria!" });
-        }
-        
-        setLoading('savingInfluencer', false);
-    };
-    
-    const deleteInfluencerHandler = (idToDelete: string) => {
-        setGalleryInfluencers(prev => prev.filter(inf => inf.id !== idToDelete));
-        toast({ title: "Influenciador excluído!" });
-        if (influencer.id === idToDelete) {
-            setInfluencer(getInitialInfluencerState());
-        }
-    };
-    
-    const loadInfluencer = (id: string) => {
-        const influencerToLoad = galleryInfluencers.find(inf => inf.id === id);
-        if (influencerToLoad) {
-            setInfluencer(influencerToLoad);
-            setActiveView('creator');
-            toast({ variant: 'info', title: `"${influencerToLoad.name}" carregado no editor!` });
-        }
-    };
-
-    const handleAddUpdateScene = () => {
-        if (!currentScene.setting && !currentScene.title) return toast({ variant: 'destructive', title: "Dados em falta", description: "Preencha pelo menos um título ou um cenário." });
-
-        setLoading('savingScene', true);
-        
-        if (currentScene.id) {
-            const updatedScene = { ...currentScene, created_at: new Date().toISOString() };
-            setScenes(prev => prev.map(s => s.id === updatedScene.id ? updatedScene : s));
-            toast({ variant: 'success', title: "Cena atualizada!" });
-        } else {
-            const newScene = { ...currentScene, id: nanoid(), created_at: new Date().toISOString() };
-            setScenes(prev => [newScene, ...prev]);
-            setCurrentScene(newScene);
-            toast({ variant: 'success', title: "Cena adicionada!" });
-        }
-        setLoading('savingScene', false);
-    };
-
-    const deleteSceneHandler = (idToDelete: string) => {
-        setScenes(prev => prev.filter(s => s.id !== idToDelete));
-        toast({ title: "Cena excluída!" });
-        if (currentScene.id === idToDelete) {
-            setCurrentScene(initialSceneState);
-        }
-    };
-
-    const loadScene = (id: string) => {
-        const sceneToLoad = scenes.find(s => s.id === id);
-        if (sceneToLoad) {
-            setCurrentScene(sceneToLoad);
-            setActiveView('creator');
-            toast({ variant: 'info', title: `Cena "${sceneToLoad.title || 'sem título'}" carregada!` });
-        }
-    };
-
-    const handleAddNewInfluencer = () => {
-        setInfluencer(getInitialInfluencerState());
-        setActiveView('creator');
-    };
-
-    const handleAddNewScene = () => {
-        setCurrentScene(initialSceneState);
-        setActiveView('creator');
-    };
-
-    const handleClearTranscription = () => {
-        setGeneratedUploadedVideoTranscription('');
-    };
-
-    if (!hasMounted) {
-        return <LoadingScreen />;
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    if (influencers.length > 0) {
+      localStorage.setItem('scriptify_influencers', JSON.stringify(influencers));
     }
+  }, [influencers]);
 
-
-    const renderContent = () => {
-        switch (activeView) {
-            case 'creator':
-                return <CreatorView
-                        influencer={influencer}
-                        setInfluencer={setInfluencer}
-                        currentScene={currentScene}
-                        setCurrentScene={setCurrentScene}
-                        pastedText={pastedText}
-                        setPastedText={setPastedText}
-                        generatedContent={generatedContent}
-                        setGeneratedContent={setGeneratedContent}
-                        generatedSeoContent={generatedSeoContent}
-                        generatedVeoPrompt={generatedVeoPrompt}
-                        loadingStates={loadingStates}
-                        isApiConfigured={isApiConfigured}
-                        handlers={{
-                            analyzeAndFillFromText,
-                            analyzeInfluencerImageAndFill,
-                            analyzeScenarioImageAndFill,
-                            analyzeAndDescribeProduct,
-                            generateSceneContent,
-                            generateVeoPrompt: generateVeoPromptHandler,
-                            generateDialogueSeo,
-                            generateSceneAction: generateSceneActionHandler,
-                            generateSceneTitle: generateSceneTitleHandler,
-                            generateSceneDialogue: generateSceneDialogueHandler,
-                            saveOrUpdateInfluencer,
-                            handleAddUpdateScene,
-                            handleImageUpload,
-                            resetInfluencer: () => setInfluencer(getInitialInfluencerState()),
-                            resetScene: () => setCurrentScene(initialSceneState),
-                        }}
-                    />;
-            case 'influencerGallery':
-                 return <InfluencerGalleryView
-                        influencers={galleryInfluencers}
-                        onLoad={loadInfluencer}
-                        onDelete={deleteInfluencerHandler}
-                        onAddNew={handleAddNewInfluencer}
-                        onQuickScene={handleOpenQuickSceneModal}
-                    />;
-            case 'sceneGallery':
-                return <SceneGalleryView
-                        scenes={scenes}
-                        onLoad={loadScene}
-                        onDelete={deleteSceneHandler}
-                        onAddNew={handleAddNewScene}
-                    />;
-            case 'viralTools':
-                return <ViralToolsView
-                        isApiConfigured={isApiConfigured}
-                        onGenerateViralScript={handleGenerateViralScript}
-                        loadingViralScript={loadingStates.generatingViralScript}
-                        generatedViralScene={generatedViralScene}
-                        onLoadToCreator={handleLoadViralSceneToCreator}
-                    />;
-            case 'thumbnailGenerator':
-                 return <ThumbnailGeneratorView
-                        onGenerateThumbnail={handleGenerateThumbnailIdeas}
-                        generatedThumbnailIdeas={generatedThumbnailIdeas}
-                        loadingThumbnail={loadingStates.generatingThumbnail}
-                        isApiConfigured={isApiConfigured}
-                    />;
-            case 'transcribeVideo':
-                return <TranscribeVideoView
-                    isApiConfigured={isApiConfigured}
-                    youtubeUrl={youtubeUrl}
-                    setYoutubeUrl={setYoutubeUrl}
-                    loadingYouTube={loadingStates.analyzingYouTube}
-                    onTranscribeUploadedVideo={handleTranscribeUploadedVideo}
-                    loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
-                    generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
-                    onGenerateScriptFromTranscription={handleGenerateScriptFromTranscription}
-                    loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
-                    onGenerateParaphrasedScriptFromTranscription={handleGenerateParaphrasedScriptFromTranscription}
-                    loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
-                    onClearTranscription={handleClearTranscription}
-                    generatedViralScene={generatedViralScene}
-                    onLoadToCreator={handleLoadViralSceneToCreator}
-                />;
-            case 'advancedTools':
-                return <AdvancedToolsView
-                        influencers={galleryInfluencers}
-                        scenes={scenes}
-                        onGenerateLongScript={handleGenerateLongScript}
-                        loadingLongScript={loadingStates.generatingLongScript}
-                        generatedLongScript={generatedLongScript}
-                        onGenerateWebDocScript={handleGenerateWebDocScript}
-                        loadingWebDoc={loadingStates.generatingWebDoc}
-                        generatedWebDocScript={generatedWebDocScript}
-                        onExportWebDocScript={handleExportWebDocScript}
-                        onGenerateWebDocSeo={handleGenerateWebDocSeo}
-                        loadingWebDocSeo={loadingStates.generatingWebDocSeo}
-                        generatedWebDocSeo={generatedWebDocSeo}
-                        pastedScript={pastedScript}
-                        setPastedText={setPastedScript}
-                        onGeneratePromptsFromScript={handleGeneratePromptsFromScript}
-                        loadingImagePrompts={loadingStates.generatingImagePrompts}
-                        generatedScenePrompts={generatedScenePrompts}
-                        onGenerateSeoFromScript={handleGenerateSeoFromScript}
-                        loadingSeoFromScript={loadingStates.generatingSeoFromScript}
-                        generatedSeoFromScript={generatedSeoFromScript}
-                        onGenerateThumbnailFromScript={handleGenerateThumbnailFromScript}
-                        loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
-                        generatedThumbnailFromScript={generatedThumbnailFromScript}
-                        onExportPrompts={handleExportPrompts}
-                        onGenerateThumbnailFromWebDoc={handleGenerateThumbnailFromWebDoc}
-                        loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
-                        generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
-                        isApiConfigured={isApiConfigured}
-                        onGenerateImageForWebDoc={handleGenerateImageForWebDoc}
-                        loadingWebDocImage={loadingStates.generatingWebDocImage}
-                        onGenerateImageFromPastedScript={handleGenerateImageFromPastedScript}
-                        loadingImageFromPastedScript={loadingStates.generatingImageFromPastedScript}
-                        onGenerateSeoFromLongScript={handleGenerateSeoFromLongScript}
-                        loadingSeoFromLongScript={loadingStates.loadingSeoFromLongScript}
-                        generatedSeoFromLongScript={generatedSeoFromLongScript}
-                        onGenerateThumbnailFromLongScript={handleGenerateThumbnailFromLongScript}
-                        loadingThumbnailFromLongScript={loadingStates.loadingThumbnailFromLongScript}
-                        generatedThumbnailFromLongScript={generatedThumbnailFromLongScript}
-                    />;
-            case 'bento':
-            default:
-                return <BentoGrid setView={setActiveView} />;
-        }
+  useEffect(() => {
+    if (scenes.length > 0) {
+      localStorage.setItem('scriptify_scenes', JSON.stringify(scenes));
     }
+  }, [scenes]);
 
-    return (
-        <div suppressHydrationWarning>
-             <LoginModal
-                isOpen={isLoginModalOpen}
-                onClose={() => setIsLoginModalOpen(false)}
-                onSave={handleApiKeySave}
-            />
-            <QuickSceneModal
-                isOpen={isQuickSceneModalOpen}
-                onClose={() => setIsQuickSceneModalOpen(false)}
-                influencer={selectedInfluencerForQuickScene}
-                onGenerate={handleGenerateQuickScene}
-                onSave={handleSaveAndLoadQuickScene}
-                generatedScene={generatedQuickScene}
-                loading={loadingStates.generatingQuickScene}
-                isApiConfigured={isApiConfigured}
-            />
-            <ImagePreviewModal
-                isOpen={isImagePreviewModalOpen}
-                onClose={() => setIsImagePreviewModalOpen(false)}
-                imageDataUri={generatedImageForPopup}
-                loading={loadingStates.generatingWebDocImage || loadingStates.generatingImageFromPastedScript}
-                prompt={activePromptForImageGen}
-            />
+  const setLoadingState = useCallback((key: keyof LoadingStates, value: boolean) => {
+    setLoadingStates(prev => ({ ...prev, [key]: value }));
+  }, []);
 
+  // API Key management
+  const handleSaveApiKey = (apiKey: string) => {
+    document.cookie = `gemini_api_key=${apiKey}; path=/; max-age=${60 * 60 * 24 * 30}`;
+    setIsApiConfigured(true);
+    setIsLoginModalOpen(false);
+    toast({
+      variant: 'success',
+      title: 'Chave API Configurada',
+      description: 'A sua chave API foi guardada com sucesso.',
+    });
+  };
 
-            <AppHeader isApiConfigured={isApiConfigured} onOpenLoginModal={() => setIsLoginModalOpen(true)} />
-            
-            <PromoBanner hasPurchased={hasPurchased} />
+  // AI Analysis Functions
+  const analyzeAndFillFromText = async () => {
+    if (!pastedText.trim()) return;
+    
+    setLoadingState('analyzingFromText', true);
+    try {
+      const result = await analyzeTextProfile({ pastedText });
+      setInfluencer(prev => ({
+        ...prev,
+        name: result.name || prev.name,
+        niche: result.niche || prev.niche,
+        personality: result.personality || prev.personality,
+        appearance: result.appearance || prev.appearance,
+        clothing: result.clothing || prev.clothing,
+        bio: result.bio || prev.bio,
+        uniqueTrait: result.uniqueTrait || prev.uniqueTrait,
+        negativePrompt: result.negativePrompt || prev.negativePrompt,
+        age: result.age || prev.age,
+        gender: result.gender || prev.gender,
+        accent: result.accent || prev.accent,
+      }));
+      toast({ variant: 'success', title: 'Análise concluída!', description: 'Os campos foram preenchidos automaticamente.' });
+    } catch (error) {
+      console.error('Error analyzing text:', error);
+      toast({ variant: 'destructive', title: 'Erro na análise', description: 'Não foi possível analisar o texto.' });
+    } finally {
+      setLoadingState('analyzingFromText', false);
+    }
+  };
 
-            {activeView !== 'bento' && (
-                 <Button variant="ghost" onClick={() => setActiveView('bento')} className="mb-6">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4"><path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    Voltar para o Início
-                </Button>
-            )}
-            
-            <div className="w-full">
-                {renderContent()}
-            </div>
-        </div>
-    );
+  const analyzeInfluencerImageAndFill = async () => {
+    if (!influencer.imagePreview) return;
+    
+    setLoadingState('analyzingInfluencer', true);
+    try {
+      const result = await analyzeInfluencerImage({ photoDataUri: influencer.imagePreview });
+      setInfluencer(prev => ({
+        ...prev,
+        name: result.name || prev.name,
+        niche: result.niche || prev.niche,
+        personality: result.personality || prev.personality,
+        appearance: result.appearance || prev.appearance,
+        clothing: result.clothing || prev.clothing,
+        bio: result.bio || prev.bio,
+        uniqueTrait: result.uniqueTrait || prev.uniqueTrait,
+        negativePrompt: result.negativePrompt || prev.negativePrompt,
+        age: result.age || prev.age,
+        gender: result.gender || prev.gender,
+        accent: result.accent || prev.accent,
+      }));
+      toast({ variant: 'success', title: 'Análise concluída!', description: 'Os campos foram preenchidos com base na imagem.' });
+    } catch (error) {
+      console.error('Error analyzing influencer image:', error);
+      toast({ variant: 'destructive', title: 'Erro na análise', description: 'Não foi possível analisar a imagem.' });
+    } finally {
+      setLoadingState('analyzingInfluencer', false);
+    }
+  };
+
+  const analyzeScenarioImageAndFill = async () => {
+    if (!currentScene.scenarioImagePreview) return;
+    
+    setLoadingState('analyzingScenario', true);
+    try {
+      const result = await analyzeSceneBackground({
+        scenarioImageBase64: currentScene.scenarioImagePreview,
+        scenarioImageType: currentScene.scenarioImageType,
+      });
+      setCurrentScene(prev => ({
+        ...prev,
+        setting: result.settingDescription || prev.setting,
+      }));
+      toast({ variant: 'success', title: 'Análise concluída!', description: 'O cenário foi preenchido com base na imagem.' });
+    } catch (error) {
+      console.error('Error analyzing scenario image:', error);
+      toast({ variant: 'destructive', title: 'Erro na análise', description: 'Não foi possível analisar a imagem do cenário.' });
+    } finally {
+      setLoadingState('analyzingScenario', false);
+    }
+  };
+
+  const analyzeAndDescribeProduct = async () => {
+    if (!currentScene.productImagePreview) return;
+    
+    setLoadingState('analyzingProduct', true);
+    try {
+      const result = await analyzeProductImage({ productImageDataUri: currentScene.productImagePreview });
+      setCurrentScene(prev => ({
+        ...prev,
+        productName: result.productName || prev.productName,
+        productBrand: result.productBrand || prev.productBrand,
+        productDescription: result.productDescription || prev.productDescription,
+      }));
+      toast({ variant: 'success', title: 'Análise concluída!', description: 'Os detalhes do produto foram preenchidos.' });
+    } catch (error) {
+      console.error('Error analyzing product image:', error);
+      toast({ variant: 'destructive', title: 'Erro na análise', description: 'Não foi possível analisar a imagem do produto.' });
+    } finally {
+      setLoadingState('analyzingProduct', false);
+    }
+  };
+
+  // Script Generation Functions
+  const generateSceneContent = async (scene: Scene) => {
+    if (!scene.setting || !influencer.id) return;
+    
+    setLoadingState('generatingScript', true);
+    try {
+      const result = await generateVideoScript({
+        influencerName: influencer.name,
+        influencerPersonality: influencer.personality,
+        influencerAppearance: influencer.appearance,
+        influencerNiche: influencer.niche,
+        influencerSeed: influencer.seed,
+        influencerAccent: influencer.accent,
+        sceneTitle: scene.title,
+        sceneSetting: scene.setting,
+        sceneAction: scene.action,
+        sceneDialogue: scene.dialogue,
+        sceneCameraAngle: scene.cameraAngle,
+        sceneDuration: scene.duration,
+        sceneVideoFormat: scene.videoFormat,
+        productName: scene.productName,
+        productBrand: scene.productBrand,
+        productDescription: scene.productDescription,
+        isPartnership: scene.isPartnership,
+        allowDigitalText: scene.allowDigitalText,
+        onlyPhysicalText: scene.onlyPhysicalText,
+      });
+      setGeneratedContent(result);
+      toast({ variant: 'success', title: 'Roteiro gerado!', description: 'O roteiro foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
+    } finally {
+      setLoadingState('generatingScript', false);
+    }
+  };
+
+  const generateVeoPromptHandler = async () => {
+    if (!currentScene.setting || !influencer.id) return;
+    
+    setLoadingState('generatingVeoPrompt', true);
+    try {
+      const result = await generateVeoPrompt({
+        influencerAppearance: influencer.appearance,
+        sceneSetting: currentScene.setting,
+        sceneAction: currentScene.action,
+        sceneDialogue: currentScene.dialogue,
+        sceneCameraAngle: currentScene.cameraAngle,
+        videoFormat: currentScene.videoFormat,
+      });
+      setGeneratedVeoPrompt(`\`\`\`\n${result.veoPrompt}\n\`\`\``);
+      toast({ variant: 'success', title: 'Prompt Veo gerado!', description: 'O prompt para Veo foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating Veo prompt:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o prompt Veo.' });
+    } finally {
+      setLoadingState('generatingVeoPrompt', false);
+    }
+  };
+
+  const generateDialogueSeo = async () => {
+    if (!currentScene.dialogue.trim()) return;
+    
+    setLoadingState('generatingSeo', true);
+    try {
+      const result = await generateSeoForPlatforms({ dialogue: currentScene.dialogue });
+      setGeneratedSeoContent(result);
+      toast({ variant: 'success', title: 'SEO gerado!', description: 'O conteúdo SEO foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating SEO:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o SEO.' });
+    } finally {
+      setLoadingState('generatingSeo', false);
+    }
+  };
+
+  const generateSceneActionHandler = async () => {
+    if (!currentScene.setting.trim()) return;
+    
+    setLoadingState('generatingAction', true);
+    try {
+      const result = await generateSceneAction({ sceneSetting: currentScene.setting });
+      setCurrentScene(prev => ({ ...prev, action: result.sceneAction }));
+      toast({ variant: 'success', title: 'Ação gerada!', description: 'A ação da cena foi criada com sucesso.' });
+    } catch (error) {
+      console.error('Error generating scene action:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a ação.' });
+    } finally {
+      setLoadingState('generatingAction', false);
+    }
+  };
+
+  const generateSceneTitleHandler = async () => {
+    if (!currentScene.setting.trim() || !currentScene.action.trim()) return;
+    
+    setLoadingState('generatingTitle', true);
+    try {
+      const result = await generateSceneTitle({
+        sceneSetting: currentScene.setting,
+        sceneAction: currentScene.action,
+      });
+      setCurrentScene(prev => ({ ...prev, title: result.sceneTitle }));
+      toast({ variant: 'success', title: 'Título gerado!', description: 'O título da cena foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating scene title:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o título.' });
+    } finally {
+      setLoadingState('generatingTitle', false);
+    }
+  };
+
+  const generateSceneDialogueHandler = async () => {
+    if (!currentScene.setting.trim() || !currentScene.action.trim()) return;
+    
+    setLoadingState('generatingDialogue', true);
+    try {
+      const result = await generateSceneDialogue({
+        influencerPersonality: influencer.personality,
+        influencerAccent: influencer.accent,
+        sceneSetting: currentScene.setting,
+        sceneAction: currentScene.action,
+        sceneDuration: currentScene.duration,
+      });
+      setCurrentScene(prev => ({ ...prev, dialogue: result.dialogue }));
+      toast({ variant: 'success', title: 'Diálogo gerado!', description: 'O diálogo da cena foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating scene dialogue:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o diálogo.' });
+    } finally {
+      setLoadingState('generatingDialogue', false);
+    }
+  };
+
+  // Data Management Functions
+  const saveOrUpdateInfluencer = () => {
+    setLoadingState('savingInfluencer', true);
+    try {
+      const influencerToSave = {
+        ...influencer,
+        id: influencer.id || nanoid(),
+        created_at: influencer.created_at || new Date().toISOString(),
+      };
+
+      setInfluencers(prev => {
+        const existingIndex = prev.findIndex(inf => inf.id === influencerToSave.id);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = influencerToSave;
+          return updated;
+        }
+        return [...prev, influencerToSave];
+      });
+
+      setInfluencer(influencerToSave);
+      toast({ variant: 'success', title: 'Influenciador guardado!', description: 'O influenciador foi adicionado à galeria.' });
+    } catch (error) {
+      console.error('Error saving influencer:', error);
+      toast({ variant: 'destructive', title: 'Erro ao guardar', description: 'Não foi possível guardar o influenciador.' });
+    } finally {
+      setLoadingState('savingInfluencer', false);
+    }
+  };
+
+  const handleAddUpdateScene = () => {
+    setLoadingState('savingScene', true);
+    try {
+      const sceneToSave = {
+        ...currentScene,
+        id: currentScene.id || nanoid(),
+        created_at: currentScene.created_at || new Date().toISOString(),
+      };
+
+      setScenes(prev => {
+        const existingIndex = prev.findIndex(sc => sc.id === sceneToSave.id);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = sceneToSave;
+          return updated;
+        }
+        return [...prev, sceneToSave];
+      });
+
+      setCurrentScene(sceneToSave);
+      toast({ variant: 'success', title: 'Cena guardada!', description: 'A cena foi adicionada à galeria.' });
+    } catch (error) {
+      console.error('Error saving scene:', error);
+      toast({ variant: 'destructive', title: 'Erro ao guardar', description: 'Não foi possível guardar a cena.' });
+    } finally {
+      setLoadingState('savingScene', false);
+    }
+  };
+
+  // Image Upload Handler
+  const handleImageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => {
+    handleImageUpload(e, ({ preview, base64, file }) => {
+      if (type === 'influencer') {
+        setInfluencer(prev => ({ ...prev, imagePreview: preview }));
+      } else if (type === 'scenario') {
+        setCurrentScene(prev => ({
+          ...prev,
+          scenarioImagePreview: preview,
+          scenarioImageType: file.type,
+        }));
+      } else if (type === 'product') {
+        setCurrentScene(prev => ({
+          ...prev,
+          productImagePreview: preview,
+          productImageType: file.type,
+        }));
+      }
+    });
+  };
+
+  // Quick Scene Generation
+  const generateQuickSceneHandler = async (jokeTheme: string, scenarioSuggestion?: string, imageReferenceDataUri?: string) => {
+    if (!influencer.id) return;
+    
+    setLoadingState('generatingQuickScene', true);
+    try {
+      const result = await generateQuickScene({
+        influencerPersonality: influencer.personality,
+        influencerNiche: influencer.niche,
+        influencerAppearance: influencer.appearance,
+        negativePrompt: influencer.negativePrompt,
+        jokeTheme,
+        scenarioSuggestion,
+        imageReferenceDataUri,
+      });
+      
+      const newScene: Scene = {
+        ...createEmptyScene(),
+        title: result.title,
+        setting: result.setting,
+        action: result.action,
+        dialogue: result.dialogue,
+        markdownScript: result.markdownScript,
+      };
+      
+      setGeneratedQuickScene(newScene);
+      toast({ variant: 'success', title: 'Cena rápida gerada!', description: 'A cena cômica foi criada com sucesso.' });
+    } catch (error) {
+      console.error('Error generating quick scene:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a cena rápida.' });
+    } finally {
+      setLoadingState('generatingQuickScene', false);
+    }
+  };
+
+  const saveQuickSceneHandler = async () => {
+    if (!generatedQuickScene) return;
+    
+    const sceneToSave = {
+      ...generatedQuickScene,
+      id: nanoid(),
+      created_at: new Date().toISOString(),
+    };
+
+    setScenes(prev => [...prev, sceneToSave]);
+    setCurrentScene(sceneToSave);
+    setGeneratedQuickScene(null);
+    setIsQuickSceneModalOpen(false);
+    setActiveView('creator');
+    toast({ variant: 'success', title: 'Cena carregada!', description: 'A cena foi guardada e carregada no criador.' });
+  };
+
+  // Thumbnail Generation
+  const generateThumbnailHandler = async (mainImageDataUri: string, backgroundImageDataUri: string | undefined, videoTheme: string, thumbnailStyle: ThumbnailStyle) => {
+    setLoadingState('generatingThumbnail', true);
+    try {
+      const result = await generateThumbnailIdeas({
+        mainImageDataUri,
+        backgroundImageDataUri,
+        videoTheme,
+        thumbnailStyle,
+      });
+      setGeneratedThumbnailIdeas(result);
+      toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'As ideias de thumbnail foram criadas com sucesso.' });
+    } catch (error) {
+      console.error('Error generating thumbnail:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a thumbnail.' });
+    } finally {
+      setLoadingState('generatingThumbnail', false);
+    }
+  };
+
+  // Viral Script Generation
+  const generateViralScriptHandler = async (videoTitle: string, imageDataUri: string | null, duration: string, videoType: 'shorts' | 'watch', cta: string | undefined) => {
+    setLoadingState('generatingViralScript', true);
+    try {
+      const result = await generateViralScript({
+        videoTitle,
+        imageDataUri,
+        duration,
+        videoType,
+        cta,
+      });
+      
+      const newScene: Scene = {
+        ...createEmptyScene(),
+        title: result.title,
+        setting: result.setting,
+        action: result.action,
+        dialogue: result.dialogue,
+        markdownScript: result.markdownScript,
+        duration,
+      };
+      
+      setGeneratedViralScene(newScene);
+      toast({ variant: 'success', title: 'Roteiro viral gerado!', description: 'O roteiro foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating viral script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro viral.' });
+    } finally {
+      setLoadingState('generatingViralScript', false);
+    }
+  };
+
+  // Video Transcription
+  const transcribeUploadedVideoHandler = async (videoDataUri: string) => {
+    setLoadingState('transcribingUploadedVideo', true);
+    try {
+      const result = await transcribeUploadedVideo({ videoDataUri });
+      setGeneratedUploadedVideoTranscription(result.transcription);
+      toast({ variant: 'success', title: 'Transcrição concluída!', description: 'O vídeo foi transcrito com sucesso.' });
+    } catch (error) {
+      console.error('Error transcribing uploaded video:', error);
+      toast({ variant: 'destructive', title: 'Erro na transcrição', description: 'Não foi possível transcrever o vídeo.' });
+    } finally {
+      setLoadingState('transcribingUploadedVideo', false);
+    }
+  };
+
+  const generateScriptFromTranscriptionHandler = async (imageDataUri?: string) => {
+    if (!generatedUploadedVideoTranscription) return;
+    
+    setLoadingState('generatingScriptFromTranscription', true);
+    try {
+      const result = await generateScriptFromTranscription({
+        transcription: generatedUploadedVideoTranscription,
+        imageDataUri,
+      });
+      
+      const newScene: Scene = {
+        ...createEmptyScene(),
+        title: result.title,
+        setting: result.setting,
+        action: result.action,
+        dialogue: result.dialogue,
+        markdownScript: result.markdownScript,
+      };
+      
+      setGeneratedViralScene(newScene);
+      toast({ variant: 'success', title: 'Roteiro gerado!', description: 'O roteiro foi criado a partir da transcrição.' });
+    } catch (error) {
+      console.error('Error generating script from transcription:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
+    } finally {
+      setLoadingState('generatingScriptFromTranscription', false);
+    }
+  };
+
+  const generateParaphrasedScriptFromTranscriptionHandler = async (imageDataUri?: string) => {
+    if (!generatedUploadedVideoTranscription) return;
+    
+    setLoadingState('generatingParaphrasedScriptFromTranscription', true);
+    try {
+      const result = await generateParaphrasedScriptFromTranscription({
+        transcription: generatedUploadedVideoTranscription,
+        imageDataUri,
+      });
+      
+      const newScene: Scene = {
+        ...createEmptyScene(),
+        title: result.title,
+        setting: result.setting,
+        action: result.action,
+        dialogue: result.dialogue,
+        markdownScript: result.markdownScript,
+      };
+      
+      setGeneratedViralScene(newScene);
+      toast({ variant: 'success', title: 'Roteiro reescrito!', description: 'O roteiro foi reescrito com outras palavras.' });
+    } catch (error) {
+      console.error('Error generating paraphrased script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível reescrever o roteiro.' });
+    } finally {
+      setLoadingState('generatingParaphrasedScriptFromTranscription', false);
+    }
+  };
+
+  // Long Script Generation
+  const generateLongScriptHandler = async (videoTheme: string, duration: string, cameraAngle: string, influencerId?: string, sceneId?: string) => {
+    setLoadingState('generatingLongScript', true);
+    try {
+      const selectedInfluencer = influencerId && influencerId !== 'none' ? influencers.find(inf => inf.id === influencerId) : undefined;
+      const selectedScene = sceneId && sceneId !== 'none' ? scenes.find(sc => sc.id === sceneId) : undefined;
+
+      const result = await generateLongScript({
+        videoTheme,
+        duration,
+        influencerAppearance: selectedInfluencer?.appearance,
+        influencerAccent: selectedInfluencer?.accent,
+        influencerPersonality: selectedInfluencer?.personality,
+        influencerUniqueTrait: selectedInfluencer?.uniqueTrait,
+        influencerNegativePrompt: selectedInfluencer?.negativePrompt,
+        sceneSetting: selectedScene?.setting,
+        sceneCameraAngle: cameraAngle,
+      });
+      
+      setGeneratedLongScript(result);
+      toast({ variant: 'success', title: 'Roteiro longo gerado!', description: 'O roteiro foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating long script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro longo.' });
+    } finally {
+      setLoadingState('generatingLongScript', false);
+    }
+  };
+
+  // Web Doc Generation
+  const generateWebDocScriptHandler = async (theme: string, duration: string, topics?: string) => {
+    setLoadingState('generatingWebDoc', true);
+    try {
+      const result = await generateWebDocScript({ theme, duration, topics });
+      setGeneratedWebDocScript(result);
+      toast({ variant: 'success', title: 'Roteiro de Web Doc gerado!', description: 'O roteiro foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating web doc script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro de web doc.' });
+    } finally {
+      setLoadingState('generatingWebDoc', false);
+    }
+  };
+
+  const generateWebDocSeoHandler = async () => {
+    if (!generatedWebDocScript) return;
+    
+    setLoadingState('generatingWebDocSeo', true);
+    try {
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
+      const result = await generateSeoFromScript({ scriptText: fullScript });
+      setGeneratedWebDocSeo(result);
+      toast({ variant: 'success', title: 'SEO gerado!', description: 'O SEO foi criado para o web doc.' });
+    } catch (error) {
+      console.error('Error generating web doc SEO:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o SEO.' });
+    } finally {
+      setLoadingState('generatingWebDocSeo', false);
+    }
+  };
+
+  const exportWebDocScriptHandler = () => {
+    if (!generatedWebDocScript) return;
+    
+    let content = `# ${generatedWebDocScript.title}\n\n`;
+    generatedWebDocScript.scenes.forEach((scene, index) => {
+      content += `## Cena ${scene.sceneNumber}\n\n`;
+      content += `**Roteiro:** ${scene.sceneScript}\n\n`;
+      content += `**Prompt de Imagem:** ${scene.imagePrompt}\n\n`;
+      content += `**Prompt de Vídeo:** ${scene.videoPrompt}\n\n`;
+      if (index < generatedWebDocScript.scenes.length - 1) content += '---\n\n';
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'web_doc_roteiro.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ variant: 'success', title: 'Web Doc exportado como TXT!' });
+  };
+
+  // Script Analysis Functions
+  const generatePromptsFromScriptHandler = async () => {
+    if (!pastedScript.trim()) return;
+    
+    setLoadingState('generatingImagePrompts', true);
+    try {
+      const result = await generatePromptsFromScript({ scriptText: pastedScript });
+      setGeneratedScenePrompts(result.prompts);
+      toast({ variant: 'success', title: 'Prompts gerados!', description: 'Os prompts de imagem e vídeo foram criados.' });
+    } catch (error) {
+      console.error('Error generating prompts from script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar os prompts.' });
+    } finally {
+      setLoadingState('generatingImagePrompts', false);
+    }
+  };
+
+  const generateSeoFromScriptHandler = async () => {
+    if (!pastedScript.trim()) return;
+    
+    setLoadingState('generatingSeoFromScript', true);
+    try {
+      const result = await generateSeoFromScript({ scriptText: pastedScript });
+      setGeneratedSeoFromScript(result);
+      toast({ variant: 'success', title: 'SEO gerado!', description: 'O SEO foi criado a partir do roteiro.' });
+    } catch (error) {
+      console.error('Error generating SEO from script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o SEO.' });
+    } finally {
+      setLoadingState('generatingSeoFromScript', false);
+    }
+  };
+
+  const generateThumbnailFromScriptHandler = async () => {
+    if (!pastedScript.trim()) return;
+    
+    setLoadingState('generatingThumbnailFromScript', true);
+    try {
+      const result = await generateThumbnailFromScript({ scriptText: pastedScript });
+      setGeneratedThumbnailFromScript(result);
+      toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada a partir do roteiro.' });
+    } catch (error) {
+      console.error('Error generating thumbnail from script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a thumbnail.' });
+    } finally {
+      setLoadingState('generatingThumbnailFromScript', false);
+    }
+  };
+
+  const generateThumbnailFromWebDocHandler = async () => {
+    if (!generatedWebDocScript) return;
+    
+    setLoadingState('generatingThumbnailFromWebDoc', true);
+    try {
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
+      const result = await generateThumbnailFromWebDoc({ scriptText: fullScript });
+      setGeneratedThumbnailFromWebDoc(result);
+      toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada para o web doc.' });
+    } catch (error) {
+      console.error('Error generating thumbnail from web doc:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a thumbnail.' });
+    } finally {
+      setLoadingState('generatingThumbnailFromWebDoc', false);
+    }
+  };
+
+  const generateImageForWebDocHandler = async (prompt: string) => {
+    setLoadingState('generatingWebDocImage', true);
+    try {
+      const result = await generateImageFromPrompt({ prompt });
+      setImagePreviewData({ url: result.imageDataUri, prompt });
+      setIsImagePreviewModalOpen(true);
+      toast({ variant: 'success', title: 'Imagem gerada!', description: 'A imagem foi criada a partir do prompt.' });
+    } catch (error) {
+      console.error('Error generating image for web doc:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a imagem.' });
+    } finally {
+      setLoadingState('generatingWebDocImage', false);
+    }
+  };
+
+  const generateImageFromPastedScriptHandler = async (prompt: string) => {
+    setLoadingState('generatingImageFromPastedScript', true);
+    try {
+      const result = await generateImageFromPrompt({ prompt });
+      setImagePreviewData({ url: result.imageDataUri, prompt });
+      setIsImagePreviewModalOpen(true);
+      toast({ variant: 'success', title: 'Imagem gerada!', description: 'A imagem foi criada a partir do prompt.' });
+    } catch (error) {
+      console.error('Error generating image from pasted script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a imagem.' });
+    } finally {
+      setLoadingState('generatingImageFromPastedScript', false);
+    }
+  };
+
+  const generateSeoFromLongScriptHandler = async () => {
+    if (!generatedLongScript) return;
+    
+    setLoadingState('loadingSeoFromLongScript', true);
+    try {
+      const result = await generateSeoFromScript({ scriptText: generatedLongScript.fullScriptTxt });
+      setGeneratedSeoFromLongScript(result);
+      toast({ variant: 'success', title: 'SEO gerado!', description: 'O SEO foi criado a partir do roteiro longo.' });
+    } catch (error) {
+      console.error('Error generating SEO from long script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o SEO.' });
+    } finally {
+      setLoadingState('loadingSeoFromLongScript', false);
+    }
+  };
+
+  const generateThumbnailFromLongScriptHandler = async () => {
+    if (!generatedLongScript) return;
+    
+    setLoadingState('loadingThumbnailFromLongScript', true);
+    try {
+      const result = await generateThumbnailFromScript({ scriptText: generatedLongScript.fullScriptTxt });
+      setGeneratedThumbnailFromLongScript(result);
+      toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada a partir do roteiro longo.' });
+    } catch (error) {
+      console.error('Error generating thumbnail from long script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar a thumbnail.' });
+    } finally {
+      setLoadingState('loadingThumbnailFromLongScript', false);
+    }
+  };
+
+  // Export Functions
+  const exportPromptsHandler = () => {
+    if (!generatedScenePrompts) return;
+    
+    let content = '# Prompts de Imagem e Vídeo por Cena\n\n';
+    generatedScenePrompts.forEach((prompt, index) => {
+      content += `## Cena ${prompt.sceneNumber}\n\n`;
+      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\n\n`;
+      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\n\n`;
+      if (index < generatedScenePrompts.length - 1) content += '---\n\n';
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'prompts_cenas.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ variant: 'success', title: 'Prompts exportados como TXT!' });
+  };
+
+  // Gallery Management Functions
+  const loadInfluencer = (id: string) => {
+    const influencerToLoad = influencers.find(inf => inf.id === id);
+    if (influencerToLoad) {
+      setInfluencer(influencerToLoad);
+      setActiveView('creator');
+      toast({ variant: 'success', title: 'Influenciador carregado!', description: `${influencerToLoad.name} foi carregado no editor.` });
+    }
+  };
+
+  const loadScene = (id: string) => {
+    const sceneToLoad = scenes.find(sc => sc.id === id);
+    if (sceneToLoad) {
+      setCurrentScene(sceneToLoad);
+      setActiveView('creator');
+      toast({ variant: 'success', title: 'Cena carregada!', description: 'A cena foi carregada no editor.' });
+    }
+  };
+
+  const deleteInfluencer = (id: string) => {
+    setInfluencers(prev => prev.filter(inf => inf.id !== id));
+    toast({ variant: 'success', title: 'Influenciador removido!', description: 'O influenciador foi removido da galeria.' });
+  };
+
+  const deleteScene = (id: string) => {
+    setScenes(prev => prev.filter(sc => sc.id !== id));
+    toast({ variant: 'success', title: 'Cena removida!', description: 'A cena foi removida da galeria.' });
+  };
+
+  const openQuickSceneModal = (influencerId: string) => {
+    const influencerToUse = influencers.find(inf => inf.id === influencerId);
+    if (influencerToUse) {
+      setInfluencer(influencerToUse);
+      setIsQuickSceneModalOpen(true);
+    }
+  };
+
+  const loadSceneToCreator = (scene: Scene) => {
+    setCurrentScene(scene);
+    setActiveView('creator');
+    toast({ variant: 'success', title: 'Cena carregada!', description: 'A cena foi carregada no criador.' });
+  };
+
+  const clearTranscription = () => {
+    setGeneratedUploadedVideoTranscription('');
+    setGeneratedViralScene(null);
+  };
+
+  // Reset Functions
+  const resetInfluencer = () => {
+    setInfluencer(createEmptyInfluencer());
+    setPastedText('');
+    setGeneratedContent('');
+    setGeneratedSeoContent('');
+    setGeneratedVeoPrompt('');
+  };
+
+  const resetScene = () => {
+    setCurrentScene(createEmptyScene());
+  };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <>
+      <AppHeader 
+        isApiConfigured={isApiConfigured} 
+        onOpenLoginModal={() => setIsLoginModalOpen(true)} 
+      />
+      
+      <PromoBanner hasPurchased={hasPurchased} />
+
+      {activeView === 'bento' && (
+        <BentoGrid setView={setActiveView} />
+      )}
+
+      {activeView === 'creator' && (
+        <CreatorView
+          influencer={influencer}
+          setInfluencer={setInfluencer}
+          currentScene={currentScene}
+          setCurrentScene={setCurrentScene}
+          pastedText={pastedText}
+          setPastedText={setPastedText}
+          generatedContent={generatedContent}
+          setGeneratedContent={setGeneratedContent}
+          generatedSeoContent={generatedSeoContent}
+          generatedVeoPrompt={generatedVeoPrompt}
+          loadingStates={loadingStates}
+          isApiConfigured={isApiConfigured}
+          handlers={{
+            analyzeAndFillFromText,
+            analyzeInfluencerImageAndFill,
+            analyzeScenarioImageAndFill,
+            analyzeAndDescribeProduct,
+            generateSceneContent,
+            generateVeoPrompt: generateVeoPromptHandler,
+            generateDialogueSeo,
+            generateSceneAction: generateSceneActionHandler,
+            generateSceneTitle: generateSceneTitleHandler,
+            generateSceneDialogue: generateSceneDialogueHandler,
+            saveOrUpdateInfluencer,
+            handleAddUpdateScene,
+            handleImageUpload: handleImageUploadHandler,
+            resetInfluencer,
+            resetScene,
+          }}
+        />
+      )}
+
+      {activeView === 'influencerGallery' && (
+        <InfluencerGalleryView
+          influencers={influencers}
+          onLoad={loadInfluencer}
+          onDelete={deleteInfluencer}
+          onAddNew={() => {
+            resetInfluencer();
+            setActiveView('creator');
+          }}
+          onQuickScene={openQuickSceneModal}
+        />
+      )}
+
+      {activeView === 'sceneGallery' && (
+        <SceneGalleryView
+          scenes={scenes}
+          onLoad={loadScene}
+          onDelete={deleteScene}
+          onAddNew={() => {
+            resetScene();
+            setActiveView('creator');
+          }}
+        />
+      )}
+
+      {activeView === 'viralTools' && (
+        <ViralToolsView
+          isApiConfigured={isApiConfigured}
+          onGenerateViralScript={generateViralScriptHandler}
+          loadingViralScript={loadingStates.generatingViralScript}
+          generatedViralScene={generatedViralScene}
+          onLoadToCreator={loadSceneToCreator}
+        />
+      )}
+
+      {activeView === 'advancedTools' && (
+        <AdvancedToolsView
+          isApiConfigured={isApiConfigured}
+          influencers={influencers}
+          scenes={scenes}
+          onGenerateLongScript={generateLongScriptHandler}
+          loadingLongScript={loadingStates.generatingLongScript}
+          generatedLongScript={generatedLongScript}
+          onGenerateWebDocScript={generateWebDocScriptHandler}
+          loadingWebDoc={loadingStates.generatingWebDoc}
+          generatedWebDocScript={generatedWebDocScript}
+          onExportWebDocScript={exportWebDocScriptHandler}
+          onGenerateWebDocSeo={generateWebDocSeoHandler}
+          loadingWebDocSeo={loadingStates.generatingWebDocSeo}
+          generatedWebDocSeo={generatedWebDocSeo}
+          pastedScript={pastedScript}
+          setPastedText={setPastedScript}
+          onGeneratePromptsFromScript={generatePromptsFromScriptHandler}
+          loadingImagePrompts={loadingStates.generatingImagePrompts}
+          generatedScenePrompts={generatedScenePrompts}
+          onGenerateSeoFromScript={generateSeoFromScriptHandler}
+          loadingSeoFromScript={loadingStates.generatingSeoFromScript}
+          generatedSeoFromScript={generatedSeoFromScript}
+          onGenerateThumbnailFromScript={generateThumbnailFromScriptHandler}
+          loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
+          generatedThumbnailFromScript={generatedThumbnailFromScript}
+          onExportPrompts={exportPromptsHandler}
+          onGenerateThumbnailFromWebDoc={generateThumbnailFromWebDocHandler}
+          loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
+          generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
+          onGenerateImageForWebDoc={generateImageForWebDocHandler}
+          loadingWebDocImage={loadingStates.generatingWebDocImage}
+          onGenerateImageFromPastedScript={generateImageFromPastedScriptHandler}
+          loadingImageFromPastedScript={loadingStates.generatingImageFromPastedScript}
+          onGenerateSeoFromLongScript={generateSeoFromLongScriptHandler}
+          loadingSeoFromLongScript={loadingStates.loadingSeoFromLongScript}
+          generatedSeoFromLongScript={generatedSeoFromLongScript}
+          onGenerateThumbnailFromLongScript={generateThumbnailFromLongScriptHandler}
+          loadingThumbnailFromLongScript={loadingStates.loadingThumbnailFromLongScript}
+          generatedThumbnailFromLongScript={generatedThumbnailFromLongScript}
+        />
+      )}
+
+      {activeView === 'thumbnailGenerator' && (
+        <ThumbnailGeneratorView
+          onGenerateThumbnail={generateThumbnailHandler}
+          generatedThumbnailIdeas={generatedThumbnailIdeas}
+          loadingThumbnail={loadingStates.generatingThumbnail}
+          isApiConfigured={isApiConfigured}
+        />
+      )}
+
+      {activeView === 'transcribeVideo' && (
+        <TranscribeVideoView
+          isApiConfigured={isApiConfigured}
+          youtubeUrl={youtubeUrl}
+          setYoutubeUrl={setYoutubeUrl}
+          loadingYouTube={loadingStates.analyzingYouTube}
+          onTranscribeUploadedVideo={transcribeUploadedVideoHandler}
+          loadingUploadedVideoTranscription={loadingStates.transcribingUploadedVideo}
+          generatedUploadedVideoTranscription={generatedUploadedVideoTranscription}
+          onGenerateScriptFromTranscription={generateScriptFromTranscriptionHandler}
+          loadingScriptFromTranscription={loadingStates.generatingScriptFromTranscription}
+          onGenerateParaphrasedScriptFromTranscription={generateParaphrasedScriptFromTranscriptionHandler}
+          loadingParaphrasedScript={loadingStates.generatingParaphrasedScriptFromTranscription}
+          onClearTranscription={clearTranscription}
+          generatedViralScene={generatedViralScene}
+          onLoadToCreator={loadSceneToCreator}
+        />
+      )}
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSave={handleSaveApiKey}
+      />
+
+      <QuickSceneModal
+        isOpen={isQuickSceneModalOpen}
+        onClose={() => setIsQuickSceneModalOpen(false)}
+        influencer={influencer}
+        onGenerate={generateQuickSceneHandler}
+        onSave={saveQuickSceneHandler}
+        generatedScene={generatedQuickScene}
+        loading={loadingStates.generatingQuickScene}
+        isApiConfigured={isApiConfigured}
+      />
+
+      <ImagePreviewModal
+        isOpen={isImagePreviewModalOpen}
+        onClose={() => setIsImagePreviewModalOpen(false)}
+        imageDataUri={imagePreviewData?.url || null}
+        loading={loadingStates.generatingWebDocImage || loadingStates.generatingImageFromPastedScript}
+        prompt={imagePreviewData?.prompt || ''}
+      />
+    </>
+  );
 }
