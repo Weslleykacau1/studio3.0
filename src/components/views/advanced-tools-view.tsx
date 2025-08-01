@@ -49,7 +49,6 @@ interface AdvancedToolsViewProps {
   onGenerateThumbnailFromWebDoc: () => void;
   loadingThumbnailFromWebDoc: boolean;
   generatedThumbnailFromWebDoc: ThumbnailIdeas | null;
-  isApiConfigured: boolean;
   onGenerateImageForWebDoc: (prompt: string) => void;
   loadingWebDocImage: boolean;
   onGenerateImageFromPastedScript: (prompt: string) => void;
@@ -313,17 +312,19 @@ export default function AdvancedToolsView({
                     <CardTitle className="font-headline">
                         Roteiro Gerado
                     </CardTitle>
-                    <div className="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
-                        <AiButton onClick={onGenerateSeoFromLongScript} loading={loadingSeoFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
-                            <Bot className="mr-2 h-4 w-4" /> Gerar SEO
-                        </AiButton>
-                        <AiButton onClick={onGenerateThumbnailFromLongScript} loading={loadingThumbnailFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
-                            <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
-                        </AiButton>
-                        <Button onClick={handleExportFullScript} variant="outline" size="sm">
-                            <Download className="mr-2 h-4 w-4" /> Exportar para TXT
-                        </Button>
-                    </div>
+                    {generatedLongScript && (
+                      <div className="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                          <AiButton onClick={onGenerateSeoFromLongScript} loading={loadingSeoFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                              <Bot className="mr-2 h-4 w-4" /> Gerar SEO
+                          </AiButton>
+                          <AiButton onClick={onGenerateThumbnailFromLongScript} loading={loadingThumbnailFromLongScript} isApiConfigured={isApiConfigured} variant="secondary" size="sm">
+                              <ThumbsUp className="mr-2 h-4 w-4" /> Gerar Thumbnail
+                          </AiButton>
+                          <Button onClick={handleExportFullScript} variant="outline" size="sm">
+                              <Download className="mr-2 h-4 w-4" /> Exportar para TXT
+                          </Button>
+                      </div>
+                    )}
                   </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -683,11 +684,13 @@ export default function AdvancedToolsView({
                   <CardTitle className="font-headline">
                       Prompts Gerados por Cena
                   </CardTitle>
-                   <div className="flex gap-2">
-                      <Button onClick={onExportPrompts} variant="outline" size="sm">
-                          <Download className="mr-2 h-4 w-4" /> Exportar
-                      </Button>
-                  </div>
+                   {generatedScenePrompts && (
+                      <div className="flex gap-2">
+                        <Button onClick={onExportPrompts} variant="outline" size="sm">
+                            <Download className="mr-2 h-4 w-4" /> Exportar
+                        </Button>
+                      </div>
+                   )}
               </CardHeader>
               <CardContent className="space-y-4">
                   {generatedScenePrompts.map((prompt, index) => (
@@ -780,3 +783,5 @@ export default function AdvancedToolsView({
     </div>
   );
 }
+
+    
