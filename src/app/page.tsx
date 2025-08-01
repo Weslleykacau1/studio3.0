@@ -26,7 +26,7 @@ export default function Home() {
       </div>
       <footer className="py-4 text-center text-sm text-muted-foreground">
         <a 
-          href="https://www.instagram.com/weslleyathila.dev" 
+          href="https://www.instagram.com/weslleyathila/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 transition-colors hover:text-primary"
