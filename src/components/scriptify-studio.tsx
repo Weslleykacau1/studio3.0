@@ -201,15 +201,36 @@ export default function ScriptifyStudio() {
   // Save data to localStorage whenever it changes
   useEffect(() => {
     if (influencers.length > 0) {
-      localStorage.setItem('scriptify_influencers', JSON.stringify(influencers));
+      try {
+        // Create a version of influencers without imagePreview to save space
+        const influencersToSave = influencers.map(({ imagePreview, ...rest }) => rest);
+        localStorage.setItem('scriptify_influencers', JSON.stringify(influencersToSave));
+      } catch (error) {
+        console.error('Error saving influencers to localStorage:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao Salvar',
+          description: 'Não foi possível salvar os influenciadores. O armazenamento pode estar cheio.',
+        });
+      }
     }
-  }, [influencers]);
+  }, [influencers, toast]);
 
   useEffect(() => {
     if (scenes.length > 0) {
-      localStorage.setItem('scriptify_scenes', JSON.stringify(scenes));
+      try {
+        const scenesToSave = scenes.map(({ scenarioImagePreview, productImagePreview, ...rest }) => rest);
+        localStorage.setItem('scriptify_scenes', JSON.stringify(scenesToSave));
+      } catch (error) {
+        console.error('Error saving scenes to localStorage:', error);
+         toast({
+          variant: 'destructive',
+          title: 'Erro ao Salvar',
+          description: 'Não foi possível salvar as cenas. O armazenamento pode estar cheio.',
+        });
+      }
     }
-  }, [scenes]);
+  }, [scenes, toast]);
 
   const setLoadingState = useCallback((key: keyof LoadingStates, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -1050,10 +1071,6 @@ export default function ScriptifyStudio() {
           setCurrentScene={setCurrentScene}
           pastedText={pastedText}
           setPastedText={setPastedText}
-          generatedContent={generatedContent}
-          setGeneratedContent={setGeneratedContent}
-          generatedSeoContent={generatedSeoContent}
-          generatedVeoPrompt={generatedVeoPrompt}
           loadingStates={loadingStates}
           isApiConfigured={isApiConfigured}
           handlers={{
@@ -1061,8 +1078,6 @@ export default function ScriptifyStudio() {
             analyzeInfluencerImageAndFill,
             analyzeScenarioImageAndFill,
             analyzeAndDescribeProduct,
-            generateSceneContent,
-            generateVeoPrompt: generateVeoPromptHandler,
             generateDialogueSeo,
             generateSceneAction: generateSceneActionHandler,
             generateSceneTitle: generateSceneTitleHandler,

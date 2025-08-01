@@ -1,4 +1,5 @@
 
+
 'use client';
 import type { Influencer, Scene, LoadingStates } from '@/types';
 import InfluencerEditor from './creator/influencer-editor';
@@ -13,10 +14,6 @@ interface CreatorViewProps {
   setCurrentScene: (scene: Scene | ((prev: Scene) => Scene)) => void;
   pastedText: string;
   setPastedText: (text: string) => void;
-  generatedContent: string;
-  setGeneratedContent: (content: string) => void;
-  generatedSeoContent: string;
-  generatedVeoPrompt: string;
   loadingStates: LoadingStates;
   isApiConfigured: boolean;
   handlers: {
@@ -24,8 +21,6 @@ interface CreatorViewProps {
     analyzeInfluencerImageAndFill: () => Promise<void>;
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
-    generateSceneContent: (scene: Scene) => Promise<void>;
-    generateVeoPrompt: () => Promise<void>;
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
     generateSceneTitle: () => Promise<void>;
@@ -45,10 +40,6 @@ export default function CreatorView({
   setCurrentScene,
   pastedText,
   setPastedText,
-  generatedContent,
-  setGeneratedContent,
-  generatedSeoContent,
-  generatedVeoPrompt,
   loadingStates,
   isApiConfigured,
   handlers,
@@ -87,21 +78,6 @@ export default function CreatorView({
           handleImageUpload: handlers.handleImageUpload,
           resetScene: handlers.resetScene,
         }}
-      />
-      
-      <ScriptGenerator
-        generatedContent={generatedContent}
-        setGeneratedContent={setGeneratedContent}
-        generatedSeoContent={generatedSeoContent}
-        generatedVeoPrompt={generatedVeoPrompt}
-        loading={loadingStates.generatingScript}
-        loadingVeo={loadingStates.generatingVeoPrompt}
-        isApiConfigured={isApiConfigured}
-        onGenerate={() => handlers.generateSceneContent(currentScene)}
-        onGenerateVeoPrompt={handlers.generateVeoPrompt}
-        isGenerationDisabled={!currentScene.setting || !influencer.id}
-        influencerId={influencer.id}
-        sceneSetting={currentScene.setting}
       />
     </div>
   );
