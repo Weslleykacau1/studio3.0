@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -19,6 +20,9 @@ import AdvancedToolsView from './views/advanced-tools-view';
 import ThumbnailGeneratorView from './views/thumbnail-generator-view';
 import TranscribeVideoView from './views/transcribe-video-view';
 import { handleImageUpload } from '@/lib/utils';
+import { Button } from './ui/button';
+import { ChevronLeft } from 'lucide-react';
+
 
 // AI Flow imports
 import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
@@ -802,6 +806,29 @@ export default function ScriptifyStudio() {
   };
 
   // Script Analysis Functions
+  const handleExportPrompts = () => {
+    if (!generatedScenePrompts) return;
+    
+    let content = '# Prompts de Imagem e Vídeo por Cena\n\n';
+    generatedScenePrompts.forEach((prompt, index) => {
+      content += `## Cena ${prompt.sceneNumber}\n\n`;
+      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\n\n`;
+      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\n\n`;
+      if (index < generatedScenePrompts.length - 1) content += '---\n\n';
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'prompts_cenas.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ variant: 'success', title: 'Prompts exportados como TXT!' });
+  };
+
   const generatePromptsFromScriptHandler = async () => {
     if (!pastedScript.trim()) return;
     
@@ -929,30 +956,6 @@ export default function ScriptifyStudio() {
     }
   };
 
-  // Export Functions
-  const exportPromptsHandler = () => {
-    if (!generatedScenePrompts) return;
-    
-    let content = '# Prompts de Imagem e Vídeo por Cena\n\n';
-    generatedScenePrompts.forEach((prompt, index) => {
-      content += `## Cena ${prompt.sceneNumber}\n\n`;
-      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\n\n`;
-      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\n\n`;
-      if (index < generatedScenePrompts.length - 1) content += '---\n\n';
-    });
-    
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'prompts_cenas.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast({ variant: 'success', title: 'Prompts exportados como TXT!' });
-  };
-
   // Gallery Management Functions
   const loadInfluencer = (id: string) => {
     const influencerToLoad = influencers.find(inf => inf.id === id);
@@ -1025,6 +1028,15 @@ export default function ScriptifyStudio() {
         onOpenLoginModal={() => setIsLoginModalOpen(true)} 
       />
       
+      {activeView !== 'bento' && (
+        <div className="mb-6">
+          <Button variant="outline" onClick={() => setActiveView('bento')}>
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Voltar para o Início
+          </Button>
+        </div>
+      )}
+
       <PromoBanner hasPurchased={hasPurchased} />
 
       {activeView === 'bento' && (
@@ -1126,7 +1138,7 @@ export default function ScriptifyStudio() {
           onGenerateThumbnailFromScript={generateThumbnailFromScriptHandler}
           loadingThumbnailFromScript={loadingStates.generatingThumbnailFromScript}
           generatedThumbnailFromScript={generatedThumbnailFromScript}
-          onExportPrompts={exportPromptsHandler}
+          onExportPrompts={handleExportPrompts}
           onGenerateThumbnailFromWebDoc={generateThumbnailFromWebDocHandler}
           loadingThumbnailFromWebDoc={loadingStates.generatingThumbnailFromWebDoc}
           generatedThumbnailFromWebDoc={generatedThumbnailFromWebDoc}
