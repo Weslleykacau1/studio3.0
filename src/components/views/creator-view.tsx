@@ -36,6 +36,7 @@ interface CreatorViewProps {
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => void;
     resetInfluencer: () => void;
     resetScene: () => void;
+    openInfluencerGallery: () => void;
   };
 }
 
@@ -69,6 +70,7 @@ export default function CreatorView({
           handleImageUpload: handlers.handleImageUpload,
           saveOrUpdateInfluencer: handlers.saveOrUpdateInfluencer,
           resetInfluencer: handlers.resetInfluencer,
+          openInfluencerGallery: handlers.openInfluencerGallery,
         }}
       />
 
@@ -87,24 +89,7 @@ export default function CreatorView({
           handleAddUpdateScene: handlers.handleAddUpdateScene,
           handleImageUpload: handlers.handleImageUpload,
           resetScene: handlers.resetScene,
-          generateSceneContent: () => handlers.generateSceneContent(currentScene),
         }}
-        isGenerationDisabled={!currentScene.setting || !influencer.id}
-      />
-      
-      <ScriptGenerator
-        generatedContent={generatedContent}
-        setGeneratedContent={setGeneratedContent}
-        generatedSeoContent={generatedSeoContent}
-        generatedVeoPrompt={generatedVeoPrompt}
-        loading={loadingStates.generatingScript}
-        loadingVeo={loadingStates.generatingVeoPrompt}
-        isApiConfigured={isApiConfigured}
-        onGenerate={() => handlers.generateSceneContent(currentScene)}
-        onGenerateVeoPrompt={handlers.generateVeoPrompt}
-        isGenerationDisabled={!currentScene.setting || !influencer.id}
-        influencerId={influencer.id}
-        sceneSetting={currentScene.setting}
       />
     </div>
   );
