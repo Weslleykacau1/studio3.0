@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -46,37 +47,80 @@ const generateScriptPrompt = ai.definePrompt({
     name: 'generateFinalVideoScriptPrompt',
     input: {schema: VideoScriptInputSchema},
     output: {format: 'text'},
-    prompt: `Você é um roteirista de IA especialista. Sua tarefa é criar um roteiro de vídeo detalhado em formato **Markdown**, com base nas especificações a seguir. O roteiro deve ser estruturado **segundo a segundo** para preencher a duração exata da cena.
+    prompt: `You are an expert screenwriter and director. Your task is to create a highly detailed, second-by-second video script in **Markdown** format. The script must perfectly match the specified duration.
 
-**CRÍTICO: Incorpore CADA detalhe do influenciador e da cena no roteiro. Não omita nenhuma informação.**
+**CRITICAL INSTRUCTIONS:**
+1.  **Use All Provided Details:** You **MUST** incorporate every single detail about the influencer and the scene into the script. Do not omit any information.
+2.  **Second-by-Second Breakdown:** Structure the script with a Markdown heading for each second (e.g., \`### Second 1\`, \`### Second 2\`). The number of seconds must match the scene duration.
+3.  **Detailed Elements per Second:** For each second, you **MUST** provide descriptions for:
+    *   **Visual:** Describe camera work, character actions, and expressions in detail. Adhere strictly to the requested camera angle (\`{{{sceneCameraAngle}}}\`) and character appearance (\`{{{influencerAppearance}}}\`). The setting must be \`{{{sceneSetting}}}\`.
+    *   **Audio:** Write the dialogue for that specific second. The dialogue must be in **Brazilian Portuguese** with the specified accent (\`{{{influencerAccent}}}\`) and include emotional cues in English (e.g., \`(Calmly, with conviction)\`). If no dialogue is provided (\`{{{sceneDialogue}}}\`), create one that fits the context, personality (\`{{{influencerPersonality}}}\`) and action (\`{{{sceneAction}}}\`).
+    *   **SFX:** Describe appropriate sound effects or ambient sounds.
+4.  **Product Integration:** If a product is mentioned (\`{{{productName}}}\`), it must be naturally integrated into the visual and action descriptions.
+5.  **Adherence to Format:** Follow the provided script example structure precisely.
 
-**Estrutura do Roteiro (use títulos Markdown):**
-- **Título:** {{{sceneTitle}}}
-- **Personagem Principal:** {{{influencerName}}}
-- **Resumo da Cena:** Uma breve descrição da cena, incorporando a ação principal.
+---
+**EXAMPLE STRUCTURE TO FOLLOW:**
+
+# Roteiro do Vídeo: [Título da Cena]
+
+**Influenciador:** [Nome do Influenciador] (Seed: [Seed])
+*   **Personalidade:** [Personalidade]
+*   **Aparência:** [Aparência]
+*   **Nicho:** [Nicho]
+
+**Cena:**
+*   **Cenário:** [Cenário]
+*   **Ação:** [Ação Principal]
+*   **Duração:** [Duração]
+*   **Formato do Vídeo:** [Formato]
+
+**Detalhes Técnicos:**
+*   **Ângulos de Câmara:** [Ângulo da Câmara]
+*   **Texto Digital:** [Sim/Não]
+*   **Texto Físico:** [Sim/Não]
 
 ---
 
-### Roteiro Detalhado
+## Roteiro:
 
-**Duração Total:** {{{sceneDuration}}}
-**Formato:** {{{sceneVideoFormat}}}
+**[INÍCIO DA CENA]**
+
+### Segundo 1
+*   **Visual:** [Descrição detalhada do visual para este segundo]
+*   **Áudio:** [Diálogo para este segundo]
+*   **SFX:** [Efeitos sonoros para este segundo]
+
+### Segundo 2
+*   **Visual:** [Descrição detalhada do visual para este segundo]
+*   **Áudio:** [Diálogo para este segundo]
+*   **SFX:** [Efeitos sonoros para este segundo]
+
+(... continue para cada segundo da duração ...)
+
+**[FIM DA CENA]**
 
 ---
+**SCRIPT DETAILS TO USE:**
 
-{{! Loop para cada segundo da duração. Esta é uma representação conceitual, a IA deve expandir isso. }}
-**0s - Fim:**
-- **Visual:** [Descreva o que aparece, o enquadramento e o ângulo da câmera: **{{{sceneCameraAngle}}}**. A aparência COMPLETA do personagem (**{{{influencerName}}}**) DEVE ser: **{{{influencerAppearance}}}**. O cenário DEVE ser exatamente como descrito: **{{{sceneSetting}}}**. A ação principal que se desenrola durante a cena é: **{{{sceneAction}}}**.]
-- **Diálogo ({{influencerName}}}):** [{{#if sceneDialogue}}O diálogo DEVE ser: **{{{sceneDialogue}}}**.{{else}}Nenhum diálogo especificado.{{/if}} O diálogo DEVE estar em Português do Brasil com o sotaque **{{{influencerAccent}}}** e incluir dicas de emoção em inglês, como (surpreso) ou (animado).]
-- **Áudio/SFX:** [Descreva os sons ambientes ou efeitos sonoros que complementam a cena e a ação.]
-{{#if productName}}
-- **Integração do Produto:** [O produto **{{{productName}}}** da marca **{{{productBrand}}}** deve ser apresentado de forma proeminente e natural durante a cena. A descrição completa do produto é: {{{productDescription}}}. A ação deve mostrar o uso ou a interação com este produto.{{#if isPartnership}} A natureza da parceria paga deve ser subtilmente indicada, se apropriado.{{/if}}]
-{{/if}}
-- **Estilo e Tom:** [O tom do roteiro deve refletir a personalidade do influenciador: **{{{influencerPersonality}}}**. O conteúdo deve ser relevante para o nicho de **{{{influencerNiche}}}**.]
-- **Restrições de Texto:** [Textos digitais na tela: {{#if allowDigitalText}}Sim{{else}}Não{{/if}}. Apenas textos físicos (placas, etc.): {{#if onlyPhysicalText}}Sim{{else}}Não{{/if}}.]
-`
+*   **Video Script Title:** {{{sceneTitle}}}
+*   **Influencer Name:** {{{influencerName}}}
+*   **Influencer Seed:** {{{influencerSeed}}}
+*   **Influencer Personality:** {{{influencerPersonality}}}
+*   **Influencer Appearance:** {{{influencerAppearance}}}
+*   **Influencer Niche:** {{{influencerNiche}}}
+*   **Scene Setting:** {{{sceneSetting}}}
+*   **Scene Main Action:** {{{sceneAction}}}
+*   **Scene Duration:** {{{sceneDuration}}}
+*   **Scene Video Format:** {{{sceneVideoFormat}}}
+*   **Scene Camera Angles:** {{{sceneCameraAngle}}}
+*   **Allow Digital Text:** {{{allowDigitalText}}}
+*   **Only Physical Text:** {{{onlyPhysicalText}}}
+*   **Dialogue (use if provided, otherwise create):** {{#if sceneDialogue}}{{{sceneDialogue}}}{{else}}Nenhum diálogo especificado.{{/if}}
+*   **Product Name (if any):** {{{productName}}}
+*   **Product Description (if any):** {{{productDescription}}}
+`,
 });
-
 
 const generateVideoScriptFlow = ai.defineFlow(
   {
@@ -85,18 +129,18 @@ const generateVideoScriptFlow = ai.defineFlow(
     outputSchema: VideoScriptOutputSchema,
   },
   async input => {
-    // Create a mutable copy of the input
     let processedInput = { ...input };
 
-    // Check for the dynamic camera option and replace it with a detailed instruction for the AI.
     if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
       processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
     }
 
     const {text} = await generateScriptPrompt(processedInput);
+    
     if (!text) {
         throw new Error("A geração do roteiro falhou ao não retornar dados. Tente novamente.");
     }
+
     return text;
   }
 );
