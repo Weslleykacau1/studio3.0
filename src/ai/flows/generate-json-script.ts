@@ -67,36 +67,38 @@ const prompt = ai.definePrompt({
     prompt: `You are an expert video scriptwriter who produces structured JSON output. Your task is to create a complete video script based on the provided details. The output MUST be a valid JSON object adhering to the specified schema.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **Duration & Pacing:** The 'scenes' array must be broken down into segments. The total duration of all segments MUST equal the 'duration_seconds' field. A duration of '8 seg' means the 'duration_seconds' field must be 8.
-2.  **Language Requirements:**
-    -   `visual_prompt`, `camera_direction`, `expression`: These fields MUST be in **English**.
-    -   `dialogue`: This field MUST be in **pt-BR** (Brazilian Portuguese).
-3.  **Product Integration:**
-    -   {{#if productName}}
-        You MUST naturally integrate the product '{{{productName}}}' into the 'visual_prompt' and 'dialogue' fields. The 'product_integration' object in the output MUST be populated, with 'is_present' set to true.
-        {{else}}
-        No product is specified. The 'product_integration' object should indicate that no product is present by setting 'is_present' to false.
-        {{/if}}
-4.  **Field Mapping:**
-    -   `title`: Use `sceneTitle`.
-    -   `duration_seconds`: Convert `sceneDuration` (e.g., "8 seg") into a number.
-    -   `format`: Extract from `sceneVideoFormat` (e.g., "9:16 (Vertical)" becomes "9:16").
-    -   `language`: Must always be "pt-BR".
-    -   `character.name`: Use `influencerName`.
-    -   `character.appearance`: Use `influencerAppearance`.
-    -   `character.style`: Use `influencerClothing`.
+
+The 'scenes' array must be broken down into segments. The total duration of all segments MUST equal the 'duration_seconds' field. A duration of '8 seg' means the 'duration_seconds' field must be 8.
+
+For Language Requirements: The 'visual_prompt', 'camera_direction', and 'expression' fields MUST be in English. The 'dialogue' field MUST be in pt-BR (Brazilian Portuguese).
+
+For Product Integration:
+{{#if productName}}
+You MUST naturally integrate the product '{{{productName}}}' into the 'visual_prompt' and 'dialogue' fields. The 'product_integration' object in the output MUST be populated, with 'is_present' set to true.
+{{else}}
+No product is specified. The 'product_integration' object should indicate that no product is present by setting 'is_present' to false.
+{{/if}}
+
+For Field Mapping:
+'title' must use the 'sceneTitle' input.
+'duration_seconds' must be a number converted from the 'sceneDuration' input (e.g., "8 seg" becomes 8).
+'format' must be extracted from the 'sceneVideoFormat' input (e.g., "9:16 (Vertical)" becomes "9:16").
+'language' must always be "pt-BR".
+'character.name' must use the 'influencerName' input.
+'character.appearance' must use the 'influencerAppearance' input.
+'character.style' must use the 'influencerClothing' input.
 
 **INPUT DATA:**
--   **Scene Title:** {{{sceneTitle}}}
--   **Scene Duration:** {{{sceneDuration}}}
--   **Video Format:** {{{sceneVideoFormat}}}
--   **Influencer Name:** {{{influencerName}}}
--   **Influencer Appearance:** {{{influencerAppearance}}}
--   **Influencer Clothing:** {{{influencerClothing}}}
--   **Scene Setting:** {{{sceneSetting}}}
--   **Camera Angle:** {{{sceneCameraAngle}}}
--   **Product Name:** {{#if productName}}'{{{productName}}}'{{else}}N/A{{/if}}
--   **Product Description:** {{#if productDescription}}'{{{productDescription}}}'{{else}}N/A{{/if}}
+- **Scene Title:** {{{sceneTitle}}}
+- **Scene Duration:** {{{sceneDuration}}}
+- **Video Format:** {{{sceneVideoFormat}}}
+- **Influencer Name:** {{{influencerName}}}
+- **Influencer Appearance:** {{{influencerAppearance}}}
+- **Influencer Clothing:** {{{influencerClothing}}}
+- **Scene Setting:** {{{sceneSetting}}}
+- **Camera Angle:** {{{sceneCameraAngle}}}
+- **Product Name:** {{#if productName}}'{{{productName}}}'{{else}}N/A{{/if}}
+- **Product Description:** {{#if productDescription}}'{{{productDescription}}}'{{else}}N/A{{/if}}
 
 Generate the JSON script now.
 `
