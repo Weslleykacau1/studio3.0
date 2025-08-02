@@ -23,3 +23,4 @@ import '@/ai/flows/generate-image-prompts-from-script.ts';
 import '@/ai/flows/generate-seo-from-script.ts';
 import '@/ai/flows/generate-image-from-prompt.ts';
 import '@/ai/flows/generate-thumbnail-from-script.ts';
+import '@/ai/flows/generate-json-script.ts';

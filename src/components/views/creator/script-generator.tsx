@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { AiButton } from '@/components/ai-button';
 import { ContentDisplay } from '@/components/content-display';
-import { Bot, Copy, Video } from 'lucide-react';
+import { Bot, Copy, Video, Braces } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import type { JsonScript } from '@/types';
 
 interface ScriptGeneratorProps {
   generatedContent: string;
@@ -21,13 +22,17 @@ interface ScriptGeneratorProps {
   sceneSetting: string;
   onGenerate: () => void;
   onGenerateJson: () => void;
+  generatedJsonScript: JsonScript | null;
+  onGenerateStructuredJson: () => void;
+  loadingStructuredJson: boolean;
 }
 
 export default function ScriptGenerator({
-  generatedContent, setGeneratedContent, generatedSeoContent, loading, loadingJson, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateJson
+  generatedContent, setGeneratedContent, generatedSeoContent, loading, loadingJson, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateJson, generatedJsonScript, onGenerateStructuredJson, loadingStructuredJson
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
+  const [copyJsonSuccess, setCopyJsonSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
@@ -65,6 +70,18 @@ export default function ScriptGenerator({
       toast({ variant: 'destructive', title: 'Erro ao copiar' });
     });
   };
+  
+  const handleCopyJson = () => {
+    if (!generatedJsonScript) return;
+    navigator.clipboard.writeText(JSON.stringify(generatedJsonScript, null, 2)).then(() => {
+      setCopyJsonSuccess(true);
+      toast({ variant: 'success', title: 'Roteiro JSON copiado!' });
+      setTimeout(() => setCopyJsonSuccess(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy JSON: ', err);
+      toast({ variant: 'destructive', title: 'Erro ao copiar' });
+    });
+  };
 
   const handleCopySeo = () => {
     if (!generatedSeoContent) return;
@@ -91,10 +108,11 @@ export default function ScriptGenerator({
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-start gap-2">
             <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
-              {loading ? 'A gerar...' : 'Gerar Roteiro'}
+              {loading ? 'A gerar...' : 'Gerar Roteiro (Markdown)'}
             </AiButton>
-             <AiButton onClick={onGenerateJson} loading={loadingJson} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} variant="secondary">
-                {loadingJson ? 'A gerar...' : 'Gerar em JSON'}
+             <AiButton onClick={onGenerateStructuredJson} loading={loadingStructuredJson} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} variant="secondary">
+                <Braces className="mr-2 h-4 w-4" />
+                {loadingStructuredJson ? 'A gerar...' : 'Gerar Roteiro (JSON)'}
             </AiButton>
           </div>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
@@ -104,7 +122,7 @@ export default function ScriptGenerator({
       {generatedContent && (
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="font-headline">Roteiro Detalhado Gerado</CardTitle>
+            <CardTitle className="font-headline">Roteiro Detalhado (Markdown)</CardTitle>
           </CardHeader>
           <CardContent>
             <ContentDisplay content={generatedContent} />
@@ -118,6 +136,28 @@ export default function ScriptGenerator({
             >
               <Copy className="mr-2 h-4 w-4" />
               {copySuccess ? 'Copiado!' : 'Copiar Roteiro'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+      
+      {generatedJsonScript && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="font-headline">Roteiro Estruturado (JSON)</CardTitle>
+          </CardHeader>
+          <CardContent>
+             <ContentDisplay content={"```json\n" + JSON.stringify(generatedJsonScript, null, 2) + "\n```"} />
+            <Button
+              onClick={handleCopyJson}
+              variant="outline"
+              className={cn(
+                'mt-4 transition-colors',
+                copyJsonSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
+              )}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              {copyJsonSuccess ? 'Copiado!' : 'Copiar JSON'}
             </Button>
           </CardContent>
         </Card>

@@ -1,7 +1,7 @@
 
 
 'use client';
-import type { Influencer, Scene, LoadingStates } from '@/types';
+import type { Influencer, Scene, LoadingStates, JsonScript } from '@/types';
 import InfluencerEditor from './creator/influencer-editor';
 import SceneEditor from './creator/scene-editor';
 import ScriptGenerator from './creator/script-generator';
@@ -19,6 +19,7 @@ interface CreatorViewProps {
   generatedSeoContent: string;
   loadingStates: LoadingStates;
   isApiConfigured: boolean;
+  generatedJsonScript: JsonScript | null;
   handlers: {
     analyzeAndFillFromText: () => Promise<void>;
     analyzeInfluencerImageAndFill: () => Promise<void>;
@@ -36,6 +37,7 @@ interface CreatorViewProps {
     resetScene: () => void;
     openInfluencerGallery: () => void;
     openSceneGallery: () => void;
+    generateStructuredJson: () => Promise<void>;
   };
 }
 
@@ -51,6 +53,7 @@ export default function CreatorView({
   generatedSeoContent,
   loadingStates,
   isApiConfigured,
+  generatedJsonScript,
   handlers,
 }: CreatorViewProps) {
 
@@ -92,6 +95,9 @@ export default function CreatorView({
         sceneSetting={currentScene.setting}
         onGenerate={() => handlers.generateSceneContent(currentScene, 'markdown')}
         onGenerateJson={() => handlers.generateSceneContent(currentScene, 'json')}
+        generatedJsonScript={generatedJsonScript}
+        onGenerateStructuredJson={handlers.generateStructuredJson}
+        loadingStructuredJson={loadingStates.generatingStructuredJson}
       />
     </div>
   );

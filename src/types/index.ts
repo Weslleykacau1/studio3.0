@@ -1,5 +1,3 @@
-
-
 export interface Influencer {
     id: string | null;
     name: string;
@@ -83,6 +81,7 @@ export type LoadingStates = {
     generatingWebDocImage: boolean;
     loadingSeoFromLongScript: boolean;
     loadingThumbnailFromLongScript: boolean;
+    generatingStructuredJson: boolean;
 };
 
 export type ThumbnailStyle =
@@ -129,4 +128,44 @@ export interface ScenePrompts {
   sceneNumber: number;
   imagePrompt: string;
   videoPrompt: string;
+}
+
+// Types for generate-video-script flow
+export interface SecondBySecondScene {
+  visualDescription: string;
+  audioDialogue: string;
+  sfx: string;
+}
+
+export interface VideoScriptOutput {
+    scenes: SecondBySecondScene[];
+}
+
+// Types for generate-json-script flow
+export interface JsonSceneDetail {
+    id: number;
+    start_time: number;
+    end_time: number;
+    visual_prompt: string;
+    camera_direction: string;
+    expression: string;
+    dialogue?: string;
+}
+
+export interface JsonScript {
+    title: string;
+    duration_seconds: number;
+    format: string;
+    language: 'pt-BR';
+    character: {
+        name: string;
+        appearance: string;
+        style: string;
+    };
+    scenes: JsonSceneDetail[];
+    product_integration?: {
+        is_present: boolean;
+        product_name?: string;
+        integration_description?: string;
+    };
 }

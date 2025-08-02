@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { nanoid } from 'nanoid';
-import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts, SecondBySecondScene, VideoScriptOutput } from '@/types';
+import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts, SecondBySecondScene, VideoScriptOutput, JsonScript } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from './app-header';
 import { LoginModal } from './login-modal';
@@ -47,6 +47,7 @@ import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-fro
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
 import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
+import { generateJsonScript } from '@/ai/flows/generate-json-script';
 
 const createEmptyInfluencer = (): Influencer => ({
   id: null,
@@ -120,6 +121,7 @@ export default function ScriptifyStudio() {
   const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
   const [generatedSeoFromLongScript, setGeneratedSeoFromLongScript] = useState<string | null>(null);
   const [generatedThumbnailFromLongScript, setGeneratedThumbnailFromLongScript] = useState<ThumbnailIdeas | null>(null);
+  const [generatedJsonScript, setGeneratedJsonScript] = useState<JsonScript | null>(null);
 
   // Loading states
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -153,6 +155,7 @@ export default function ScriptifyStudio() {
     generatingWebDocImage: false,
     loadingSeoFromLongScript: false,
     loadingThumbnailFromLongScript: false,
+    generatingStructuredJson: false,
   });
 
   const { toast } = useToast();
@@ -466,6 +469,32 @@ export default function ScriptifyStudio() {
       toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
     } finally {
       setLoadingState(loadingKey, false);
+    }
+  };
+  
+  const generateStructuredJsonHandler = async () => {
+    if (!currentScene.setting || !influencer.id) return;
+    setLoadingState('generatingStructuredJson', true);
+    try {
+      const result = await generateJsonScript({
+        influencerName: influencer.name,
+        influencerAppearance: influencer.appearance,
+        influencerClothing: influencer.clothing,
+        sceneTitle: currentScene.title,
+        sceneSetting: currentScene.setting,
+        sceneDuration: currentScene.duration,
+        sceneVideoFormat: currentScene.videoFormat,
+        sceneCameraAngle: currentScene.cameraAngle,
+        productName: currentScene.productName,
+        productDescription: currentScene.productDescription,
+      });
+      setGeneratedJsonScript(result);
+      toast({ variant: 'success', title: 'Roteiro JSON gerado!', description: 'O roteiro JSON estruturado foi criado com sucesso.' });
+    } catch (error) {
+      console.error('Error generating structured JSON script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro JSON.' });
+    } finally {
+      setLoadingState('generatingStructuredJson', false);
     }
   };
 
@@ -1134,6 +1163,7 @@ export default function ScriptifyStudio() {
           generatedSeoContent={generatedSeoContent}
           loadingStates={loadingStates}
           isApiConfigured={isApiConfigured}
+          generatedJsonScript={generatedJsonScript}
           handlers={{
             analyzeAndFillFromText,
             analyzeInfluencerImageAndFill,
@@ -1151,6 +1181,7 @@ export default function ScriptifyStudio() {
             resetScene,
             openInfluencerGallery: () => setActiveView('influencerGallery'),
             openSceneGallery: () => setActiveView('sceneGallery'),
+            generateStructuredJson: generateStructuredJsonHandler,
           }}
         />
       )}
