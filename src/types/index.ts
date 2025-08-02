@@ -10,6 +10,7 @@
 
 
 
+
 export interface Influencer {
     id: string | null;
     name: string;
@@ -75,7 +76,6 @@ export type LoadingStates = {
     generatingTitle: boolean;
     generatingDialogue: boolean;
     generatingQuickScene: boolean;
-    generatingVeoPrompt: boolean;
     analyzingYouTube: boolean;
     generatingThumbnail: boolean;
     generatingViralScript: boolean;

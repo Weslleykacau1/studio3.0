@@ -106,7 +106,6 @@ export default function ScriptifyStudio() {
   const [pastedText, setPastedText] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [generatedSeoContent, setGeneratedSeoContent] = useState('');
-  const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
   const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
   const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
   const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
@@ -137,7 +136,6 @@ export default function ScriptifyStudio() {
     generatingTitle: false,
     generatingDialogue: false,
     generatingQuickScene: false,
-    generatingVeoPrompt: false,
     analyzingYouTube: false,
     generatingThumbnail: false,
     generatingViralScript: false,
@@ -401,29 +399,6 @@ export default function ScriptifyStudio() {
       toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
     } finally {
       setLoadingState('generatingScript', false);
-    }
-  };
-
-  const generateVeoPromptHandler = async () => {
-    if (!currentScene.setting || !influencer.id) return;
-    
-    setLoadingState('generatingVeoPrompt', true);
-    try {
-      const result = await generateVeoPrompt({
-        influencerAppearance: influencer.appearance,
-        sceneSetting: currentScene.setting,
-        sceneAction: currentScene.action,
-        sceneDialogue: currentScene.dialogue,
-        sceneCameraAngle: currentScene.cameraAngle,
-        videoFormat: currentScene.videoFormat,
-      });
-      setGeneratedVeoPrompt(`\`\`\`\n${result.veoPrompt}\n\`\`\``);
-      toast({ variant: 'success', title: 'Prompt Veo gerado!', description: 'O prompt para Veo foi criado com sucesso.' });
-    } catch (error) {
-      console.error('Error generating Veo prompt:', error);
-      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o prompt Veo.' });
-    } finally {
-      setLoadingState('generatingVeoPrompt', false);
     }
   };
 
@@ -1047,7 +1022,6 @@ export default function ScriptifyStudio() {
     setPastedText('');
     setGeneratedContent('');
     setGeneratedSeoContent('');
-    setGeneratedVeoPrompt('');
   };
 
   const resetScene = () => {
@@ -1091,7 +1065,6 @@ export default function ScriptifyStudio() {
           generatedContent={generatedContent}
           setGeneratedContent={setGeneratedContent}
           generatedSeoContent={generatedSeoContent}
-          generatedVeoPrompt={generatedVeoPrompt}
           loadingStates={loadingStates}
           isApiConfigured={isApiConfigured}
           handlers={{
@@ -1100,7 +1073,6 @@ export default function ScriptifyStudio() {
             analyzeScenarioImageAndFill,
             analyzeAndDescribeProduct,
             generateSceneContent,
-            generateVeoPrompt: generateVeoPromptHandler,
             generateDialogueSeo,
             generateSceneAction: generateSceneActionHandler,
             generateSceneTitle: generateSceneTitleHandler,
