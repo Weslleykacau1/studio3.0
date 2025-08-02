@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { nanoid } from 'nanoid';
-import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts } from '@/types';
+import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts, SecondBySecondScene, VideoScriptOutput, JsonScript } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from './app-header';
 import { LoginModal } from './login-modal';
@@ -35,7 +36,6 @@ import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
-import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
@@ -47,6 +47,7 @@ import { generatePromptsFromScript } from '@/ai/flows/generate-image-prompts-fro
 import { generateSeoFromScript } from '@/ai/flows/generate-seo-from-script';
 import { generateThumbnailFromScript } from '@/ai/flows/generate-thumbnail-from-script';
 import { generateImageFromPrompt } from '@/ai/flows/generate-image-from-prompt';
+import { generateJsonScript } from '@/ai/flows/generate-json-script';
 
 const createEmptyInfluencer = (): Influencer => ({
   id: null,
@@ -105,7 +106,6 @@ export default function ScriptifyStudio() {
   const [pastedText, setPastedText] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [generatedSeoContent, setGeneratedSeoContent] = useState('');
-  const [generatedVeoPrompt, setGeneratedVeoPrompt] = useState('');
   const [generatedQuickScene, setGeneratedQuickScene] = useState<Scene | null>(null);
   const [generatedThumbnailIdeas, setGeneratedThumbnailIdeas] = useState<ThumbnailIdeas | null>(null);
   const [generatedViralScene, setGeneratedViralScene] = useState<Scene | null>(null);
@@ -121,6 +121,7 @@ export default function ScriptifyStudio() {
   const [generatedThumbnailFromWebDoc, setGeneratedThumbnailFromWebDoc] = useState<ThumbnailIdeas | null>(null);
   const [generatedSeoFromLongScript, setGeneratedSeoFromLongScript] = useState<string | null>(null);
   const [generatedThumbnailFromLongScript, setGeneratedThumbnailFromLongScript] = useState<ThumbnailIdeas | null>(null);
+  const [generatedJsonScript, setGeneratedJsonScript] = useState<JsonScript | null>(null);
 
   // Loading states
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -130,13 +131,13 @@ export default function ScriptifyStudio() {
     analyzingScenario: false,
     analyzingProduct: false,
     generatingScript: false,
+    generatingScriptJson: false,
     analyzingFromText: false,
     generatingSeo: false,
     generatingAction: false,
     generatingTitle: false,
     generatingDialogue: false,
     generatingQuickScene: false,
-    generatingVeoPrompt: false,
     analyzingYouTube: false,
     generatingThumbnail: false,
     generatingViralScript: false,
@@ -154,9 +155,66 @@ export default function ScriptifyStudio() {
     generatingWebDocImage: false,
     loadingSeoFromLongScript: false,
     loadingThumbnailFromLongScript: false,
+    generatingStructuredJson: false,
   });
 
   const { toast } = useToast();
+
+  const formatScriptToMarkdown = (scriptData: VideoScriptOutput, input: any): string => {
+    let markdownScript = `
+# Roteiro do Vídeo: ${input.sceneTitle}
+
+**Influenciador:** ${input.influencerName} (Seed: ${input.influencerSeed})
+*   **Personalidade:** ${input.influencerPersonality}
+*   **Aparência:** ${input.influencerAppearance}
+*   **Nicho:** ${input.influencerNiche}
+
+**Cena:**
+*   **Cenário:** ${input.sceneSetting}
+*   **Ação:** ${input.sceneAction}
+*   **Duração:** ${input.sceneDuration}
+*   **Formato do Vídeo:** ${input.sceneVideoFormat}
+
+**Detalhes Técnicos:**
+*   **Ângulos de Câmara:** ${input.sceneCameraAngle}
+*   **Texto Digital:** ${input.allowDigitalText ? 'Sim' : 'Não'}
+*   **Texto Físico:** ${input.onlyPhysicalText ? 'Sim' : 'Não'}
+`;
+
+    if (input.productName) {
+        markdownScript += `
+
+**Produto:**
+*   **Nome:** ${input.productName}
+*   **Marca:** ${input.productBrand}
+*   **Descrição:** ${input.productDescription}
+*   **Parceria:** ${input.isPartnership ? 'Sim' : 'Não'}
+`;
+    }
+
+    markdownScript += `
+---
+
+## Roteiro:
+
+**[INÍCIO DA CENA]**
+`;
+
+    scriptData.scenes.forEach((scene: SecondBySecondScene, index: number) => {
+        markdownScript += `
+### Segundo ${index + 1}
+*   **Visual:** ${scene.visualDescription}
+*   **Áudio:** ${scene.audioDialogue}
+*   **SFX:** ${scene.sfx}
+`;
+    });
+
+    markdownScript += `
+**[FIM DA CENA]**
+`;
+    
+    return markdownScript.trim();
+  }
 
   // Initialize app
   useEffect(() => {
@@ -201,15 +259,52 @@ export default function ScriptifyStudio() {
   // Save data to localStorage whenever it changes
   useEffect(() => {
     if (influencers.length > 0) {
-      localStorage.setItem('scriptify_influencers', JSON.stringify(influencers));
+      try {
+        // Create a version of influencers without imagePreview to save space
+        const influencersToSave = influencers.map(({ imagePreview, ...rest }) => rest);
+        localStorage.setItem('scriptify_influencers', JSON.stringify(influencersToSave));
+      } catch (error) {
+        console.error('Error saving influencers to localStorage:', error);
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          toast({
+            variant: 'destructive',
+            title: 'Erro de Armazenamento',
+            description: 'Não foi possível salvar os influenciadores. O armazenamento local está cheio.',
+          });
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Erro ao Salvar',
+            description: 'Não foi possível salvar os influenciadores.',
+          });
+        }
+      }
     }
-  }, [influencers]);
+  }, [influencers, toast]);
 
   useEffect(() => {
     if (scenes.length > 0) {
-      localStorage.setItem('scriptify_scenes', JSON.stringify(scenes));
+      try {
+        const scenesToSave = scenes.map(({ scenarioImagePreview, productImagePreview, ...rest }) => rest);
+        localStorage.setItem('scriptify_scenes', JSON.stringify(scenesToSave));
+      } catch (error) {
+        console.error('Error saving scenes to localStorage:', error);
+         if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+            toast({
+              variant: 'destructive',
+              title: 'Erro de Armazenamento',
+              description: 'Não foi possível salvar as cenas. O armazenamento local está cheio.',
+            });
+         } else {
+            toast({
+              variant: 'destructive',
+              title: 'Erro ao Salvar',
+              description: 'Não foi possível salvar as cenas.',
+            });
+         }
+      }
     }
-  }, [scenes]);
+  }, [scenes, toast]);
 
   const setLoadingState = useCallback((key: keyof LoadingStates, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -330,12 +425,14 @@ export default function ScriptifyStudio() {
   };
 
   // Script Generation Functions
-  const generateSceneContent = async (scene: Scene) => {
+  const generateSceneContent = async (scene: Scene, format: 'markdown' | 'json') => {
     if (!scene.setting || !influencer.id) return;
     
-    setLoadingState('generatingScript', true);
+    const loadingKey = format === 'json' ? 'generatingScriptJson' : 'generatingScript';
+    setLoadingState(loadingKey, true);
+    
     try {
-      const result = await generateVideoScript({
+      const scriptInput = {
         influencerName: influencer.name,
         influencerPersonality: influencer.personality,
         influencerAppearance: influencer.appearance,
@@ -355,37 +452,49 @@ export default function ScriptifyStudio() {
         isPartnership: scene.isPartnership,
         allowDigitalText: scene.allowDigitalText,
         onlyPhysicalText: scene.onlyPhysicalText,
-      });
-      setGeneratedContent(result);
-      toast({ variant: 'success', title: 'Roteiro gerado!', description: 'O roteiro foi criado com sucesso.' });
+      };
+
+      const result = await generateVideoScript(scriptInput);
+      
+      if (format === 'json') {
+          setGeneratedContent("```json\n" + JSON.stringify(result, null, 2) + "\n```");
+      } else {
+          const markdownResult = formatScriptToMarkdown(result, scriptInput);
+          setGeneratedContent(markdownResult);
+      }
+
+      toast({ variant: 'success', title: 'Roteiro gerado!', description: `O roteiro foi criado com sucesso em formato ${format}.` });
     } catch (error) {
       console.error('Error generating script:', error);
       toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
     } finally {
-      setLoadingState('generatingScript', false);
+      setLoadingState(loadingKey, false);
     }
   };
-
-  const generateVeoPromptHandler = async () => {
+  
+  const generateStructuredJsonHandler = async () => {
     if (!currentScene.setting || !influencer.id) return;
-    
-    setLoadingState('generatingVeoPrompt', true);
+    setLoadingState('generatingStructuredJson', true);
     try {
-      const result = await generateVeoPrompt({
+      const result = await generateJsonScript({
+        influencerName: influencer.name,
         influencerAppearance: influencer.appearance,
+        influencerClothing: influencer.clothing,
+        sceneTitle: currentScene.title,
         sceneSetting: currentScene.setting,
-        sceneAction: currentScene.action,
-        sceneDialogue: currentScene.dialogue,
+        sceneDuration: currentScene.duration,
+        sceneVideoFormat: currentScene.videoFormat,
         sceneCameraAngle: currentScene.cameraAngle,
-        videoFormat: currentScene.videoFormat,
+        productName: currentScene.productName,
+        productDescription: currentScene.productDescription,
       });
-      setGeneratedVeoPrompt(`\`\`\`\n${result.veoPrompt}\n\`\`\``);
-      toast({ variant: 'success', title: 'Prompt Veo gerado!', description: 'O prompt para Veo foi criado com sucesso.' });
+      setGeneratedJsonScript(result);
+      toast({ variant: 'success', title: 'Roteiro JSON gerado!', description: 'O roteiro JSON estruturado foi criado com sucesso.' });
     } catch (error) {
-      console.error('Error generating Veo prompt:', error);
-      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o prompt Veo.' });
+      console.error('Error generating structured JSON script:', error);
+      toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro JSON.' });
     } finally {
-      setLoadingState('generatingVeoPrompt', false);
+      setLoadingState('generatingStructuredJson', false);
     }
   };
 
@@ -591,7 +700,7 @@ export default function ScriptifyStudio() {
     setGeneratedQuickScene(null);
     setIsQuickSceneModalOpen(false);
     setActiveView('creator');
-    toast({ variant: 'success', title: 'Cena carregada!', description: 'A cena foi guardada e carregada no criador.' });
+    toast({ variant: 'success', title: 'Cena carregada!', description: 'A cena foi guardada e carregada no editor.' });
   };
 
   // Thumbnail Generation
@@ -768,7 +877,7 @@ export default function ScriptifyStudio() {
     
     setLoadingState('generatingWebDocSeo', true);
     try {
-      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\\n\\n');
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
       const result = await generateSeoFromScript({ scriptText: fullScript });
       setGeneratedWebDocSeo(result);
       toast({ variant: 'success', title: 'SEO gerado!', description: 'O SEO foi criado para o web doc.' });
@@ -783,13 +892,13 @@ export default function ScriptifyStudio() {
   const exportWebDocScriptHandler = () => {
     if (!generatedWebDocScript) return;
     
-    let content = `# ${generatedWebDocScript.title}\\n\\n`;
+    let content = `# ${generatedWebDocScript.title}\n\n`;
     generatedWebDocScript.scenes.forEach((scene, index) => {
-      content += `## Cena ${scene.sceneNumber}\\n\\n`;
-      content += `**Roteiro:** ${scene.sceneScript}\\n\\n`;
-      content += `**Prompt de Imagem:** ${scene.imagePrompt}\\n\\n`;
-      content += `**Prompt de Vídeo:** ${scene.videoPrompt}\\n\\n`;
-      if (index < generatedWebDocScript.scenes.length - 1) content += '---\\n\\n';
+      content += `## Cena ${scene.sceneNumber}\n\n`;
+      content += `**Roteiro:** ${scene.sceneScript}\n\n`;
+      content += `**Prompt de Imagem:** ${scene.imagePrompt}\n\n`;
+      content += `**Prompt de Vídeo:** ${scene.videoPrompt}\n\n`;
+      if (index < generatedWebDocScript.scenes.length - 1) content += '---\n\n';
     });
     
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -808,12 +917,12 @@ export default function ScriptifyStudio() {
   const handleExportPrompts = () => {
     if (!generatedScenePrompts) return;
     
-    let content = '# Prompts de Imagem e Vídeo por Cena\\n\\n';
+    let content = '# Prompts de Imagem e Vídeo por Cena\n\n';
     generatedScenePrompts.forEach((prompt, index) => {
-      content += `## Cena ${prompt.sceneNumber}\\n\\n`;
-      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\\n\\n`;
-      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\\n\\n`;
-      if (index < generatedScenePrompts.length - 1) content += '---\\n\\n';
+      content += `## Cena ${prompt.sceneNumber}\n\n`;
+      content += `**Prompt de Imagem (EN):** ${prompt.imagePrompt}\n\n`;
+      content += `**Prompt de Vídeo (EN):** ${prompt.videoPrompt}\n\n`;
+      if (index < generatedScenePrompts.length - 1) content += '---\n\n';
     });
     
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -881,7 +990,7 @@ export default function ScriptifyStudio() {
     
     setLoadingState('generatingThumbnailFromWebDoc', true);
     try {
-      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\\n\\n');
+      const fullScript = generatedWebDocScript.scenes.map(scene => scene.sceneScript).join('\n\n');
       const result = await generateThumbnailFromScript({ scriptText: fullScript });
       setGeneratedThumbnailFromWebDoc(result);
       toast({ variant: 'success', title: 'Thumbnail gerada!', description: 'A thumbnail foi criada para o web doc.' });
@@ -1009,7 +1118,6 @@ export default function ScriptifyStudio() {
     setPastedText('');
     setGeneratedContent('');
     setGeneratedSeoContent('');
-    setGeneratedVeoPrompt('');
   };
 
   const resetScene = () => {
@@ -1029,7 +1137,7 @@ export default function ScriptifyStudio() {
       
       {activeView !== 'bento' && (
         <div className="mb-6">
-          <Button variant="outline" onClick={() => setActiveView('bento')}>
+          <Button onClick={() => setActiveView('bento')}>
             <ChevronLeft className="mr-2 h-4 w-4" />
             Voltar para o Início
           </Button>
@@ -1053,16 +1161,15 @@ export default function ScriptifyStudio() {
           generatedContent={generatedContent}
           setGeneratedContent={setGeneratedContent}
           generatedSeoContent={generatedSeoContent}
-          generatedVeoPrompt={generatedVeoPrompt}
           loadingStates={loadingStates}
           isApiConfigured={isApiConfigured}
+          generatedJsonScript={generatedJsonScript}
           handlers={{
             analyzeAndFillFromText,
             analyzeInfluencerImageAndFill,
             analyzeScenarioImageAndFill,
             analyzeAndDescribeProduct,
             generateSceneContent,
-            generateVeoPrompt: generateVeoPromptHandler,
             generateDialogueSeo,
             generateSceneAction: generateSceneActionHandler,
             generateSceneTitle: generateSceneTitleHandler,
@@ -1072,6 +1179,9 @@ export default function ScriptifyStudio() {
             handleImageUpload: handleImageUploadHandler,
             resetInfluencer,
             resetScene,
+            openInfluencerGallery: () => setActiveView('influencerGallery'),
+            openSceneGallery: () => setActiveView('sceneGallery'),
+            generateStructuredJson: generateStructuredJsonHandler,
           }}
         />
       )}
@@ -1209,3 +1319,4 @@ export default function ScriptifyStudio() {
     </>
   );
 }
+

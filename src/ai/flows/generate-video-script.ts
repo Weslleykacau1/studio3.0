@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -35,84 +36,77 @@ const VideoScriptInputSchema = z.object({
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-const VideoScriptOutputSchema = z.string().describe('The generated video script, in Markdown format.');
-export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
+// New schema for the AI's structured output
+const SecondBySecondSceneSchema = z.object({
+    visualDescription: z.string().describe("A detailed visual description for this second. This field MUST be in ENGLISH. Describe camera work, character actions, and expressions, adhering to the provided camera angle and character appearance."),
+    audioDialogue: z.string().describe("The dialogue for this second. This field MUST be in BRAZILIAN PORTUGUESE. It must include English emotional cues in parentheses (e.g., (Calmly, with conviction))."),
+    sfx: z.string().describe("Appropriate sound effects or ambient sounds for this second. This field MUST be in ENGLISH.")
+});
+export type SecondBySecondScene = z.infer<typeof SecondBySecondSceneSchema>;
+
+const ScriptGenerationOutputSchema = z.object({
+    scenes: z.array(SecondBySecondSceneSchema).describe("An array of scene objects, one for each second of the video duration.")
+});
+export type VideoScriptOutput = z.infer<typeof ScriptGenerationOutputSchema>;
+
 
 export async function generateVideoScript(input: VideoScriptInput): Promise<VideoScriptOutput> {
   return generateVideoScriptFlow(input);
 }
 
-const generateScriptPrompt = ai.definePrompt({
-    name: 'generateFinalVideoScriptPrompt',
+const generateScriptContentPrompt = ai.definePrompt({
+    name: 'generateScriptContentPrompt',
     input: {schema: VideoScriptInputSchema},
-    output: {format: 'text'},
-    prompt: `Você é um roteirista de IA especialista. Sua tarefa é criar um roteiro de vídeo detalhado em formato **Markdown**, com base nas especificações a seguir. O roteiro deve ser estruturado **segundo a segundo** para preencher a duração exata da cena.
+    output: {schema: ScriptGenerationOutputSchema},
+    prompt: `You are an expert screenwriter. Your task is to generate the creative content for a video script, second by second. You MUST generate an array of scene objects, where the length of the array exactly matches the scene duration in seconds (e.g., 5 seconds = 5 objects).
 
-**CRÍTICO: Incorpore CADA detalhe do influenciador e da cena no roteiro. Não omita nenhuma informação.**
+For each second (each object in the array), you MUST provide content for the following fields, respecting the language constraints with NO EXCEPTIONS:
 
-**Estrutura do Roteiro (use títulos Markdown):**
-- **Título:** {{{sceneTitle}}}
-- **Personagem Principal:** {{{influencerName}}}
-- **Resumo da Cena:** Uma breve descrição da cena.
-- **Roteiro Segundo a Segundo:**
+1.  **visualDescription (ENGLISH ONLY)**: A detailed description of the visuals (camera, actions, expressions). This MUST be in ENGLISH. Incorporate all details about the character's appearance, the scene setting, and the specified camera angle.
+2.  **audioDialogue (BRAZILIAN PORTUGUESE ONLY)**: The dialogue spoken in that second. This MUST be in BRAZILIAN PORTUGUESE and include emotional cues in English, like (Surprised). If no specific dialogue is provided, create one that fits the context.
+3.  **sfx (ENGLISH ONLY)**: The sound effects or ambient sounds. This field MUST be in ENGLISH.
 
----
+**CRITICAL CONTEXT (MUST USE ALL PROVIDED INFO):**
+- Influencer Name: {{{influencerName}}}
+- Influencer Personality: {{{influencerPersonality}}}
+- Influencer Appearance: {{{influencerAppearance}}}
+- Scene Title: {{{sceneTitle}}}
+- Scene Setting: {{{sceneSetting}}}
+- Scene Action: {{{sceneAction}}}
+- Camera Angle: {{{sceneCameraAngle}}}
+- Scene Duration: {{{sceneDuration}}}
+- Base Dialogue (use if provided, otherwise create): {{#if sceneDialogue}}{{{sceneDialogue}}}{{else}}Nenhum diálogo especificado.{{/if}}
 
-### Roteiro Detalhado
-
-**Duração Total:** {{{sceneDuration}}}
-
-**Formato:** {{{sceneVideoFormat}}}
-
-**0s-1s:**
-- **Visual:** [Descreva o que aparece, o enquadramento, o ângulo da câmara: **{{{sceneCameraAngle}}}**. A aparência do personagem DEVE ser: **{{{influencerAppearance}}}**]
-- **Áudio/SFX:** [Descreva os sons ambientes ou efeitos sonoros]
-
-**1s-2s:**
-- **Visual:** [Continue a descrever a ação: **{{{sceneAction}}}**. Mantenha a consistência do personagem e do cenário: **{{{sceneSetting}}}**]
-{{#if sceneDialogue}}
-- **Diálogo ({{influencerName}}}):** [Adapte esta ideia de diálogo para o tempo: **{{{sceneDialogue}}}**. O diálogo DEVE estar em Português do Brasil com o sotaque **{{{influencerAccent}}}** e incluir dicas de emoção em inglês, como (surpreso) ou (animado).]
-{{/if}}
-
-... continue a detalhar segundo a segundo até atingir a duração total de **{{{sceneDuration}}}**.
-
+**PRODUCT INTEGRATION (CRITICAL):**
 {{#if productName}}
-**Integração do Produto:**
-- O produto **{{{productName}}}** da marca **{{{productBrand}}}** deve ser apresentado de forma natural.
-- **Descrição do produto a ser usada:** {{{productDescription}}}.
-- {{#if isPartnership}}Esta é uma parceria paga, mencione isso se apropriado.{{/if}}
+You MUST naturally and seamlessly integrate the following product into the script's visual descriptions and dialogue.
+- **Product Name:** {{{productName}}}
+- **Product Brand:** {{{productBrand}}}
+- **Product Description:** {{{productDescription}}}
+- **Is Partnership:** {{{isPartnership}}}
 {{/if}}
-
-**Estilo e Tom:**
-- O roteiro deve refletir a personalidade do influenciador: **{{{influencerPersonality}}}**.
-- O nicho é **{{{influencerNiche}}}**, então o conteúdo deve ser relevante.
-
-**Restrições de Texto:**
-- Textos digitais na tela: {{#if allowDigitalText}}Sim{{else}}Não{{/if}}.
-- Apenas textos físicos (placas, etc.): {{#if onlyPhysicalText}}Sim{{else}}No{{/if}}.
-`
+`,
 });
-
 
 const generateVideoScriptFlow = ai.defineFlow(
   {
     name: 'generateVideoScriptFlow',
     inputSchema: VideoScriptInputSchema,
-    outputSchema: VideoScriptOutputSchema,
+    outputSchema: ScriptGenerationOutputSchema,
   },
-  async input => {
-    // Create a mutable copy of the input
+  async (input) => {
     let processedInput = { ...input };
-
-    // Check for the dynamic camera option and replace it with a detailed instruction for the AI.
     if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
-      processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
+      processedInput.sceneCameraAngle = "Be creative and use dynamic, professional camera angles. Utilize a variety of shots, such as close-ups, wide shots, tracking shots, and point-of-view shots to make the scene visually engaging, as if directed by a filmmaker.";
     }
 
-    const {text} = await generateScriptPrompt(processedInput);
-    if (!text) {
-        throw new Error("A geração do roteiro falhou ao não retornar dados. Tente novamente.");
+    // 1. Generate the structured content from the AI
+    const { output } = await generateScriptContentPrompt(processedInput);
+    
+    if (!output || !output.scenes || output.scenes.length === 0) {
+        throw new Error("AI failed to generate script content. Please try again.");
     }
-    return text;
+    
+    return output;
   }
 );

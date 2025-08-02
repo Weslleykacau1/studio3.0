@@ -1,3 +1,4 @@
+
 'use client';
 import type { Influencer, LoadingStates } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { AiButton } from '@/components/ai-button';
 import Image from 'next/image';
-import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon, RefreshCw } from 'lucide-react';
+import { User, UploadCloud, ClipboardPaste, Bot, Plus, Save, File as FileIcon, RefreshCw, Library } from 'lucide-react';
 import React from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -25,6 +26,7 @@ interface InfluencerEditorProps {
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer') => void;
     saveOrUpdateInfluencer: () => void;
     resetInfluencer: () => void;
+    openInfluencerGallery: () => void;
   };
 }
 
@@ -153,6 +155,7 @@ export default function InfluencerEditor({
         </div>
         <div className="mt-6 flex flex-wrap gap-4">
             <Button variant="outline" onClick={handlers.resetInfluencer}><Plus className="mr-2 h-4 w-4"/>Novo Influenciador</Button>
+            <Button variant="outline" onClick={handlers.openInfluencerGallery}><Library className="mr-2 h-4 w-4"/>Carregar da Galeria</Button>
             <Button onClick={handlers.saveOrUpdateInfluencer} disabled={loadingStates.savingInfluencer}>
                 <Save className="mr-2 h-4 w-4"/> {loadingStates.savingInfluencer ? 'A guardar...' : (influencer.id ? 'Atualizar na Galeria' : 'Adicionar à Galeria')}
             </Button>

@@ -17,7 +17,6 @@ interface CreatorViewProps {
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
-  generatedVeoPrompt: string;
   loadingStates: LoadingStates;
   isApiConfigured: boolean;
   handlers: {
@@ -25,8 +24,7 @@ interface CreatorViewProps {
     analyzeInfluencerImageAndFill: () => Promise<void>;
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
-    generateSceneContent: (scene: Scene) => Promise<void>;
-    generateVeoPrompt: () => Promise<void>;
+    generateSceneContent: (scene: Scene, format: 'markdown' | 'json') => Promise<void>;
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
     generateSceneTitle: () => Promise<void>;
@@ -36,6 +34,8 @@ interface CreatorViewProps {
     handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, type: 'influencer' | 'scenario' | 'product') => void;
     resetInfluencer: () => void;
     resetScene: () => void;
+    openInfluencerGallery: () => void;
+    openSceneGallery: () => void;
   };
 }
 
@@ -49,11 +49,13 @@ export default function CreatorView({
   generatedContent,
   setGeneratedContent,
   generatedSeoContent,
-  generatedVeoPrompt,
   loadingStates,
   isApiConfigured,
   handlers,
 }: CreatorViewProps) {
+
+  const isGenerationDisabled = !influencer.id || !currentScene.setting;
+
   return (
     <div className="space-y-8">
       <InfluencerEditor
@@ -63,13 +65,7 @@ export default function CreatorView({
         setPastedText={setPastedText}
         loadingStates={loadingStates}
         isApiConfigured={isApiConfigured}
-        handlers={{
-          analyzeAndFillFromText: handlers.analyzeAndFillFromText,
-          analyzeInfluencerImageAndFill: handlers.analyzeInfluencerImageAndFill,
-          handleImageUpload: handlers.handleImageUpload,
-          saveOrUpdateInfluencer: handlers.saveOrUpdateInfluencer,
-          resetInfluencer: handlers.resetInfluencer,
-        }}
+        handlers={handlers}
       />
 
       <SceneEditor
@@ -77,16 +73,10 @@ export default function CreatorView({
         setCurrentScene={setCurrentScene}
         loadingStates={loadingStates}
         isApiConfigured={isApiConfigured}
+        isGenerationDisabled={isGenerationDisabled}
         handlers={{
-          analyzeScenarioImageAndFill: handlers.analyzeScenarioImageAndFill,
-          analyzeAndDescribeProduct: handlers.analyzeAndDescribeProduct,
-          generateDialogueSeo: handlers.generateDialogueSeo,
-          generateSceneAction: handlers.generateSceneAction,
-          generateSceneTitle: handlers.generateSceneTitle,
-          generateSceneDialogue: handlers.generateSceneDialogue,
-          handleAddUpdateScene: handlers.handleAddUpdateScene,
-          handleImageUpload: handlers.handleImageUpload,
-          resetScene: handlers.resetScene,
+          ...handlers,
+          generateSceneContent: () => handlers.generateSceneContent(currentScene, 'markdown'),
         }}
       />
       
@@ -94,15 +84,14 @@ export default function CreatorView({
         generatedContent={generatedContent}
         setGeneratedContent={setGeneratedContent}
         generatedSeoContent={generatedSeoContent}
-        generatedVeoPrompt={generatedVeoPrompt}
         loading={loadingStates.generatingScript}
-        loadingVeo={loadingStates.generatingVeoPrompt}
+        loadingJson={loadingStates.generatingScriptJson}
         isApiConfigured={isApiConfigured}
-        onGenerate={() => handlers.generateSceneContent(currentScene)}
-        onGenerateVeoPrompt={handlers.generateVeoPrompt}
-        isGenerationDisabled={!currentScene.setting || !influencer.id}
+        isGenerationDisabled={isGenerationDisabled}
         influencerId={influencer.id}
         sceneSetting={currentScene.setting}
+        onGenerate={() => handlers.generateSceneContent(currentScene, 'markdown')}
+        onGenerateJson={() => handlers.generateSceneContent(currentScene, 'json')}
       />
     </div>
   );

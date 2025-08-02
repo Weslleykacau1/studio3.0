@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,23 +13,21 @@ interface ScriptGeneratorProps {
   generatedContent: string;
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
-  generatedVeoPrompt: string;
   loading: boolean;
-  loadingVeo: boolean;
+  loadingJson: boolean;
   isApiConfigured: boolean;
   isGenerationDisabled: boolean;
   influencerId: string | null;
   sceneSetting: string;
   onGenerate: () => void;
-  onGenerateVeoPrompt: () => void;
+  onGenerateJson: () => void;
 }
 
 export default function ScriptGenerator({
-  generatedContent, setGeneratedContent, generatedSeoContent, generatedVeoPrompt, loading, loadingVeo, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateVeoPrompt
+  generatedContent, setGeneratedContent, generatedSeoContent, loading, loadingJson, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateJson
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
-  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
@@ -79,26 +78,6 @@ export default function ScriptGenerator({
     });
   };
 
-  const handleCopyVeo = () => {
-    if (!generatedVeoPrompt) return;
-    
-    let textToCopy = generatedVeoPrompt;
-    const codeBlockMatch = generatedVeoPrompt.match(/^```(?:json|text|markdown)?\n([\s\S]*?)```$/);
-    
-    if (codeBlockMatch && codeBlockMatch[1]) {
-        textToCopy = codeBlockMatch[1].trim();
-    }
-    
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopyVeoSuccess(true);
-      toast({ variant: 'success', title: 'Prompt Veo copiado!' });
-      setTimeout(() => setCopyVeoSuccess(false), 2000);
-    }).catch(err => {
-      console.error('Failed to copy Veo prompt: ', err);
-      toast({ variant: 'destructive', title: 'Erro ao copiar' });
-    });
-  };
-
   return (
     <>
       <Card>
@@ -114,15 +93,8 @@ export default function ScriptGenerator({
             <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
               {loading ? 'A gerar...' : 'Gerar Roteiro'}
             </AiButton>
-            <AiButton 
-              onClick={onGenerateVeoPrompt} 
-              loading={loadingVeo} 
-              isApiConfigured={isApiConfigured} 
-              disabled={isGenerationDisabled}
-              variant="secondary"
-            >
-              <Video className="mr-2 h-4 w-4" />
-              {loadingVeo ? 'A gerar para Veo...' : 'Gerar Prompt para Veo'}
+             <AiButton onClick={onGenerateJson} loading={loadingJson} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} variant="secondary">
+                {loadingJson ? 'A gerar...' : 'Gerar em JSON'}
             </AiButton>
           </div>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}
@@ -146,32 +118,6 @@ export default function ScriptGenerator({
             >
               <Copy className="mr-2 h-4 w-4" />
               {copySuccess ? 'Copiado!' : 'Copiar Roteiro'}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {generatedVeoPrompt && (
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline">
-              <Video />
-              Prompt Gerado para Veo
-            </CardTitle>
-            <CardDescription>Este prompt conciso pode ser usado em plataformas de vídeo generativo como o Veo.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ContentDisplay content={generatedVeoPrompt} />
-            <Button
-              onClick={handleCopyVeo}
-              variant="outline"
-              className={cn(
-                'mt-4 transition-colors',
-                copyVeoSuccess && 'border-green-600 bg-green-50 text-green-700 hover:bg-green-100'
-              )}
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              {copyVeoSuccess ? 'Copiado!' : 'Copiar Prompt Veo'}
             </Button>
           </CardContent>
         </Card>
