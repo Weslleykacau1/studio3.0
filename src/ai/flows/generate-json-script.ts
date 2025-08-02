@@ -40,7 +40,7 @@ const GenerateJsonScriptOutputSchema = z.object({
   title: z.string().describe('The title of the video script.'),
   duration_seconds: z.number().describe('The total duration of the video in seconds.'),
   format: z.string().describe('The video format, extracted from the input (e.g., "16:9", "9:16").'),
-  language: z.literal('pt-BR').describe('The primary language of the dialogue.'),
+  language: z.string().describe('The primary language of the dialogue. This MUST always be "pt-BR".'),
   character: z.object({
     name: z.string().describe("The character's name."),
     appearance: z.string().describe("A detailed description of the character's physical appearance."),
@@ -68,7 +68,7 @@ const prompt = ai.definePrompt({
 
 **CRITICAL INSTRUCTIONS:**
 The 'scenes' array must be broken down into segments. The total duration of all segments MUST equal the 'duration_seconds' field. A duration of '8 seg' means the 'duration_seconds' field must be 8.
-For Language Requirements, the 'visual_prompt', 'camera_direction', and 'expression' fields MUST be in English. The 'dialogue' field MUST be in pt-BR (Brazilian Portuguese).
+For Language Requirements, the 'visual_prompt', 'camera_direction', and 'expression' fields MUST be in English. The 'dialogue' field MUST be in pt-BR (Brazilian Portuguese). The 'language' field MUST be the string "pt-BR".
 For Product Integration:
 {{#if productName}}
 You MUST naturally integrate the product '{{{productName}}}' into the 'visual_prompt' and 'dialogue' fields. The 'product_integration' object in the output MUST be populated, with 'is_present' set to true.
