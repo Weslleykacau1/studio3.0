@@ -36,15 +36,14 @@ const VideoScriptInputSchema = z.object({
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-// New schema for the AI's structured output
-export const SecondBySecondSceneSchema = z.object({
+const SecondBySecondSceneSchema = z.object({
     visualDescription: z.string().describe("A detailed visual description for this second. This field MUST be in ENGLISH. Describe camera work, character actions, and expressions, adhering to the provided camera angle and character appearance."),
     audioDialogue: z.string().describe("The dialogue for this second. This field MUST be in BRAZILIAN PORTUGUESE. It must include English emotional cues in parentheses (e.g., (Calmly, with conviction))."),
     sfx: z.string().describe("Appropriate sound effects or ambient sounds for this second. This field MUST be in ENGLISH.")
 });
 export type SecondBySecondScene = z.infer<typeof SecondBySecondSceneSchema>;
 
-export const ScriptGenerationOutputSchema = z.object({
+const ScriptGenerationOutputSchema = z.object({
     scenes: z.array(SecondBySecondSceneSchema).describe("An array of scene objects, one for each second of the video duration.")
 });
 export type VideoScriptOutput = z.infer<typeof ScriptGenerationOutputSchema>;
@@ -77,8 +76,8 @@ For each second (each object in the array), you MUST provide content for the fol
 - Scene Duration: {{{sceneDuration}}}
 - Base Dialogue (use if provided, otherwise create): {{#if sceneDialogue}}{{{sceneDialogue}}}{{else}}Nenhum diálogo especificado.{{/if}}
 
-{{#if productName}}
 **PRODUCT INTEGRATION (CRITICAL):**
+{{#if productName}}
 You MUST naturally and seamlessly integrate the following product into the script's visual descriptions and dialogue.
 - **Product Name:** {{{productName}}}
 - **Product Brand:** {{{productBrand}}}

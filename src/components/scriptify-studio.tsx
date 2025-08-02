@@ -136,7 +136,7 @@ export default function ScriptifyStudio() {
     generatingTitle: false,
     generatingDialogue: false,
     generatingQuickScene: false,
-    analyzingYouTube: false,
+    analyzingYouTube: boolean,
     generatingThumbnail: false,
     generatingViralScript: false,
     transcribingUploadedVideo: false,

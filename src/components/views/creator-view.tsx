@@ -74,7 +74,10 @@ export default function CreatorView({
         loadingStates={loadingStates}
         isApiConfigured={isApiConfigured}
         isGenerationDisabled={isGenerationDisabled}
-        handlers={handlers}
+        handlers={{
+          ...handlers,
+          generateSceneContent: () => handlers.generateSceneContent(currentScene, 'markdown'),
+        }}
       />
       
       <ScriptGenerator

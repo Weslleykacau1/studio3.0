@@ -28,7 +28,6 @@ export default function ScriptGenerator({
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
-  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
