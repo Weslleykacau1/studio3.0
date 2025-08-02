@@ -12,7 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GenerateJsonScriptInputSchema = z.object({
+const GenerateJsonScriptInputSchema = z.object({
   influencerName: z.string().describe('The name of the influencer.'),
   influencerAppearance: z.string().describe('A detailed physical description of the influencer (face, hair, body type, etc.).'),
   influencerClothing: z.string().describe('The clothing style of the influencer.'),
@@ -36,7 +36,7 @@ const SceneDetailSchema = z.object({
   dialogue: z.string().optional().describe('The dialogue spoken by the character during this segment. This must be in Brazilian Portuguese (pt-BR).'),
 });
 
-export const GenerateJsonScriptOutputSchema = z.object({
+const GenerateJsonScriptOutputSchema = z.object({
   title: z.string().describe('The title of the video script.'),
   duration_seconds: z.number().describe('The total duration of the video in seconds.'),
   format: z.string().describe('The video format, extracted from the input (e.g., "16:9", "9:16").'),
@@ -67,11 +67,8 @@ const prompt = ai.definePrompt({
     prompt: `You are an expert video scriptwriter who produces structured JSON output. Your task is to create a complete video script based on the provided details. The output MUST be a valid JSON object adhering to the specified schema.
 
 **CRITICAL INSTRUCTIONS:**
-
 The 'scenes' array must be broken down into segments. The total duration of all segments MUST equal the 'duration_seconds' field. A duration of '8 seg' means the 'duration_seconds' field must be 8.
-
-For Language Requirements: The 'visual_prompt', 'camera_direction', and 'expression' fields MUST be in English. The 'dialogue' field MUST be in pt-BR (Brazilian Portuguese).
-
+For Language Requirements, the 'visual_prompt', 'camera_direction', and 'expression' fields MUST be in English. The 'dialogue' field MUST be in pt-BR (Brazilian Portuguese).
 For Product Integration:
 {{#if productName}}
 You MUST naturally integrate the product '{{{productName}}}' into the 'visual_prompt' and 'dialogue' fields. The 'product_integration' object in the output MUST be populated, with 'is_present' set to true.
@@ -79,7 +76,7 @@ You MUST naturally integrate the product '{{{productName}}}' into the 'visual_pr
 No product is specified. The 'product_integration' object should indicate that no product is present by setting 'is_present' to false.
 {{/if}}
 
-For Field Mapping:
+**Field Mapping:**
 'title' must use the 'sceneTitle' input.
 'duration_seconds' must be a number converted from the 'sceneDuration' input (e.g., "8 seg" becomes 8).
 'format' must be extracted from the 'sceneVideoFormat' input (e.g., "9:16 (Vertical)" becomes "9:16").
@@ -89,16 +86,16 @@ For Field Mapping:
 'character.style' must use the 'influencerClothing' input.
 
 **INPUT DATA:**
-- **Scene Title:** {{{sceneTitle}}}
-- **Scene Duration:** {{{sceneDuration}}}
-- **Video Format:** {{{sceneVideoFormat}}}
-- **Influencer Name:** {{{influencerName}}}
-- **Influencer Appearance:** {{{influencerAppearance}}}
-- **Influencer Clothing:** {{{influencerClothing}}}
-- **Scene Setting:** {{{sceneSetting}}}
-- **Camera Angle:** {{{sceneCameraAngle}}}
-- **Product Name:** {{#if productName}}'{{{productName}}}'{{else}}N/A{{/if}}
-- **Product Description:** {{#if productDescription}}'{{{productDescription}}}'{{else}}N/A{{/if}}
+- Scene Title: {{{sceneTitle}}}
+- Scene Duration: {{{sceneDuration}}}
+- Video Format: {{{sceneVideoFormat}}}
+- Influencer Name: {{{influencerName}}}
+- Influencer Appearance: {{{influencerAppearance}}}
+- Influencer Clothing: {{{influencerClothing}}}
+- Scene Setting: {{{sceneSetting}}}
+- Camera Angle: {{{sceneCameraAngle}}}
+- Product Name: {{#if productName}}'{{{productName}}}'{{else}}N/A{{/if}}
+- Product Description: {{#if productDescription}}'{{{productDescription}}}'{{else}}N/A{{/if}}
 
 Generate the JSON script now.
 `
