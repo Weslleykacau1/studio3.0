@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,18 +14,21 @@ interface ScriptGeneratorProps {
   setGeneratedContent: (content: string) => void;
   generatedSeoContent: string;
   loading: boolean;
+  loadingJson: boolean;
   isApiConfigured: boolean;
   isGenerationDisabled: boolean;
   influencerId: string | null;
   sceneSetting: string;
   onGenerate: () => void;
+  onGenerateJson: () => void;
 }
 
 export default function ScriptGenerator({
-  generatedContent, setGeneratedContent, generatedSeoContent, loading, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate
+  generatedContent, setGeneratedContent, generatedSeoContent, loading, loadingJson, isApiConfigured, isGenerationDisabled, influencerId, sceneSetting, onGenerate, onGenerateJson
 }: ScriptGeneratorProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [copySeoSuccess, setCopySeoSuccess] = useState(false);
+  const [copyVeoSuccess, setCopyVeoSuccess] = useState(false);
   const { toast } = useToast();
 
   const getDisabledMessage = () => {
@@ -89,6 +93,9 @@ export default function ScriptGenerator({
           <div className="flex flex-wrap items-start gap-2">
             <AiButton onClick={onGenerate} loading={loading} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transition-transform hover:scale-105">
               {loading ? 'A gerar...' : 'Gerar Roteiro'}
+            </AiButton>
+             <AiButton onClick={onGenerateJson} loading={loadingJson} isApiConfigured={isApiConfigured} disabled={isGenerationDisabled} variant="secondary">
+                {loadingJson ? 'A gerar...' : 'Gerar em JSON'}
             </AiButton>
           </div>
           {getDisabledMessage() && <p className="text-sm text-muted-foreground mt-2">{getDisabledMessage()}</p>}

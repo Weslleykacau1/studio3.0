@@ -24,7 +24,7 @@ interface CreatorViewProps {
     analyzeInfluencerImageAndFill: () => Promise<void>;
     analyzeScenarioImageAndFill: () => Promise<void>;
     analyzeAndDescribeProduct: () => Promise<void>;
-    generateSceneContent: (scene: Scene) => Promise<void>;
+    generateSceneContent: (scene: Scene, format: 'markdown' | 'json') => Promise<void>;
     generateDialogueSeo: () => Promise<void>;
     generateSceneAction: () => Promise<void>;
     generateSceneTitle: () => Promise<void>;
@@ -82,11 +82,13 @@ export default function CreatorView({
         setGeneratedContent={setGeneratedContent}
         generatedSeoContent={generatedSeoContent}
         loading={loadingStates.generatingScript}
+        loadingJson={loadingStates.generatingScriptJson}
         isApiConfigured={isApiConfigured}
         isGenerationDisabled={isGenerationDisabled}
         influencerId={influencer.id}
         sceneSetting={currentScene.setting}
-        onGenerate={() => handlers.generateSceneContent(currentScene)}
+        onGenerate={() => handlers.generateSceneContent(currentScene, 'markdown')}
+        onGenerateJson={() => handlers.generateSceneContent(currentScene, 'json')}
       />
     </div>
   );

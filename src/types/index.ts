@@ -1,16 +1,5 @@
 
 
-
-
-
-
-
-
-
-
-
-
-
 export interface Influencer {
     id: string | null;
     name: string;
@@ -70,6 +59,7 @@ export type LoadingStates = {
     analyzingScenario: boolean;
     analyzingProduct: boolean;
     generatingScript: boolean;
+    generatingScriptJson: boolean;
     analyzingFromText: boolean;
     generatingSeo: boolean;
     generatingAction: boolean;

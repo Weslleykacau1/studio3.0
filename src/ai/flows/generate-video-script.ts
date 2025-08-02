@@ -36,89 +36,55 @@ const VideoScriptInputSchema = z.object({
 });
 export type VideoScriptInput = z.infer<typeof VideoScriptInputSchema>;
 
-const VideoScriptOutputSchema = z.string().describe('The generated video script, in Markdown format.');
-export type VideoScriptOutput = z.infer<typeof VideoScriptOutputSchema>;
+// New schema for the AI's structured output
+export const SecondBySecondSceneSchema = z.object({
+    visualDescription: z.string().describe("A detailed visual description for this second. This field MUST be in ENGLISH. Describe camera work, character actions, and expressions, adhering to the provided camera angle and character appearance."),
+    audioDialogue: z.string().describe("The dialogue for this second. This field MUST be in BRAZILIAN PORTUGUESE. It must include English emotional cues in parentheses (e.g., (Calmly, with conviction))."),
+    sfx: z.string().describe("Appropriate sound effects or ambient sounds for this second. This field MUST be in ENGLISH.")
+});
+export type SecondBySecondScene = z.infer<typeof SecondBySecondSceneSchema>;
+
+export const ScriptGenerationOutputSchema = z.object({
+    scenes: z.array(SecondBySecondSceneSchema).describe("An array of scene objects, one for each second of the video duration.")
+});
+export type VideoScriptOutput = z.infer<typeof ScriptGenerationOutputSchema>;
+
 
 export async function generateVideoScript(input: VideoScriptInput): Promise<VideoScriptOutput> {
   return generateVideoScriptFlow(input);
 }
 
-const generateScriptPrompt = ai.definePrompt({
-    name: 'generateFinalVideoScriptPrompt',
+const generateScriptContentPrompt = ai.definePrompt({
+    name: 'generateScriptContentPrompt',
     input: {schema: VideoScriptInputSchema},
-    output: {format: 'text'},
-    prompt: `You are an expert screenwriter and director. Your task is to create a highly detailed, second-by-second video script in **Markdown** format. The script must perfectly match the specified duration.
+    output: {schema: ScriptGenerationOutputSchema},
+    prompt: `You are an expert screenwriter. Your task is to generate the creative content for a video script, second by second. You MUST generate an array of scene objects, where the length of the array exactly matches the scene duration in seconds (e.g., 5 seconds = 5 objects).
 
-**CRITICAL INSTRUCTIONS:**
-1.  **Use All Provided Details:** You **MUST** incorporate every single detail about the influencer and the scene into the script. Do not omit any information.
-2.  **Second-by-Second Breakdown:** Structure the script with a Markdown heading for each second (e.g., \`### Second 1\`, \`### Second 2\`). The number of seconds must match the scene duration.
-3.  **Detailed Elements per Second:** For each second, you **MUST** provide descriptions for:
-    *   **Visual:** Describe camera work, character actions, and expressions in detail. Adhere strictly to the requested camera angle (\`{{{sceneCameraAngle}}}\`) and character appearance (\`{{{influencerAppearance}}}\`). The setting must be \`{{{sceneSetting}}}\`.
-    *   **Audio:** Write the dialogue for that specific second. The dialogue must be in **Brazilian Portuguese** with the specified accent (\`{{{influencerAccent}}}\`) and include emotional cues in English (e.g., \`(Calmly, with conviction)\`). If no dialogue is provided (\`{{{sceneDialogue}}}\`), create one that fits the context, personality (\`{{{influencerPersonality}}}\`) and action (\`{{{sceneAction}}}\`).
-    *   **SFX:** Describe appropriate sound effects or ambient sounds.
-4.  **Product Integration:** If a product is mentioned (\`{{{productName}}}\`), it must be naturally integrated into the visual and action descriptions.
-5.  **Adherence to Format:** Follow the provided script example structure precisely.
+For each second (each object in the array), you MUST provide content for the following fields, respecting the language constraints with NO EXCEPTIONS:
 
----
-**EXAMPLE STRUCTURE TO FOLLOW:**
+1.  **visualDescription (ENGLISH ONLY)**: A detailed description of the visuals (camera, actions, expressions). This MUST be in ENGLISH. Incorporate all details about the character's appearance, the scene setting, and the specified camera angle.
+2.  **audioDialogue (BRAZILIAN PORTUGUESE ONLY)**: The dialogue spoken in that second. This MUST be in BRAZILIAN PORTUGUESE and include emotional cues in English, like (Surprised). If no specific dialogue is provided, create one that fits the context.
+3.  **sfx (ENGLISH ONLY)**: The sound effects or ambient sounds. This field MUST be in ENGLISH.
 
-# Roteiro do Vídeo: [Título da Cena]
+**CRITICAL CONTEXT (MUST USE ALL PROVIDED INFO):**
+- Influencer Name: {{{influencerName}}}
+- Influencer Personality: {{{influencerPersonality}}}
+- Influencer Appearance: {{{influencerAppearance}}}
+- Scene Title: {{{sceneTitle}}}
+- Scene Setting: {{{sceneSetting}}}
+- Scene Action: {{{sceneAction}}}
+- Camera Angle: {{{sceneCameraAngle}}}
+- Scene Duration: {{{sceneDuration}}}
+- Base Dialogue (use if provided, otherwise create): {{#if sceneDialogue}}{{{sceneDialogue}}}{{else}}Nenhum diálogo especificado.{{/if}}
 
-**Influenciador:** [Nome do Influenciador] (Seed: [Seed])
-*   **Personalidade:** [Personalidade]
-*   **Aparência:** [Aparência]
-*   **Nicho:** [Nicho]
-
-**Cena:**
-*   **Cenário:** [Cenário]
-*   **Ação:** [Ação Principal]
-*   **Duração:** [Duração]
-*   **Formato do Vídeo:** [Formato]
-
-**Detalhes Técnicos:**
-*   **Ângulos de Câmara:** [Ângulo da Câmara]
-*   **Texto Digital:** [Sim/Não]
-*   **Texto Físico:** [Sim/Não]
-
----
-
-## Roteiro:
-
-**[INÍCIO DA CENA]**
-
-### Segundo 1
-*   **Visual:** [Descrição detalhada do visual para este segundo]
-*   **Áudio:** [Diálogo para este segundo]
-*   **SFX:** [Efeitos sonoros para este segundo]
-
-### Segundo 2
-*   **Visual:** [Descrição detalhada do visual para este segundo]
-*   **Áudio:** [Diálogo para este segundo]
-*   **SFX:** [Efeitos sonoros para este segundo]
-
-(... continue para cada segundo da duração ...)
-
-**[FIM DA CENA]**
-
----
-**SCRIPT DETAILS TO USE:**
-
-*   **Video Script Title:** {{{sceneTitle}}}
-*   **Influencer Name:** {{{influencerName}}}
-*   **Influencer Seed:** {{{influencerSeed}}}
-*   **Influencer Personality:** {{{influencerPersonality}}}
-*   **Influencer Appearance:** {{{influencerAppearance}}}
-*   **Influencer Niche:** {{{influencerNiche}}}
-*   **Scene Setting:** {{{sceneSetting}}}
-*   **Scene Main Action:** {{{sceneAction}}}
-*   **Scene Duration:** {{{sceneDuration}}}
-*   **Scene Video Format:** {{{sceneVideoFormat}}}
-*   **Scene Camera Angles:** {{{sceneCameraAngle}}}
-*   **Allow Digital Text:** {{{allowDigitalText}}}
-*   **Only Physical Text:** {{{onlyPhysicalText}}}
-*   **Dialogue (use if provided, otherwise create):** {{#if sceneDialogue}}{{{sceneDialogue}}}{{else}}Nenhum diálogo especificado.{{/if}}
-*   **Product Name (if any):** {{{productName}}}
-*   **Product Description (if any):** {{{productDescription}}}
+{{#if productName}}
+**PRODUCT INTEGRATION (CRITICAL):**
+You MUST naturally and seamlessly integrate the following product into the script's visual descriptions and dialogue.
+- **Product Name:** {{{productName}}}
+- **Product Brand:** {{{productBrand}}}
+- **Product Description:** {{{productDescription}}}
+- **Is Partnership:** {{{isPartnership}}}
+{{/if}}
 `,
 });
 
@@ -126,21 +92,21 @@ const generateVideoScriptFlow = ai.defineFlow(
   {
     name: 'generateVideoScriptFlow',
     inputSchema: VideoScriptInputSchema,
-    outputSchema: VideoScriptOutputSchema,
+    outputSchema: ScriptGenerationOutputSchema,
   },
-  async input => {
+  async (input) => {
     let processedInput = { ...input };
-
     if (processedInput.sceneCameraAngle === 'Câmera Dinâmica (Criatividade da IA)') {
-      processedInput.sceneCameraAngle = "Seja criativo e use ângulos de câmera dinâmicos e profissionais. Utilize uma variedade de planos, como close-ups, planos abertos, planos de acompanhamento e ponto de vista para tornar a cena visualmente envolvente, como se fosse dirigida por um cineasta profissional.";
+      processedInput.sceneCameraAngle = "Be creative and use dynamic, professional camera angles. Utilize a variety of shots, such as close-ups, wide shots, tracking shots, and point-of-view shots to make the scene visually engaging, as if directed by a filmmaker.";
     }
 
-    const {text} = await generateScriptPrompt(processedInput);
+    // 1. Generate the structured content from the AI
+    const { output } = await generateScriptContentPrompt(processedInput);
     
-    if (!text) {
-        throw new Error("A geração do roteiro falhou ao não retornar dados. Tente novamente.");
+    if (!output || !output.scenes || output.scenes.length === 0) {
+        throw new Error("AI failed to generate script content. Please try again.");
     }
-
-    return text;
+    
+    return output;
   }
 );

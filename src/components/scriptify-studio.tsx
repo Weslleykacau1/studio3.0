@@ -30,13 +30,12 @@ import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
-import { generateVideoScript } from '@/ai/flows/generate-video-script';
+import { generateVideoScript, type VideoScriptOutput, type SecondBySecondScene } from '@/ai/flows/generate-video-script';
 import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
 import { generateSceneDialogue } from '@/ai/flows/generate-scene-dialogue';
 import { generateQuickScene } from '@/ai/flows/generate-quick-scene';
-import { generateVeoPrompt } from '@/ai/flows/generate-veo-prompt';
 import { generateThumbnailIdeas } from '@/ai/flows/generate-thumbnail-ideas';
 import { generateViralScript } from '@/ai/flows/generate-viral-script';
 import { transcribeUploadedVideo } from '@/ai/flows/transcribe-uploaded-video';
@@ -130,6 +129,7 @@ export default function ScriptifyStudio() {
     analyzingScenario: false,
     analyzingProduct: false,
     generatingScript: false,
+    generatingScriptJson: false,
     analyzingFromText: false,
     generatingSeo: false,
     generatingAction: false,
@@ -365,13 +365,72 @@ export default function ScriptifyStudio() {
     }
   };
 
+  const formatScriptToMarkdown = (scriptData: VideoScriptOutput, input: any): string => {
+      let markdownScript = `
+# Roteiro do Vídeo: ${input.sceneTitle}
+
+**Influenciador:** ${input.influencerName} (Seed: ${input.influencerSeed})
+*   **Personalidade:** ${input.influencerPersonality}
+*   **Aparência:** ${input.influencerAppearance}
+*   **Nicho:** ${input.influencerNiche}
+
+**Cena:**
+*   **Cenário:** ${input.sceneSetting}
+*   **Ação:** ${input.sceneAction}
+*   **Duração:** ${input.sceneDuration}
+*   **Formato do Vídeo:** ${input.sceneVideoFormat}
+
+**Detalhes Técnicos:**
+*   **Ângulos de Câmara:** ${input.sceneCameraAngle}
+*   **Texto Digital:** ${input.allowDigitalText ? 'Sim' : 'Não'}
+*   **Texto Físico:** ${input.onlyPhysicalText ? 'Sim' : 'Não'}
+`;
+
+    if (input.productName) {
+        markdownScript += `
+
+**Produto:**
+*   **Nome:** ${input.productName}
+*   **Marca:** ${input.productBrand}
+*   **Descrição:** ${input.productDescription}
+*   **Parceria:** ${input.isPartnership ? 'Sim' : 'Não'}
+`;
+    }
+
+    markdownScript += `
+---
+
+## Roteiro:
+
+**[INÍCIO DA CENA]**
+`;
+
+    scriptData.scenes.forEach((scene: SecondBySecondScene, index: number) => {
+        markdownScript += `
+### Segundo ${index + 1}
+*   **Visual:** ${scene.visualDescription}
+*   **Áudio:** ${scene.audioDialogue}
+*   **SFX:** ${scene.sfx}
+`;
+    });
+
+    markdownScript += `
+**[FIM DA CENA]**
+`;
+    
+    return markdownScript.trim();
+  }
+
+
   // Script Generation Functions
-  const generateSceneContent = async (scene: Scene) => {
+  const generateSceneContent = async (scene: Scene, format: 'markdown' | 'json') => {
     if (!scene.setting || !influencer.id) return;
     
-    setLoadingState('generatingScript', true);
+    const loadingKey = format === 'json' ? 'generatingScriptJson' : 'generatingScript';
+    setLoadingState(loadingKey, true);
+    
     try {
-      const result = await generateVideoScript({
+      const scriptInput = {
         influencerName: influencer.name,
         influencerPersonality: influencer.personality,
         influencerAppearance: influencer.appearance,
@@ -391,14 +450,23 @@ export default function ScriptifyStudio() {
         isPartnership: scene.isPartnership,
         allowDigitalText: scene.allowDigitalText,
         onlyPhysicalText: scene.onlyPhysicalText,
-      });
-      setGeneratedContent(result);
-      toast({ variant: 'success', title: 'Roteiro gerado!', description: 'O roteiro foi criado com sucesso.' });
+      };
+
+      const result = await generateVideoScript(scriptInput);
+      
+      if (format === 'json') {
+          setGeneratedContent("```json\n" + JSON.stringify(result, null, 2) + "\n```");
+      } else {
+          const markdownResult = formatScriptToMarkdown(result, scriptInput);
+          setGeneratedContent(markdownResult);
+      }
+
+      toast({ variant: 'success', title: 'Roteiro gerado!', description: `O roteiro foi criado com sucesso em formato ${format}.` });
     } catch (error) {
       console.error('Error generating script:', error);
       toast({ variant: 'destructive', title: 'Erro na geração', description: 'Não foi possível gerar o roteiro.' });
     } finally {
-      setLoadingState('generatingScript', false);
+      setLoadingState(loadingKey, false);
     }
   };
 
