@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { nanoid } from 'nanoid';
-import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts } from '@/types';
+import type { Influencer, Scene, LoadingStates, ActiveView, ThumbnailIdeas, ThumbnailStyle, LongScriptScene, WebDocScript, ScenePrompts, SecondBySecondScene, VideoScriptOutput } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from './app-header';
 import { LoginModal } from './login-modal';
@@ -30,7 +30,7 @@ import { analyzeInfluencerImage } from '@/ai/flows/analyze-influencer-image';
 import { analyzeSceneBackground } from '@/ai/flows/analyze-scene-background';
 import { analyzeProductImage } from '@/ai/flows/analyze-product-image';
 import { analyzeTextProfile } from '@/ai/flows/analyze-text-profile';
-import { generateVideoScript, type VideoScriptOutput, type SecondBySecondScene } from '@/ai/flows/generate-video-script';
+import { generateVideoScript } from '@/ai/flows/generate-video-script';
 import { generateSeoForPlatforms } from '@/ai/flows/generate-seo-flow';
 import { generateSceneAction } from '@/ai/flows/generate-scene-action';
 import { generateSceneTitle } from '@/ai/flows/generate-scene-title';
@@ -136,7 +136,7 @@ export default function ScriptifyStudio() {
     generatingTitle: false,
     generatingDialogue: false,
     generatingQuickScene: false,
-    analyzingYouTube: boolean,
+    analyzingYouTube: false,
     generatingThumbnail: false,
     generatingViralScript: false,
     transcribingUploadedVideo: false,
@@ -156,6 +156,62 @@ export default function ScriptifyStudio() {
   });
 
   const { toast } = useToast();
+
+  const formatScriptToMarkdown = (scriptData: VideoScriptOutput, input: any): string => {
+    let markdownScript = `
+# Roteiro do Vídeo: ${input.sceneTitle}
+
+**Influenciador:** ${input.influencerName} (Seed: ${input.influencerSeed})
+*   **Personalidade:** ${input.influencerPersonality}
+*   **Aparência:** ${input.influencerAppearance}
+*   **Nicho:** ${input.influencerNiche}
+
+**Cena:**
+*   **Cenário:** ${input.sceneSetting}
+*   **Ação:** ${input.sceneAction}
+*   **Duração:** ${input.sceneDuration}
+*   **Formato do Vídeo:** ${input.sceneVideoFormat}
+
+**Detalhes Técnicos:**
+*   **Ângulos de Câmara:** ${input.sceneCameraAngle}
+*   **Texto Digital:** ${input.allowDigitalText ? 'Sim' : 'Não'}
+*   **Texto Físico:** ${input.onlyPhysicalText ? 'Sim' : 'Não'}
+`;
+
+    if (input.productName) {
+        markdownScript += `
+
+**Produto:**
+*   **Nome:** ${input.productName}
+*   **Marca:** ${input.productBrand}
+*   **Descrição:** ${input.productDescription}
+*   **Parceria:** ${input.isPartnership ? 'Sim' : 'Não'}
+`;
+    }
+
+    markdownScript += `
+---
+
+## Roteiro:
+
+**[INÍCIO DA CENA]**
+`;
+
+    scriptData.scenes.forEach((scene: SecondBySecondScene, index: number) => {
+        markdownScript += `
+### Segundo ${index + 1}
+*   **Visual:** ${scene.visualDescription}
+*   **Áudio:** ${scene.audioDialogue}
+*   **SFX:** ${scene.sfx}
+`;
+    });
+
+    markdownScript += `
+**[FIM DA CENA]**
+`;
+    
+    return markdownScript.trim();
+  }
 
   // Initialize app
   useEffect(() => {
@@ -364,63 +420,6 @@ export default function ScriptifyStudio() {
       setLoadingState('analyzingProduct', false);
     }
   };
-
-  const formatScriptToMarkdown = (scriptData: VideoScriptOutput, input: any): string => {
-      let markdownScript = `
-# Roteiro do Vídeo: ${input.sceneTitle}
-
-**Influenciador:** ${input.influencerName} (Seed: ${input.influencerSeed})
-*   **Personalidade:** ${input.influencerPersonality}
-*   **Aparência:** ${input.influencerAppearance}
-*   **Nicho:** ${input.influencerNiche}
-
-**Cena:**
-*   **Cenário:** ${input.sceneSetting}
-*   **Ação:** ${input.sceneAction}
-*   **Duração:** ${input.sceneDuration}
-*   **Formato do Vídeo:** ${input.sceneVideoFormat}
-
-**Detalhes Técnicos:**
-*   **Ângulos de Câmara:** ${input.sceneCameraAngle}
-*   **Texto Digital:** ${input.allowDigitalText ? 'Sim' : 'Não'}
-*   **Texto Físico:** ${input.onlyPhysicalText ? 'Sim' : 'Não'}
-`;
-
-    if (input.productName) {
-        markdownScript += `
-
-**Produto:**
-*   **Nome:** ${input.productName}
-*   **Marca:** ${input.productBrand}
-*   **Descrição:** ${input.productDescription}
-*   **Parceria:** ${input.isPartnership ? 'Sim' : 'Não'}
-`;
-    }
-
-    markdownScript += `
----
-
-## Roteiro:
-
-**[INÍCIO DA CENA]**
-`;
-
-    scriptData.scenes.forEach((scene: SecondBySecondScene, index: number) => {
-        markdownScript += `
-### Segundo ${index + 1}
-*   **Visual:** ${scene.visualDescription}
-*   **Áudio:** ${scene.audioDialogue}
-*   **SFX:** ${scene.sfx}
-`;
-    });
-
-    markdownScript += `
-**[FIM DA CENA]**
-`;
-    
-    return markdownScript.trim();
-  }
-
 
   // Script Generation Functions
   const generateSceneContent = async (scene: Scene, format: 'markdown' | 'json') => {
